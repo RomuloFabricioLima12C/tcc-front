@@ -1,0 +1,709 @@
+.PAG-DE-REFS {
+    background-color: #ffffff; 
+    overflow: hidden; 
+    width: 100%; 
+    min-width: 1440px; 
+    min-height: 2352px; 
+    position: relative;
+}
+
+.PAG-DE-REFS .illustration {
+    position: absolute;
+    top: 1041px;
+    left: 0;
+    width: 400px;
+    height: 760px;
+}
+
+.PAG-DE-REFS .text-wrapper {
+    position: absolute;
+    top: 88px;
+    left: 443px;
+    width: calc(100% - 1294px);
+    font-family: "Cal Sans", Helvetica;
+    font-size: 22px;
+    font-weight: 400;
+    color: #0c665c;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .div {
+    position: absolute;
+    top: 90px;
+    left: 278px;
+    width: calc(100% - 1286px);
+    font-family: "Cal Sans", Helvetica;
+    font-size: 22px;
+    font-weight: 400;
+    color: #0c665c;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .text-wrapper-2 {
+    position: absolute;
+    top: 91px;
+    left: 979px;
+    width: calc(100% - 1310px);
+    font-family: "Cal Sans", Helvetica;
+    font-size: 22px;
+    font-weight: 400;
+    color: #0c665c;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .text-wrapper-3 {
+    position: absolute; 
+    width: calc(100% - 1292px); 
+    top: 89px; 
+    left: 631px; 
+    font-family: "Cal Sans", Helvetica; 
+    font-weight: 400; 
+    color: #0c665c; 
+    font-size: 22px; 
+    letter-spacing: 0; 
+    line-height: normal;
+}
+
+.PAG-DE-REFS .text-wrapper-4 {
+    position: absolute;
+    top: 90px;
+    left: 821px;
+    width: calc(100% - 1304px);
+    font-family: "Cal Sans", Helvetica;
+    font-size: 22px;
+    font-weight: 400;
+    color: #0c665c;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .barra-de-pesquisa {
+    position: absolute;
+    top: 91px;
+    left: 1151px;
+    width: 214px;
+    height: 31px;
+    display: flex;
+    background-color: #d9d9d999;
+    border-radius: 20px;
+}
+
+.PAG-DE-REFS .lupa {
+    width: 31.43px;
+    height: 31.43px;
+    margin-left: 157.1px;
+}
+
+.PAG-DE-REFS .plano-de-negcios {
+    position: absolute;
+    top: 129px;
+    left: 1272px;
+    width: 93px;
+    height: 59px;
+}
+
+.PAG-DE-REFS .img {
+    position: absolute;
+    top: 44px;
+    left: 75px;
+    width: 163px;
+    height: 124px;
+}
+
+.PAG-DE-REFS .group {
+position: absolute; 
+top: 2196px; 
+left: -44px; 
+width: 1528px; 
+height: 2189px;
+}
+
+.PAG-DE-REFS .rectangle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1528px;
+    height: 156px;
+    background-color: #0c665c;
+}
+
+.PAG-DE-REFS .group-2 {
+    position: absolute;
+    top: 14px;
+    left: 121px;
+    width: 1259px;
+    height: 2175px;
+}
+
+.PAG-DE-REFS .LOGO {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 127px;
+    height: 121px;
+}
+
+.PAG-DE-REFS .text-wrapper-5 {
+    position: absolute;
+    top: 21px;
+    left: 289px;
+    font-family: "League Spartan", Helvetica;
+    font-size: 24px;
+    font-weight: 500;
+    color: #ffffff;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.PAG-DE-REFS .text-wrapper-6 {
+    position: absolute;
+    top: 53px;
+    left: 289px;
+    font-family: "League Spartan", Helvetica;
+    font-size: 24px;
+    font-weight: 300;
+    color: #ffffff;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+.PAG-DE-REFS .text-wrapper-7 {
+    position: absolute;
+    top: 85px;
+    left: 289px;
+    font-family: "League Spartan", Helvetica;
+    font-weight: 300;
+    color: #ffffff;
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.PAG-DE-REFS .text-wrapper-8 {
+    position: absolute;
+    top: 21px;
+    left: 499px;
+    font-family: "League Spartan", Helvetica;
+    font-weight: 500;
+    color: #ffffff;
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.PAG-DE-REFS .text-wrapper-9 {
+    position: absolute;
+    top: 53px;
+    left: 499px;
+    font-family: "League Spartan", Helvetica;
+    font-weight: 300;
+    color: #ffffff;
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.PAG-DE-REFS .text-wrapper-10 {
+    position: absolute;
+    top: 85px;
+    left: 499px;
+    font-family: "League Spartan", Helvetica;
+    font-weight: 300;
+    color: #ffffff;
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.PAG-DE-REFS .text-wrapper-11 {
+    position: absolute;
+    top: 21px;
+    left: 697px;
+    font-family: "League Spartan", Helvetica;
+    font-weight: 500;
+    color: #ffffff;
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.PAG-DE-REFS .text-wrapper-12 {
+    position: absolute;
+    top: 53px;
+    left: 697px;
+    font-family: "League Spartan", Helvetica;
+    font-weight: 300;
+    color: #ffffff;
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.PAG-DE-REFS .text-wrapper-13 {
+    position: absolute;
+    top: 85px;
+    left: 697px;
+    font-family: "League Spartan", Helvetica;
+    font-weight: 300;
+    color: #ffffff;
+    font-size: 24px;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.PAG-DE-REFS .vector {
+    position: absolute;
+    width: 3.81%;
+    height: 6.33%;
+    top: 93.67%;
+    left: 94.76%;
+}
+
+.PAG-DE-REFS .card {
+    position: absolute;
+    top: 330px;
+    left: 74px;
+    width: 1234px;
+    height: 424px;
+    background-color: #d2ff9e;
+    border-radius: 45px;
+    overflow: hidden;
+    box-shadow: 0px 5px 0px #191a2380;
+}
+
+.PAG-DE-REFS .content {
+    position: absolute;
+    top: 47px;
+    left: 0;
+    width: 716px;
+    height: 52px;
+}
+
+.PAG-DE-REFS .p {
+    position: absolute;
+    top: 171px;
+    left: 52px;
+    width: 1095px;
+    font-family: "Questrial", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 32px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .plano-de-negcios-2 {
+    position: absolute;
+    top: 31px;
+    left: 1147px;
+    width: 53px;
+    height: 55px;
+}
+
+.PAG-DE-REFS .label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 10px;
+    position: absolute;
+    top: 310px;
+    left: 967px;
+    width: 163px;
+    height: 55px;
+    padding: 0px 7px;
+    background-color: #00bf63;
+    border-radius: 7px;
+}
+
+.PAG-DE-REFS .text-wrapper-14 {
+    position: relative;
+    width: fit-content;
+    font-family: "Cal Sans", Helvetica;
+    font-weight: 400;
+    color: #ffffff;
+    font-size: 36px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .text-wrapper-15 {
+  position: absolute; 
+  top: 55px; 
+  left: 50px; 
+  width: 1031px; 
+  font-family: "Cal Sans", Helvetica; 
+  font-weight: 400; 
+  color: #000000; 
+  font-size: 32px; 
+  letter-spacing: 0; 
+  line-height: normal;
+}
+
+.PAG-DE-REFS .plano-de-negcios-3 {
+    position: absolute;
+    top: 290px;
+    left: 1135px;
+    width: 245px;
+    height: 174px;
+}
+
+.PAG-DE-REFS .card-2 {
+    position: absolute;
+    top: 794px;
+    left: 67px;
+    width: 1234px;
+    height: 388px;
+    background-color: #d2ff9e;
+    border-radius: 45px;
+    overflow: hidden;
+    box-shadow: 0px 5px 0px #191a2380;
+}
+
+.PAG-DE-REFS .text-wrapper-16 {
+    position: absolute;
+    top: 125px;
+    left: 52px;
+    width: 1095px;
+    font-family: "Questrial", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 32px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .div-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 10px;
+    position: absolute;
+    top: 274px;
+    left: 967px;
+    width: 163px;
+    height: 55px;
+    padding: 0px 7px;
+    background-color: #00bf63;
+    border-radius: 7px;
+}
+
+.PAG-DE-REFS .text-wrapper-17 {
+    position: relative;
+    width: fit-content;
+    margin-right: -4px;
+    font-family: "Cal Sans", Helvetica;
+    font-weight: 400;
+    color: #ffffff;
+    font-size: 36px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .plano-de-negcios-4 {
+    position: absolute;
+    top: 747px;
+    left: 1165px;
+    width: 215px;
+    height: 188px;
+}
+
+.PAG-DE-REFS .card-3 {
+    position: absolute;
+    top: 1222px;
+    left: 67px;
+    width: 1234px;
+    height: 388px;
+    background-color: #d2ff9e;
+    border-radius: 45px;
+    overflow: hidden;
+    box-shadow: 0px 5px 0px #191a2380;
+}
+
+.PAG-DE-REFS .label-wrapper {
+    position: absolute;
+    top: 59px;
+    left: 0;
+    width: 928px;
+    height: 52px;
+    display: flex;
+    overflow: hidden;
+}
+
+.PAG-DE-REFS .label-2 {
+    display: inline-flex;
+    position: relative;
+    align-items: center;
+    gap: 25px;
+    width: 1031px;
+    height: 42px;
+    margin-left: 52px;
+}
+
+.PAG-DE-REFS .text-wrapper-18 {
+    position: relative;
+    width: 1031px;
+    margin-top: -1px;
+    font-family: "Cal Sans", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 32px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .text-wrapper-19 {
+    position: relative;
+    width: fit-content;
+    margin-right: -3px;
+    font-family: "Cal Sans", Helvetica;
+    font-weight: 400;
+    color: #ffffff;
+    font-size: 36px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .card-4 {
+    position: absolute;
+    top: 1650px;
+    left: 75px;
+    width: 1234px;
+    height: 388px;
+    background-color: #d2ff9e;
+    border-radius: 45px;
+    overflow: hidden;
+    box-shadow: 0px 5px 0px #191a2380;
+}
+
+.PAG-DE-REFS .text-wrapper-20 {
+    position: relative;
+    width: 156px;
+    margin-right: -7px;
+    font-family: "Cal Sans", Helvetica;
+    font-weight: 400;
+    color: #ffffff;
+    font-size: 36px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .plano-de-negcios-5 {
+    position: absolute;
+    top: 1145px;
+    left: 1138px;
+    width: 238px;
+    height: 228px;
+}
+
+.PAG-DE-REFS .text-wrapper-21 {
+    position: absolute;
+    top: 55px;
+    left: 60px;
+    width: 1031px;
+    font-family: "Cal Sans", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 32px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .text-wrapper-22 {
+    position: absolute;
+    top: 234px;
+    left: 76px;
+    font-family: "Cal Sans", Helvetica;
+    font-weight: 400;
+    color: #000000;
+    font-size: 36px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+.PAG-DE-REFS .plano-de-negcios-6 {
+    position: absolute;
+    top: 263px;
+    left: 67px;
+    width: 280px;
+    height: 33px;
+}
+
+.PAG-DE-REFS .group-3 {
+    position: absolute;
+    top: 309px;
+    left: 1301px;
+    width: 350px;
+    height: 570px;
+}
+
+.PAG-DE-REFS .plano-de-negcios-7 {
+    position: absolute;
+    top: 1603px;
+    left: 1157px;
+    width: 236px;
+    height: 211px;
+}
+
+.PAG-DE-REFS .label-3 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 10px;
+    position: absolute;
+    top: 187px;
+    left: 1283px;
+    width: 78px;
+    height: 24px;
+    padding: 0px 7px;
+    background-color: #149c8c;
+    border-radius: 7px;
+}
+
+.PAG-DE-REFS .text-wrapper-23 {
+    position: relative;
+    width: fit-content;
+    margin-top: -2px;
+    font-family: "Cal Sans", Helvetica;
+    font-weight: 400;
+    color: #ffffff;
+    font-size: 20px;
+    letter-spacing: 0;
+    line-height: normal;
+}
+
+/* Inject the original CSS code above */
+
+.PAG-DE-REFS .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.PAG-DE-REFS .barra-de-pesquisa {
+    align-items: center;
+    padding: 0;
+}
+
+.PAG-DE-REFS .search-input {
+    width: calc(100% - 40px);
+    height: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0 8px 0 14px;
+    font-family: "Questrial", Helvetica;
+    font-size: 16px;
+    color: #0c665c;
+    outline: none;
+    appearance: none;
+}
+
+.PAG-DE-REFS .search-input::-webkit-search-decoration,
+.PAG-DE-REFS .search-input::-webkit-search-cancel-button,
+.PAG-DE-REFS .search-input::-webkit-search-results-button,
+.PAG-DE-REFS .search-input::-webkit-search-results-decoration {
+    appearance: none;
+}
+
+.PAG-DE-REFS .search-button {
+    width: 31.43px;
+    height: 31.43px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.PAG-DE-REFS .lupa {
+    margin-left: 0;
+    display: block;
+}
+
+.PAG-DE-REFS .div,
+.PAG-DE-REFS .text-wrapper,
+.PAG-DE-REFS .text-wrapper-2,
+.PAG-DE-REFS .text-wrapper-3,
+.PAG-DE-REFS .text-wrapper-4,
+.PAG-DE-REFS .text-wrapper-6,
+.PAG-DE-REFS .text-wrapper-7,
+.PAG-DE-REFS .text-wrapper-9,
+.PAG-DE-REFS .text-wrapper-10,
+.PAG-DE-REFS .text-wrapper-12,
+.PAG-DE-REFS .text-wrapper-13 {
+    text-decoration: none;
+}
+
+.PAG-DE-REFS .label-3 {
+    border: 0;
+    cursor: pointer;
+}
+
+.PAG-DE-REFS .text-wrapper-15,
+.PAG-DE-REFS .text-wrapper-21,
+.PAG-DE-REFS .text-wrapper-18,
+.PAG-DE-REFS .text-wrapper-22,
+.PAG-DE-REFS .p,
+.PAG-DE-REFS .text-wrapper-16 {
+    margin: 0;
+}
+
+.PAG-DE-REFS .text-wrapper-18 {
+    display: block;
+}
+
+.PAG-DE-REFS .text-wrapper-22 {
+    position: absolute;
+}
+
+.PAG-DE-REFS .card,
+.PAG-DE-REFS .card-2,
+.PAG-DE-REFS .card-3,
+.PAG-DE-REFS .card-4 {
+    display: block;
+}
+
+.PAG-DE-REFS .label,
+.PAG-DE-REFS .div-wrapper,
+.PAG-DE-REFS .label-3 {
+    white-space: nowrap;
+}
+
+.PAG-DE-REFS a:focus-visible,
+.PAG-DE-REFS button:focus-visible,
+.PAG-DE-REFS input:focus-visible {
+    outline: 2px solid #0c665c !important;
+    outline-offset: 2px;
+}
+
+.PAG-DE-REFS img {
+    max-width: none;
+}
+
+@media (max-width: 1440px) {
+    .PAG-DE-REFS {
+        overflow-x: auto;
+    }
+}
