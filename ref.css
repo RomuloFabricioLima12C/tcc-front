@@ -1,9 +1,9 @@
 .PAG-DE-REFS {
-    background-color: #ffffff; 
-    overflow: hidden; 
-    width: 100%; 
-    min-width: 1440px; 
-    min-height: 2352px; 
+    background-color: #ffffff;
+    overflow: visible;
+    width: 100%;
+    min-width: 1440px;
+    min-height: 2352px;
     position: relative;
 }
 
@@ -706,4 +706,66 @@ height: 2189px;
     .PAG-DE-REFS {
         overflow-x: auto;
     }
+}
+
+/* ------------------------------------------------------------------
+   Header e rodapé fluidos (ver home.css para a explicação completa).
+   Nesta página a logo é uma <img> sem link (já vem primeiro no header,
+   sem precisar de reordenação).
+------------------------------------------------------------------- */
+
+.PAG-DE-REFS > header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 32px;
+  padding: 20px clamp(24px, 5vw, 88px);
+  box-sizing: border-box;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.PAG-DE-REFS > header > *,
+.PAG-DE-REFS > header nav > *,
+.PAG-DE-REFS > header a > * {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  pointer-events: auto;
+}
+
+.PAG-DE-REFS > header .barra-de-pesquisa {
+  position: relative !important;
+}
+
+.PAG-DE-REFS > header nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.PAG-DE-REFS > header .text-wrapper,
+.PAG-DE-REFS > header .text-wrapper-2,
+.PAG-DE-REFS > header .text-wrapper-3,
+.PAG-DE-REFS > header .text-wrapper-4,
+.PAG-DE-REFS > header .div {
+  width: auto !important;
+}
+
+.PAG-DE-REFS > footer.group .rectangle {
+  width: 100% !important;
+}
+
+.PAG-DE-REFS > footer.group .group-2 {
+  left: 0 !important;
+  right: 0;
+  margin: 0 auto;
 }

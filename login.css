@@ -1,6 +1,6 @@
 .PAG-DE-LOGIN {
     background-color: #ffffff;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
     min-width: 1440px;
     min-height: 2070px;
@@ -415,4 +415,21 @@
 .PAG-DE-LOGIN .text-wrapper-13,
 .PAG-DE-LOGIN .text-wrapper-14 {
     display: inline-block;
+}
+
+/* ------------------------------------------------------------------
+   Rodapé fluido (ver home.css para a explicação completa). Esta página
+   não tem <header>; só o rodapé precisa do ajuste. A faixa de destaque
+   aqui se chama ".rectangle-2" (".rectangle" já é usada pelo painel
+   preto ao lado do formulário).
+------------------------------------------------------------------- */
+
+.PAG-DE-LOGIN > footer.group .rectangle-2 {
+  width: 100% !important;
+}
+
+.PAG-DE-LOGIN > footer.group .group-2 {
+  left: 0 !important;
+  right: 0;
+  margin: 0 auto;
 }

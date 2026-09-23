@@ -1,6 +1,6 @@
 .PAG-DO-JOGO {
     background-color: #ffffff;
-    overflow: hidden;
+    overflow: visible;
     width: 100%;
     min-width: 1440px;
     height: 2352px;
@@ -664,4 +664,71 @@
 .PAG-DO-JOGO a.text-wrapper-13,
 .PAG-DO-JOGO a.text-wrapper-14 {
     text-decoration: none;
+}
+
+/* ------------------------------------------------------------------
+   Header e rodapé fluidos (ver home.css para a explicação completa).
+   Aqui a logo é uma <img> sem link e não vem primeiro no HTML, por isso
+   é reordenada visualmente pela própria classe; o rodapé usa ".div" como
+   caixa interna (em vez de ".group-2" como nas outras páginas).
+------------------------------------------------------------------- */
+
+.PAG-DO-JOGO > header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 32px;
+  padding: 20px clamp(24px, 5vw, 88px);
+  box-sizing: border-box;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.PAG-DO-JOGO > header > *,
+.PAG-DO-JOGO > header nav > *,
+.PAG-DO-JOGO > header a > * {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  pointer-events: auto;
+}
+
+.PAG-DO-JOGO > header .barra-de-pesquisa {
+  position: relative !important;
+}
+
+.PAG-DO-JOGO > header nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.PAG-DO-JOGO > header > img.plano-de-negcios-2 {
+  order: -1;
+}
+
+.PAG-DO-JOGO > header .text-wrapper-10,
+.PAG-DO-JOGO > header .text-wrapper-11,
+.PAG-DO-JOGO > header .text-wrapper-12,
+.PAG-DO-JOGO > header .text-wrapper-13,
+.PAG-DO-JOGO > header .text-wrapper-14 {
+  width: auto !important;
+}
+
+.PAG-DO-JOGO > footer.group .rectangle {
+  width: 100% !important;
+}
+
+.PAG-DO-JOGO > footer.group .div {
+  left: 0 !important;
+  right: 0;
+  margin: 0 auto;
 }

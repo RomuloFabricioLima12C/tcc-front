@@ -1,6 +1,6 @@
 .COMPONENTES {
   background-color: #ffffff;
-  overflow: hidden;
+  overflow: visible;
   width: 100%;
   min-width: 1440px;
   min-height: 2120px;
@@ -841,4 +841,75 @@
 .COMPONENTES .card-2,
 .COMPONENTES .card-4 {
   display: block;
+}
+
+/* ------------------------------------------------------------------
+   Header e rodapé fluidos: em vez de ficarem presos aos 1440px do "palco"
+   da página, passam a ocupar a largura real da tela. O responsive.js
+   aplica um contra-zoom (transform/left/width) para que continuem em
+   tamanho real e alcancem as bordas de verdade; aqui só convertemos o
+   conteúdo de dentro deles, que era posicionado em pixels fixos
+   (calibrados para 1440px), para um layout flexível.
+------------------------------------------------------------------- */
+
+.COMPONENTES > header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 32px;
+  padding: 20px clamp(24px, 5vw, 88px);
+  box-sizing: border-box;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.COMPONENTES > header > *,
+.COMPONENTES > header nav > *,
+.COMPONENTES > header a > * {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  pointer-events: auto;
+}
+
+.COMPONENTES > header .barra-de-pesquisa {
+  position: relative !important;
+}
+
+.COMPONENTES > header nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.COMPONENTES > header a:has(img) {
+  order: -1;
+  display: flex;
+  align-items: center;
+}
+
+.COMPONENTES > header .text-wrapper,
+.COMPONENTES > header .text-wrapper-2,
+.COMPONENTES > header .text-wrapper-3,
+.COMPONENTES > header .text-wrapper-4,
+.COMPONENTES > header .div {
+  width: auto !important;
+}
+
+.COMPONENTES > footer.group .rectangle {
+  width: 100% !important;
+}
+
+.COMPONENTES > footer.group .group-2 {
+  left: 0 !important;
+  right: 0;
+  margin: 0 auto;
 }

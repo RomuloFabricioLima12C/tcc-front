@@ -4,7 +4,7 @@
   min-width: 1440px;
   min-height: 2120px;
   background-color: #ffffff;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .QUEM-SOMOS .text-wrapper {
@@ -868,4 +868,72 @@
   .QUEM-SOMOS {
     min-width: 1440px;
   }
+}
+
+/* ------------------------------------------------------------------
+   Header e rodapé fluidos (ver home.css para a explicação completa).
+   Nesta página a busca e o botão de tema ficam dentro do <nav>, por isso
+   ".QUEM-SOMOS > header nav > *" também precisa resetá-los.
+------------------------------------------------------------------- */
+
+.QUEM-SOMOS > header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 32px;
+  padding: 20px clamp(24px, 5vw, 88px);
+  box-sizing: border-box;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.QUEM-SOMOS > header > *,
+.QUEM-SOMOS > header nav > *,
+.QUEM-SOMOS > header a > * {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  pointer-events: auto;
+}
+
+.QUEM-SOMOS > header .barra-de-pesquisa {
+  position: relative !important;
+}
+
+.QUEM-SOMOS > header nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.QUEM-SOMOS > header a:has(img) {
+  order: -1;
+  display: flex;
+  align-items: center;
+}
+
+.QUEM-SOMOS > header .text-wrapper,
+.QUEM-SOMOS > header .text-wrapper-2,
+.QUEM-SOMOS > header .text-wrapper-3,
+.QUEM-SOMOS > header .text-wrapper-4,
+.QUEM-SOMOS > header .div {
+  width: auto !important;
+}
+
+.QUEM-SOMOS > footer.group .rectangle {
+  width: 100% !important;
+}
+
+.QUEM-SOMOS > footer.group .group-2 {
+  left: 0 !important;
+  right: 0;
+  margin: 0 auto;
 }

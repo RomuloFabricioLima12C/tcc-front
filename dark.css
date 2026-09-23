@@ -1,0 +1,108 @@
+/* Modo escuro — só sobrescreve cores; posições e tamanhos não mudam. */
+
+#theme-toggle { cursor: pointer; }
+
+#theme-toggle:focus-visible { outline: 2px solid #0c665c; outline-offset: 2px; }
+
+/* Login/Cadastro: fundo do painel é preto sólido, então a pill branca do
+   ícone de tema (img-dark/toggle.svg) destoa como um quadrado. Invertendo,
+   ela vira uma pill escura com o "sol" branco, se misturando ao painel. */
+html[data-theme="dark"] .PAG-DE-LOGIN .plano-de-negcios img,
+html[data-theme="dark"] .PAG-DE-CADASTRO .plano-de-negcios img {
+  filter: invert(1);
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] .HOME {
+  background-color: #000000;
+}
+
+html[data-theme="dark"] .HOME,
+html[data-theme="dark"] .HOME .card,
+html[data-theme="dark"] .HOME .card-2,
+html[data-theme="dark"] .HOME .card-3,
+html[data-theme="dark"] .HOME .card-4,
+html[data-theme="dark"] .HOME .card-5,
+html[data-theme="dark"] .HOME .card-6 {
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Menu */
+html[data-theme="dark"] .HOME .text-wrapper,
+html[data-theme="dark"] .HOME .div,
+html[data-theme="dark"] .HOME .text-wrapper-2,
+html[data-theme="dark"] .HOME .text-wrapper-3,
+html[data-theme="dark"] .HOME .text-wrapper-4 {
+  color: #b6ff5c;
+}
+
+/* Textos principais */
+html[data-theme="dark"] .HOME .text-wrapper-6,
+html[data-theme="dark"] .HOME .p,
+html[data-theme="dark"] .HOME .text-wrapper-5,
+html[data-theme="dark"] .HOME .text-wrapper-16,
+html[data-theme="dark"] .HOME .text-wrapper-26 {
+  color: #ffffff;
+}
+
+/* Cards "Sobre o projeto" */
+html[data-theme="dark"] .HOME .card-3,
+html[data-theme="dark"] .HOME .card-4,
+html[data-theme="dark"] .HOME .card-5 {
+  background-color: #00695c;
+  box-shadow: 0px 5px 0px #ffffff26;
+}
+
+html[data-theme="dark"] .HOME .text-wrapper-23,
+html[data-theme="dark"] .HOME .text-wrapper-24,
+html[data-theme="dark"] .HOME .text-wrapper-25 {
+  color: #ffffff;
+}
+
+/* Cards de serviços */
+html[data-theme="dark"] .HOME .card-2 {
+  background-color: #0b0b0b;
+  border-color: #ffffff40;
+  box-shadow: 0px 5px 0px #ffffff26;
+}
+
+html[data-theme="dark"] .HOME .card-6 {
+  background-color: #00695c;
+  border-color: #ffffff40;
+  box-shadow: 0px 4px 4px #ffffff26;
+}
+
+html[data-theme="dark"] .HOME .card {
+  background-color: #0b3a34;
+  border-color: #ffffff40;
+  box-shadow: 0px 4px 4px #ffffff26;
+}
+
+html[data-theme="dark"] .HOME .text-wrapper-17,
+html[data-theme="dark"] .HOME .text-wrapper-18,
+html[data-theme="dark"] .HOME .text-wrapper-20,
+html[data-theme="dark"] .HOME .text-wrapper-21,
+html[data-theme="dark"] .HOME .text-wrapper-27,
+html[data-theme="dark"] .HOME .seu-apoio-e {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .HOME .rectangle-3 { background-color: #1a1a1a; }
+html[data-theme="dark"] .HOME .rectangle-6 { background-color: #ffffff26; }
+html[data-theme="dark"] .HOME .rectangle-2 { background-color: #a5d20f59; }
+
+html[data-theme="dark"] .HOME .text-wrapper:focus-visible,
+html[data-theme="dark"] .HOME .div:focus-visible,
+html[data-theme="dark"] .HOME .text-wrapper-2:focus-visible,
+html[data-theme="dark"] .HOME .text-wrapper-3:focus-visible,
+html[data-theme="dark"] .HOME .text-wrapper-4:focus-visible,
+html[data-theme="dark"] #theme-toggle:focus-visible {
+  outline-color: #b6ff5c;
+}
+
+/* Fundo atrás da página (rolagem/bordas) em todas as páginas */
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  background-color: #000000;
+}

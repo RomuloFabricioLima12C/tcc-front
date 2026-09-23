@@ -3,20 +3,20 @@
 
 .HOME
  { background-color: #ffffff;
-     overflow: hidden;
+     overflow: visible;
       width: 100%;
        min-width: 1440px;
-     height: 3936px; 
+     height: 3936px;
      position: relative;
-     } 
+     }
      
-     .HOME .illustration 
-     { position: absolute; 
+     .HOME .illustration
+     { position: absolute;
     top: 1041px;
      left: 0;
-      width: 269px;
-       height: 648px;
-     } 
+      width: 90px;
+       height: 217px;
+     }
      
      .HOME .text-wrapper 
      { width: calc(100% - 1294px);
@@ -194,12 +194,12 @@
         height: 121px; 
     } 
     
-    .text-wrapper-7 { 
-        position: absolute; 
-        top: 21px; 
-        left: 289px; 
-        font-family: "League Spartan", Helvetica; 
-        font-weight: 300; 
+    .text-wrapper-7 {
+        position: absolute;
+        top: 21px;
+        left: 289px;
+        font-family: "League Spartan", Helvetica;
+        font-weight: 500;
         color: #ffffff; 
         font-size: 24px; 
         letter-spacing: 0; 
@@ -916,4 +916,81 @@
 
 .HOME .label-4 {
   color: inherit;
+}
+
+/* ------------------------------------------------------------------
+   Header e rodapé fluidos: em vez de ficarem presos aos 1440px do "palco"
+   da página, passam a ocupar a largura real da tela. O responsive.js
+   aplica um contra-zoom (transform/left/width, calculado a partir do
+   zoom geral da página) para que continuem em tamanho real e alcancem as
+   bordas de verdade; aqui só convertemos o conteúdo de dentro deles, que
+   era posicionado em pixels fixos (calibrados para 1440px), para um
+   layout flexível que se redistribui nessa largura.
+------------------------------------------------------------------- */
+
+.HOME > header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 32px;
+  padding: 20px clamp(24px, 5vw, 88px);
+  box-sizing: border-box;
+  z-index: 10;
+  /* A barra ocupa a tela toda, mas é transparente entre os itens: sem isso
+     ela bloquearia cliques em qualquer coisa que fique por baixo dela
+     (como o botão de tema, que nesta página vive fora do header). */
+  pointer-events: none;
+}
+
+.HOME > header > *,
+.HOME > header nav > *,
+.HOME > header a > * {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  pointer-events: auto;
+}
+
+/* O campo de busca precisa continuar como referência de posicionamento
+   para o botão da lupa (que fica sobreposto a ele). */
+.HOME > header .barra-de-pesquisa {
+  position: relative !important;
+}
+
+.HOME > header nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+
+.HOME > header a:has(img) {
+  order: -1;
+  display: flex;
+  align-items: center;
+}
+
+.HOME > header .text-wrapper,
+.HOME > header .text-wrapper-2,
+.HOME > header .text-wrapper-3,
+.HOME > header .text-wrapper-4,
+.HOME > header .div {
+  width: auto !important;
+}
+
+.HOME > footer.group .rectangle {
+  width: 100% !important;
+}
+
+.HOME > footer.group .group-2 {
+  left: 0 !important;
+  right: 0;
+  margin: 0 auto;
 }

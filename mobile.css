@@ -1,0 +1,426 @@
+/* ------------------------------------------------------------------
+   Layout mobile/tablet (telas até 900px, classe html.m-mode do mobile.js).
+   Em telas maiores este arquivo não tem efeito: o desktop fica igual.
+------------------------------------------------------------------- */
+
+/* Botão hambúrguer: só existe no mobile */
+.m-burger { display: none; }
+
+html.m-mode,
+html.m-mode body {
+  overflow-x: hidden;
+}
+
+html.m-mode body {
+  position: static !important;
+  height: auto !important;
+  width: 100% !important;
+}
+
+[hidden] { display: none !important; }
+
+/* ---------- Raiz da página: vira uma coluna fluida ---------- */
+html.m-mode :is(.HOME, .COMPONENTES, .PASSO-a-PASSO, .QUEM-SOMOS, .PAG-DE-REFS, .PAG-DO-JOGO, .PAG-DE-LOGIN, .PAG-DE-CADASTRO) {
+  display: flex !important;
+  flex-direction: column;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 100vh;
+  transform: none !important;
+  padding-top: 76px;
+  overflow: hidden;
+}
+
+html.m-mode .PAG-DE-LOGIN,
+html.m-mode .PAG-DE-CADASTRO { padding-top: 64px; }
+
+/* Tudo que não é cabeçalho sai do posicionamento absoluto */
+html.m-mode :is(.HOME, .COMPONENTES, .PASSO-a-PASSO, .QUEM-SOMOS, .PAG-DE-REFS, .PAG-DO-JOGO, .PAG-DE-LOGIN, .PAG-DE-CADASTRO) > :not(header),
+html.m-mode :is(.HOME, .COMPONENTES, .PASSO-a-PASSO, .QUEM-SOMOS, .PAG-DE-REFS, .PAG-DO-JOGO, .PAG-DE-LOGIN, .PAG-DE-CADASTRO) > :not(header) * {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  max-width: 100%;
+  margin: 0 !important;
+  transform: none !important;
+  float: none !important;
+  white-space: normal !important;
+  box-sizing: border-box;
+}
+
+/* Elementos decorativos (só enfeite do desenho desktop) somem */
+html.m-mode :is(.HOME, .COMPONENTES, .PASSO-a-PASSO, .QUEM-SOMOS, .PAG-DE-REFS, .PAG-DO-JOGO, .PAG-DE-LOGIN, .PAG-DE-CADASTRO) :is(img[alt=""], [aria-hidden="true"]) {
+  display: none !important;
+}
+
+/* Blocos de conteúdo */
+html.m-mode :is(.HOME, .COMPONENTES, .PASSO-a-PASSO, .QUEM-SOMOS, .PAG-DE-REFS, .PAG-DO-JOGO, .PAG-DE-LOGIN, .PAG-DE-CADASTRO) :is(main, section, article) {
+  display: flex !important;
+  flex-direction: column;
+  gap: 16px;
+  align-items: stretch;
+}
+
+html.m-mode :is(.HOME, .COMPONENTES, .PASSO-a-PASSO, .QUEM-SOMOS, .PAG-DE-REFS, .PAG-DO-JOGO, .PAG-DE-LOGIN, .PAG-DE-CADASTRO) > :not(header):not(footer):not(img),
+html.m-mode :is(.HOME, .COMPONENTES, .PASSO-a-PASSO, .QUEM-SOMOS, .PAG-DE-REFS, .PAG-DO-JOGO, .PAG-DE-LOGIN, .PAG-DE-CADASTRO) > main {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+html.m-mode :is(.HOME, .COMPONENTES, .PASSO-a-PASSO, .QUEM-SOMOS, .PAG-DE-REFS, .PAG-DO-JOGO, .PAG-DE-LOGIN, .PAG-DE-CADASTRO) > :not(header):not(footer):not(img) + :not(header):not(footer):not(img) {
+  margin-top: 24px !important;
+}
+
+/* Cards */
+html.m-mode :is(article, [class*="card"]):not(input) {
+  padding: 22px 18px !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+}
+
+html.m-mode input[class*="card"] {
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  width: 100% !important;
+  height: 48px !important;
+}
+
+/* Imagens de conteúdo */
+html.m-mode :is(main, section, article) img {
+  height: auto !important;
+  max-width: 100%;
+  align-self: center;
+}
+
+/* ---------- Tipografia ---------- */
+html.m-mode :is(main, section, article, footer) :is(div, span, a, p, label, li, button, input) {
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+}
+
+html.m-mode :is(main, section, article, footer) h1 { font-size: 30px !important; line-height: 1.15 !important; }
+html.m-mode :is(main, section, article, footer) h2 { font-size: 24px !important; line-height: 1.2 !important; }
+html.m-mode :is(main, section, article, footer) h3 { font-size: 21px !important; line-height: 1.2 !important; }
+html.m-mode :is(main, section, article) :is(h1, h2, h3) { width: auto !important; }
+
+/* Botões e links com fundo colorido */
+html.m-mode :is(main, section, article) :is(a, button)[class]:not(:has(> img)) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  padding: 8px 20px !important;
+  border-radius: 10px;
+}
+
+html.m-mode :is(main, section, article) :is(a, button)[class] :is(div, span) {
+  font-size: 18px !important;
+  padding: 0 !important;
+}
+
+html.m-mode :is(main, section, article) p a { display: inline !important; padding: 0 !important; }
+
+/* ---------- Cabeçalho + menu hambúrguer ---------- */
+html.m-mode header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: 64px;
+  overflow: hidden;
+  z-index: 1000;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  padding: 8px 16px !important;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: none !important;
+  box-sizing: border-box;
+}
+
+html.m-mode header.m-open {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+html.m-mode header .m-nav { display: contents !important; }
+
+html.m-mode header .m-logo {
+  order: 1;
+  margin: 0 auto 0 0 !important;
+  position: static !important;
+  width: auto !important;
+  height: 46px !important;
+  display: flex !important;
+  align-items: center;
+}
+
+html.m-mode header .m-logo img,
+html.m-mode header img.m-logo {
+  position: static !important;
+  width: auto !important;
+  height: 46px !important;
+  margin: 0 !important;
+}
+
+html.m-mode .m-toggle.m-toggle {
+  order: 2;
+  position: static !important;
+  width: 60px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  flex: 0 0 auto;
+}
+
+html.m-mode .m-toggle img {
+  position: static !important;
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+
+html.m-mode .PAG-DE-LOGIN .m-toggle,
+html.m-mode .PAG-DE-CADASTRO .m-toggle {
+  position: fixed !important;
+  top: 8px !important;
+  right: 12px !important;
+  z-index: 1000;
+}
+
+html.m-mode header > button.m-burger.m-burger {
+  order: 3;
+  padding: 10px !important;
+  border-radius: 10px !important;
+  align-items: stretch !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+html.m-mode .m-burger span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  background: #0c665c;
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+html.m-mode header.m-open .m-burger span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+html.m-mode header.m-open .m-burger span:nth-child(2) { opacity: 0; }
+html.m-mode header.m-open .m-burger span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+html.m-mode header .m-burger:focus-visible { outline: 2px solid #149c8c; outline-offset: 2px; }
+
+/* Itens do menu: só aparecem com o menu aberto */
+html.m-mode header:not(.m-open) .m-item { display: none !important; }
+
+html.m-mode header .m-item:not(.barra-de-pesquisa),
+html.m-mode header .m-item:not(.barra-de-pesquisa) * {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  transform: none !important;
+  white-space: normal !important;
+}
+
+html.m-mode header .m-item {
+  order: 10;
+  flex: 0 0 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
+html.m-mode header a.m-item:not(.m-login) {
+  padding: 12px 4px !important;
+  font-size: 20px !important;
+  line-height: 1.2 !important;
+  border-bottom: 1px solid rgba(12, 102, 92, 0.2);
+}
+
+html.m-mode header .m-login {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  display: inline-flex !important;
+  padding: 8px 22px !important;
+  margin: 8px 0 12px !important;
+  border-radius: 10px;
+  background: #149c8c;
+}
+
+html.m-mode header .m-login :is(div, span, a) {
+  font-size: 20px !important;
+  color: #ffffff !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+html.m-mode header .m-item.barra-de-pesquisa {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  display: flex !important;
+  align-items: center;
+  width: 100% !important;
+  height: 44px !important;
+  margin: 8px 0 !important;
+}
+
+html.m-mode header .barra-de-pesquisa :is(input, [type="search"]) {
+  width: 100% !important;
+  height: 100% !important;
+  position: static !important;
+  padding: 0 52px 0 16px !important;
+  font-size: 16px !important;
+}
+
+html.m-mode header .barra-de-pesquisa button {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  width: 48px !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+html.m-mode header .barra-de-pesquisa img {
+  display: block !important;
+  position: static !important;
+  width: 22px !important;
+  height: 22px !important;
+  margin: 0 !important;
+}
+
+/* ---------- Rodapé: escondido no mobile ---------- */
+html.m-mode :is(.HOME, .COMPONENTES, .PASSO-a-PASSO, .QUEM-SOMOS, .PAG-DE-REFS, .PAG-DO-JOGO, .PAG-DE-LOGIN, .PAG-DE-CADASTRO) footer {
+  display: none !important;
+}
+
+/* ---------- Ajustes por página ---------- */
+
+/* Home */
+html.m-mode .HOME .text-wrapper-6 { font-size: 22px !important; }
+html.m-mode .HOME .text-wrapper-23 { font-size: 38px !important; line-height: 1 !important; }
+html.m-mode .HOME .label-2 { display: flex !important; align-items: center; gap: 14px; }
+html.m-mode .HOME .text-wrapper-24 { font-size: 20px !important; }
+html.m-mode .HOME :is(.text-wrapper-16, .text-wrapper-26) { font-size: 26px !important; }
+html.m-mode .HOME :is(.text-wrapper-20, .text-wrapper-27, .text-wrapper-17) { font-size: 26px !important; line-height: 1.15 !important; }
+html.m-mode .HOME .plano-de-negcios-3 { width: min(100%, 420px) !important; }
+
+/* Vídeo/prévia (game e passo) */
+html.m-mode :is(.PAG-DO-JOGO, .PASSO-a-PASSO) main > section.card:first-of-type,
+html.m-mode :is(.PAG-DO-JOGO, .PASSO-a-PASSO) section[aria-label^="Pr"],
+html.m-mode :is(.PAG-DO-JOGO, .PASSO-a-PASSO) section[aria-label^="Apres"] {
+  aspect-ratio: 16 / 9;
+  justify-content: center;
+  align-items: center;
+}
+
+html.m-mode :is(.PAG-DO-JOGO, .PASSO-a-PASSO) section.card > img { width: 22% !important; max-width: 110px; }
+
+/* Game */
+html.m-mode .PAG-DO-JOGO section img { width: min(100%, 320px) !important; }
+html.m-mode .PAG-DO-JOGO section.card > img { width: 22% !important; }
+html.m-mode .PAG-DO-JOGO .group-4 { align-self: flex-start; background: #149c8c; border: 0; border-radius: 10px; }
+html.m-mode .PAG-DO-JOGO .group-4 .label { display: none !important; }
+html.m-mode .PAG-DO-JOGO .group-4 .text-wrapper-19 { color: #fff !important; font-size: 20px !important; }
+
+/* Passo a passo: linhas de 3 cards viram coluna */
+html.m-mode .PASSO-a-PASSO :is(.row, .row-2) { gap: 16px; }
+html.m-mode .PASSO-a-PASSO :is([class^="text-wrapper-"])[aria-label^="Passo"] {
+  font-size: 34px !important;
+  line-height: 1 !important;
+  font-weight: 700;
+}
+html.m-mode .PASSO-a-PASSO article .person { display: flex; flex-direction: column; gap: 6px; }
+
+/* Quem somos: equipe em 2 colunas */
+html.m-mode .QUEM-SOMOS section[aria-labelledby="quem-somos-heading"] {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 12px;
+}
+html.m-mode .QUEM-SOMOS section[aria-labelledby="quem-somos-heading"] > h1 { grid-column: 1 / -1; }
+html.m-mode .QUEM-SOMOS section[aria-labelledby="quem-somos-heading"] article {
+  padding: 0 !important;
+  text-align: center;
+  align-items: center;
+  gap: 6px;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+html.m-mode .QUEM-SOMOS section[aria-labelledby="quem-somos-heading"] article img { width: 100% !important; max-width: 200px; }
+html.m-mode .QUEM-SOMOS section[aria-labelledby="quem-somos-heading"] h2 { font-size: 20px !important; }
+html.m-mode .QUEM-SOMOS .card { flex-direction: row !important; flex-wrap: wrap; }
+html.m-mode .QUEM-SOMOS .card > :is(h2, p) { flex: 0 0 100%; }
+
+/* Login / Cadastro */
+html.m-mode .PAG-DE-LOGIN main, html.m-mode .PAG-DE-LOGIN section,
+html.m-mode .PAG-DE-CADASTRO main, html.m-mode .PAG-DE-CADASTRO section { max-width: 480px; margin-left: auto !important; margin-right: auto !important; width: 100% !important; }
+html.m-mode .PAG-DE-LOGIN form,
+html.m-mode .PAG-DE-CADASTRO form { display: flex; flex-direction: column; gap: 10px; }
+html.m-mode .PAG-DE-LOGIN label,
+html.m-mode .PAG-DE-CADASTRO label { font-weight: 500; }
+html.m-mode .PAG-DE-LOGIN button.div-wrapper,
+html.m-mode .PAG-DE-CADASTRO button.div-wrapper { align-self: stretch; margin-top: 8px !important; }
+html.m-mode .PAG-DE-LOGIN > img[alt="lightlab."],
+html.m-mode .PAG-DE-CADASTRO > img[alt="lightlab."] { width: 150px !important; margin: 0 auto !important; order: -1; }
+
+/* ---------- Modo escuro no mobile ---------- */
+html[data-theme="dark"].m-mode header { background: #000000; box-shadow: 0 2px 8px rgba(255, 255, 255, 0.12); }
+html[data-theme="dark"].m-mode .m-burger span { background: #b6ff5c; }
+html[data-theme="dark"].m-mode header a.m-item:not(.m-login) { border-bottom-color: rgba(182, 255, 92, 0.25); }
+html[data-theme="dark"].m-mode input[class*="card"] { background: #0b0b0b; color: #ffffff; border: 1px solid #ffffff40; }
+
+/* O botão de tema (na tela de login é um <button>) não leva estilo de botão colorido */
+html.m-mode button.m-toggle.m-toggle { padding: 0 !important; border: 0 !important; background: transparent !important; border-radius: 0 !important; display: block !important; align-self: auto; }
+
+/* Campo de busca dentro do menu */
+html.m-mode header .m-item.barra-de-pesquisa {
+  background: #e4e4e4 !important;
+  border: 1px solid rgba(12, 102, 92, 0.35);
+  border-radius: 22px !important;
+}
+html[data-theme="dark"].m-mode header .m-item.barra-de-pesquisa { background: #2a2a2a !important; border-color: #b6ff5c66; }
+html[data-theme="dark"].m-mode header .barra-de-pesquisa input { color: #ffffff; }
+
+/* Referências: botão ARTIGO não ocupa a linha inteira */
+html.m-mode .PAG-DE-REFS article :is(.label, .div-wrapper) {
+  align-self: flex-start;
+  display: inline-flex !important;
+  padding: 6px 18px !important;
+  border-radius: 10px;
+}

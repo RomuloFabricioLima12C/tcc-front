@@ -1,7 +1,7 @@
 
 .PASSO-a-PASSO {
   background-color: #ffffff;
-  overflow: hidden;
+  overflow: visible;
   width: 100%;
   min-width: 1440px;
   height: 2120px;
@@ -928,4 +928,65 @@
 
 .PASSO-a-PASSO .label .text-wrapper-24 {
   display: inline-block;
+}
+
+/* ------------------------------------------------------------------
+   Header e rodapé fluidos (ver home.css para a explicação completa).
+   Esta página não tem <nav> no header (os links são filhos diretos), por
+   isso ".PASSO-a-PASSO > header > *" já cobre os links do menu também.
+------------------------------------------------------------------- */
+
+.PASSO-a-PASSO > header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 32px;
+  padding: 20px clamp(24px, 5vw, 88px);
+  box-sizing: border-box;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.PASSO-a-PASSO > header > *,
+.PASSO-a-PASSO > header nav > *,
+.PASSO-a-PASSO > header a > * {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  pointer-events: auto;
+}
+
+.PASSO-a-PASSO > header .barra-de-pesquisa {
+  position: relative !important;
+}
+
+.PASSO-a-PASSO > header a:has(img) {
+  order: -1;
+  display: flex;
+  align-items: center;
+}
+
+.PASSO-a-PASSO > header .text-wrapper,
+.PASSO-a-PASSO > header .text-wrapper-2,
+.PASSO-a-PASSO > header .text-wrapper-3,
+.PASSO-a-PASSO > header .text-wrapper-4,
+.PASSO-a-PASSO > header .div {
+  width: auto !important;
+}
+
+.PASSO-a-PASSO > footer.group .rectangle {
+  width: 100% !important;
+}
+
+.PASSO-a-PASSO > footer.group .group-2 {
+  left: 0 !important;
+  right: 0;
+  margin: 0 auto;
 }
