@@ -5,11 +5,38 @@ import { Button, SectionTitle, Sparkle, Stripes } from '../components/Bits.jsx'
 import { img, links } from '../assets.js'
 import '../styles/quemsomos.css'
 
+// `fit` encaixa cada foto numa caixa quadrada com o círculo sempre do mesmo tamanho e
+// centralizado (as imagens do Figma têm o círculo em posições diferentes):
+// w = largura da imagem, x/y = deslocamento — tudo em frações do tamanho da caixa.
 const team = [
-  { name: 'Laura e Victor', role: 'Líder e Desenvolvedor do game', photo: img.teamLauraVictor, photoDark: img.teamLauraVictorDark },
-  { name: 'Enzo B.', role: 'Responsável pela robótica', photo: img.teamEnzo, photoDark: img.teamEnzoDark },
-  { name: 'Rômulo', role: 'Programador principal de backend', photo: img.teamRomulo, photoDark: img.teamRomuloDark },
-  { name: 'Gabriel', role: 'Designer', photo: img.teamGabriel, photoDark: img.teamGabrielDark },
+  {
+    name: 'Laura e Victor',
+    role: 'Líder e Desenvolvedor do game',
+    photo: img.teamLauraVictor,
+    photoDark: img.teamLauraVictorDark,
+    fit: { w: 1.3713, x: -0.2907, y: -0.1598 },
+  },
+  {
+    name: 'Enzo B.',
+    role: 'Responsável pela robótica',
+    photo: img.teamEnzo,
+    photoDark: img.teamEnzoDark,
+    fit: { w: 1.3683, x: -0.0694, y: -0.0882 },
+  },
+  {
+    name: 'Rômulo',
+    role: 'Programador principal de backend',
+    photo: img.teamRomulo,
+    photoDark: img.teamRomuloDark,
+    fit: { w: 1.4079, x: -0.073, y: -0.1651 },
+  },
+  {
+    name: 'Gabriel',
+    role: 'Designer',
+    photo: img.teamGabriel,
+    photoDark: img.teamGabrielDark,
+    fit: { w: 1.2438, x: -0.1902, y: -0.0851 },
+  },
 ]
 
 const socials = [
@@ -34,7 +61,15 @@ export default function QuemSomos() {
         <ul className="team">
           {team.map((m) => (
             <li key={m.name} className="team-member">
-              <ThemeCrop light={m.photo} dark={m.photoDark} alt={`Foto de ${m.name}`} className="team-photo" />
+              <div className="team-photo-box">
+                <ThemeCrop
+                  light={m.photo}
+                  dark={m.photoDark}
+                  alt={`Foto de ${m.name}`}
+                  className="team-photo"
+                  style={{ '--pw': m.fit.w, '--px': m.fit.x, '--py': m.fit.y }}
+                />
+              </div>
               <div className="team-text">
                 <h2>{m.name}</h2>
                 <p>{m.role}</p>
