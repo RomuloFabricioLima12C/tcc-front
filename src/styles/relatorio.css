@@ -1,0 +1,280 @@
+.report-section {
+  padding-top: 23px;
+}
+
+.report-toolbar {
+  display: flex;
+  justify-content: space-between;
+  margin: 43px -11px 0 11px;
+}
+
+.report-btn {
+  width: 213px;
+  height: 51px;
+  border-radius: 16px;
+  background: var(--deeper);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.22vw, 32px);
+  transition: filter 0.15s ease;
+}
+
+.report-btn:hover {
+  filter: brightness(1.25);
+}
+
+.report-apply {
+  margin-top: -5px;
+}
+
+.report-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  margin: 16px 0 0 11px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: var(--text);
+}
+
+.report-filters label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.report-filters select {
+  font: 18px var(--font-body);
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--deep);
+  background: var(--soft);
+  color: #000;
+}
+
+.report-table-wrap {
+  width: min(1268px, 100% + 2 * var(--gutter) - 32px);
+  margin: 13px auto 0;
+  margin-left: 50%;
+  translate: -50% 0;
+  border-radius: 16px;
+  overflow: auto;
+  background: var(--table-body);
+}
+
+.report-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  text-align: center;
+  color: var(--text);
+}
+
+.report-table thead {
+  background: var(--table-head);
+}
+
+.report-table th {
+  height: 89px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(28px, 2.78vw, 40px);
+  color: var(--table-head-text);
+}
+
+.report-table td {
+  font-size: clamp(20px, 2.22vw, 32px);
+  padding: 12px 16px;
+  height: 64px;
+}
+
+.report-table td:nth-child(3) {
+  font-size: clamp(20px, 2.08vw, 30px);
+}
+
+.report-table td:nth-child(4) {
+  font-size: clamp(20px, 2.08vw, 30px);
+}
+
+.report-table tbody tr:first-child td {
+  padding-top: 30px;
+}
+
+.report-table tbody tr:last-child td {
+  padding-bottom: 36px;
+}
+
+.report-table td + td {
+  border-left: 1px solid var(--green);
+}
+
+/* ============ Gráfico ============ */
+.chart-section {
+  padding-top: 57px;
+  padding-bottom: 181px;
+}
+
+.chart-wrap {
+  position: relative;
+  width: min(995px, 100%);
+  margin: 150px auto 0;
+}
+
+.chart-img {
+  --cw: 995px;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.6);
+}
+
+.chart-line-top {
+  left: 29px;
+  top: -17px;
+  width: 824px;
+  height: 1px;
+}
+
+.chart-line-bottom {
+  left: 59px;
+  top: calc(100% + 21px);
+  width: 901px;
+  height: 1px;
+}
+
+.chart-line-left,
+.chart-line-right {
+  height: 1px;
+  transform-origin: 0 0;
+  rotate: 90deg;
+}
+
+.chart-line-left {
+  left: -20px;
+  top: 14px;
+  width: 248px;
+}
+
+.chart-line-right {
+  left: calc(100% + 18px);
+  top: 109px;
+  width: 295px;
+}
+
+.chart-star {
+  left: -54px;
+  top: 337px;
+  width: 134px;
+  z-index: 2;
+}
+
+.chart-triangle {
+  left: -50px;
+  top: 140px;
+  width: 95px;
+  rotate: -36.87deg;
+  z-index: 2;
+}
+
+.chart-burst {
+  left: 873px;
+  top: -73px;
+  width: 174px;
+  transform: scaleX(-1);
+  z-index: 2;
+}
+
+.chart-dot-a {
+  left: 997px;
+  top: -67px;
+  width: 15px;
+  z-index: 2;
+}
+
+.chart-dot-b {
+  left: 914px;
+  top: -67px;
+  width: 26px;
+  z-index: 2;
+}
+
+.chart-dot-c {
+  left: 1017px;
+  top: 26px;
+  width: 20px;
+  z-index: 2;
+}
+
+@media (max-width: 1100px) {
+  .chart-burst,
+  .chart-dot-a,
+  .chart-dot-b,
+  .chart-dot-c,
+  .chart-line-right {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .report-section,
+  .chart-section {
+    padding: 0;
+    width: auto;
+  }
+
+  .report-toolbar {
+    margin: 24px 0 0;
+  }
+
+  .report-btn {
+    width: auto;
+    height: 34px;
+    padding: 0 16px;
+    font-size: 16px;
+    border-radius: 10px;
+  }
+
+  .report-apply {
+    margin: 0;
+  }
+
+  .report-filters {
+    margin: 12px 0 0;
+    font-size: 16px;
+  }
+
+  .report-table-wrap {
+    width: 100%;
+    margin: 12px 0 0;
+    translate: none;
+  }
+
+  .report-table {
+    min-width: 520px;
+  }
+
+  .report-table th {
+    height: 52px;
+    font-size: 18px;
+  }
+
+  .report-table td,
+  .report-table td:nth-child(3),
+  .report-table td:nth-child(4) {
+    font-size: 15px;
+    height: 40px;
+  }
+
+  .chart-section {
+    margin-top: 40px;
+  }
+
+  .chart-wrap {
+    margin-top: 24px;
+  }
+
+  .chart-wrap .deco {
+    display: none;
+  }
+}

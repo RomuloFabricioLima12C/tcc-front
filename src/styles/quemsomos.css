@@ -1,0 +1,285 @@
+.qs-section {
+  padding-top: 23px;
+  padding-bottom: 68px;
+}
+
+/* ============ Equipe ============ */
+.team {
+  list-style: none;
+  padding: 0;
+  margin: 26px -8px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.team-member {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.team-member:nth-child(3) {
+  margin-bottom: 4px;
+}
+
+.team-text {
+  margin-top: -10px;
+  padding-left: 24%;
+  min-height: 110px;
+}
+
+.team-member:last-child .team-text {
+  padding-left: 0;
+  text-align: center;
+}
+
+.team-text h2 {
+  font-size: clamp(24px, 2.5vw, 36px);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+:root[data-theme='dark'] .team-text h2 {
+  color: var(--lime);
+}
+
+.team-text p {
+  margin-top: 4px;
+  max-width: 186px;
+  font-size: clamp(16px, 1.67vw, 24px);
+}
+
+.team-member:last-child .team-text p {
+  max-width: none;
+}
+
+/* ============ Cards ============ */
+.qs-cards {
+  position: relative;
+  margin-top: 118px;
+}
+
+.qs-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.qs-redes {
+  width: min(1232px, 100%);
+  min-height: 528px;
+  margin-left: 29px;
+  padding: 41px 60px 110px 126px;
+  background: var(--card-soft);
+  color: var(--card-on-dark);
+  border: 1px solid var(--ink);
+  box-shadow: 0 4px 4px rgba(25, 26, 35, 0.6);
+}
+
+.qs-redes h2 {
+  font-size: clamp(44px, 4.44vw, 64px);
+  line-height: 0.78;
+  text-align: center;
+  margin-right: 100px;
+  padding-top: 8px;
+}
+
+.qs-redes-text {
+  margin-top: 25px;
+  max-width: 949px;
+  font-size: clamp(18px, 1.67vw, 24px);
+  line-height: 1.33;
+}
+
+.qs-redes-text p + p {
+  margin-top: 32px;
+}
+
+.qs-socials {
+  margin: 22px 0 0 41px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.qs-pill {
+  height: 26px;
+  font-size: 24px;
+}
+
+.qs-card .sparkle {
+  top: 13px;
+  right: 27px;
+}
+
+.qs-taco {
+  --cw: 212px;
+  left: 701px;
+  top: 319px;
+  z-index: 1;
+}
+
+.qs-taco-alt {
+  --cw: 240px;
+  position: absolute;
+  left: 1029px;
+  top: 286px;
+  z-index: 2;
+}
+
+.qs-form {
+  width: min(1234px, 100%);
+  min-height: 454px;
+  margin: 83px 0 0 14px;
+  padding: 34px 60px 45px;
+  background: var(--card-grey);
+  color: var(--card-on-dark);
+  box-shadow: var(--shadow-soft);
+}
+
+.qs-form .stripes {
+  display: none;
+}
+
+.qs-form h2 {
+  font-size: clamp(28px, 2.78vw, 40px);
+  text-align: center;
+  margin-right: 120px;
+}
+
+.qs-form .sparkle {
+  top: 31px;
+  right: 34px;
+}
+
+.qs-form-text {
+  margin-top: 54px;
+  max-width: 1114px;
+  font-size: clamp(20px, 2.22vw, 32px);
+}
+
+.qs-form-text p + p {
+  margin-top: 37px;
+}
+
+.qs-actions {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.qs-btn {
+  font-size: 24px;
+  height: 47px;
+  line-height: 47px;
+}
+
+/* ============ Celular ============ */
+@media (max-width: 767px) {
+  .qs-section {
+    padding: 0;
+    width: auto;
+  }
+
+  .team {
+    margin: 22px 0 0;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 16px 4px;
+  }
+
+  .team-member,
+  .team-member:nth-child(3) {
+    width: 31%;
+    margin: 0;
+  }
+
+  .team-member:last-child {
+    width: 40%;
+  }
+
+  .team-photo {
+    width: 100%;
+  }
+
+  .team-text {
+    margin-top: 0;
+    padding-left: 12%;
+    min-height: 0;
+  }
+
+  .team-text h2 {
+    font-size: 13px;
+  }
+
+  .team-text p {
+    font-size: 9px;
+  }
+
+  .qs-cards {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 34px;
+  }
+
+  .qs-card,
+  .qs-redes,
+  .qs-form {
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 12px 18px 64px;
+    background: var(--card-soft);
+    color: var(--card-on-dark);
+    border: 0.5px solid var(--ink);
+    box-shadow: 0 5px 0 rgba(25, 26, 35, 0.6);
+  }
+
+  .qs-card .stripes,
+  .qs-form .stripes {
+    display: block;
+    height: 41px;
+  }
+
+  .qs-card h2,
+  .qs-redes h2,
+  .qs-form h2 {
+    font-size: 24px;
+    line-height: 1.3;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+  }
+
+  .qs-redes-text,
+  .qs-form-text,
+  .qs-faq p {
+    margin-top: 12px;
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  .qs-socials {
+    margin: 12px 0 8px;
+    gap: 8px 12px;
+  }
+
+  .qs-pill {
+    height: 18px;
+    font-size: 12px;
+    padding: 0 6px;
+  }
+
+  .qs-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 0 8px;
+  }
+
+  .qs-btn {
+    font-size: 12px;
+    height: 20px;
+    line-height: 20px;
+  }
+}

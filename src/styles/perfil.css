@@ -1,0 +1,128 @@
+.profile {
+  width: min(360px, 100% - 32px);
+  margin: 0 auto;
+  padding: 28px 0 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text);
+}
+
+.pf-avatar {
+  --cw: 118px;
+}
+
+.pf-name {
+  font-size: 20px;
+  line-height: 42px;
+  margin-top: -12px;
+}
+
+.pf-email {
+  font-size: 20px;
+  line-height: 42px;
+  margin-top: -18px;
+  color: rgba(25, 26, 35, 0.5);
+}
+
+:root[data-theme='dark'] .pf-email {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.pf-menu {
+  width: 100%;
+  margin-top: 46px;
+  display: flex;
+  flex-direction: column;
+  gap: 19px;
+}
+
+.pf-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 67px;
+  padding: 0 14px 0 7px;
+  border-radius: 10px;
+  background: var(--m-row);
+  transition: filter 0.15s ease;
+}
+
+.pf-row:hover {
+  filter: brightness(0.95);
+}
+
+.pf-icon {
+  position: relative;
+  width: 53px;
+  height: 53px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.pf-icon img {
+  position: absolute;
+}
+
+.pf-cart-body {
+  left: 7.3px;
+  top: 12.3px;
+  width: 31.3px;
+  height: 22px;
+}
+
+.pf-cart-wheel {
+  left: 16.7px;
+  top: 37.6px;
+  width: 4.7px;
+  height: 4.7px;
+}
+
+.pf-cart-wheel-2 {
+  left: 31.3px;
+}
+
+.pf-dash {
+  left: 11px;
+  top: 26px;
+  width: 30px;
+  height: 1px;
+}
+
+.pf-book {
+  left: 9.2px;
+  top: 14.8px;
+  width: 32.5px;
+  height: 23.3px;
+}
+
+.pf-label {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--green);
+}
+
+.pf-chevron {
+  width: 16px;
+  height: 10px;
+  transform: rotate(-90deg) scaleX(-1);
+}
+
+.pf-logo {
+  --cw: 132px;
+  margin-top: 136px;
+}
+
+@media (max-width: 767px) {
+  .profile {
+    width: auto;
+    padding-top: 0;
+    margin-top: -13px;
+  }
+
+  .pf-menu {
+    width: calc(100% + 6px);
+  }
+}

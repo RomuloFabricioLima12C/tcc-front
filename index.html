@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="LightLab — controle inteligente para sua alimentação. Projeto de TCC." />
+    <title>LightLab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cal+Sans&family=League+Spartan:wght@300;500&family=Questrial&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      // Aplica o tema salvo antes do primeiro paint para evitar "piscar" claro→escuro.
+      // ?theme=dark ou ?theme=light na URL força um tema (útil para apresentar/testar).
+      try {
+        var t = new URLSearchParams(location.search).get('theme') || localStorage.getItem('lightlab-theme');
+        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

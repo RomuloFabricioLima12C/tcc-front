@@ -1,0 +1,177 @@
+.refs-section {
+  position: relative;
+  padding-top: 23px;
+  padding-bottom: 158px;
+}
+
+.refs-burst-left {
+  left: -423px;
+  top: 830px;
+  width: 691.57px;
+  height: 648px;
+  transform: scaleX(-1);
+}
+
+.refs-burst-right {
+  left: 1301px;
+  top: 98px;
+  width: 528.57px;
+  height: 523px;
+}
+
+.refs-list {
+  list-style: none;
+  margin: 50px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.ref-item {
+  position: relative;
+  width: min(1234px, 100%);
+}
+
+.ref-item-2,
+.ref-item-3 {
+  margin-left: -8px;
+}
+
+.ref-card {
+  min-height: 388px;
+  padding: 47px 104px 59px 52px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ref-item-1 .ref-card {
+  min-height: 424px;
+}
+
+.ref-item-3 .ref-card,
+.ref-item-4 .ref-card {
+  padding-top: 59px;
+}
+
+.ref-card h2 {
+  max-width: 1031px;
+  font-size: clamp(22px, 2.22vw, 32px);
+}
+
+.ref-card p {
+  margin-top: 36px;
+  max-width: 1095px;
+  font-size: clamp(20px, 2.22vw, 32px);
+}
+
+.ref-item-1 .ref-card p {
+  margin-top: 36px;
+}
+
+.ref-actions {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ref-btn {
+  background: var(--green);
+  font-size: clamp(26px, 2.5vw, 36px);
+  height: 55px;
+  line-height: 55px;
+}
+
+.ref-fruit {
+  position: absolute;
+  z-index: 2;
+}
+
+.ref-item-1 .ref-fruit {
+  --cw: 245px;
+  left: 1061px;
+  top: -40px;
+}
+
+.ref-item-2 .ref-fruit {
+  --cw: 215px;
+  left: 1098px;
+  top: -47px;
+}
+
+.ref-item-3 .ref-fruit {
+  --cw: 238px;
+  left: 1071px;
+  top: -77px;
+}
+
+.ref-item-4 .ref-fruit {
+  --cw: 236px;
+  left: 1082px;
+  top: -47px;
+}
+
+@media (max-width: 1340px) and (min-width: 768px) {
+  .ref-fruit {
+    left: auto !important;
+    right: -40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .refs-section {
+    padding: 0;
+    width: auto;
+  }
+
+  .refs-list {
+    margin-top: 40px;
+    gap: 40px;
+  }
+
+  .ref-item,
+  .ref-item-2,
+  .ref-item-3 {
+    width: 100%;
+    margin: 0;
+  }
+
+  .ref-card,
+  .ref-item-1 .ref-card,
+  .ref-item-3 .ref-card,
+  .ref-item-4 .ref-card {
+    min-height: 0;
+    padding: 20px 16px 16px;
+    border: 0.5px solid var(--ink);
+    box-shadow: 0 5px 0 rgba(25, 26, 35, 0.6);
+  }
+
+  .ref-card h2 {
+    font-size: 12px;
+    padding-right: 70px;
+  }
+
+  .ref-card p,
+  .ref-item-1 .ref-card p {
+    margin-top: 12px;
+    font-size: 16px;
+  }
+
+  .ref-btn {
+    font-size: 14px;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 16px;
+    border-radius: 7px;
+  }
+
+  .ref-item .ref-fruit {
+    --cw: 90px;
+    left: auto;
+    right: -14px;
+    top: -26px;
+  }
+}

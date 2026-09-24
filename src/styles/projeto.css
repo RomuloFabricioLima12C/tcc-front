@@ -1,0 +1,263 @@
+/* ============ Vídeo com decorações (Projeto, Jogo, Câmera) ============ */
+.video-section {
+  padding-top: 23px;
+}
+
+.video-wrap {
+  position: relative;
+  width: min(1240px, 100%);
+  margin: 50px auto 0;
+}
+
+.video-wrap .video-card {
+  z-index: 1;
+}
+
+.vd-burst {
+  right: -82px;
+  top: -82px;
+  width: 209px;
+  height: 209px;
+  transform: scaleX(-1);
+  z-index: 0;
+}
+
+.vd-burst-plain {
+  transform: none;
+  width: 199px;
+  right: -77px;
+}
+
+.vd-dot {
+  z-index: 2;
+}
+
+.vd-dot-a {
+  width: 18px;
+  right: -22px;
+  top: -74px;
+}
+
+.vd-dot-b {
+  width: 31px;
+  right: 65px;
+  top: -75px;
+}
+
+.vd-dot-c {
+  width: 24px;
+  right: -52px;
+  top: 37px;
+}
+
+.vd-triangle {
+  width: 95px;
+  left: -10px;
+  bottom: 100px;
+  rotate: -40.2deg;
+  z-index: 0;
+}
+
+.vd-star {
+  width: 160px;
+  left: -42px;
+  bottom: -61px;
+  z-index: 0;
+}
+
+/* ============ Passo a passo ============ */
+.steps-section {
+  position: relative;
+  padding-top: 117px;
+  padding-bottom: 109px;
+}
+
+.steps-onion {
+  --cw: 177px;
+  position: absolute;
+  top: 62px;
+  right: 145px;
+  z-index: 2;
+}
+
+.steps {
+  list-style: none;
+  margin: 95px auto 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 387px));
+  justify-content: center;
+  gap: 51px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.step-card {
+  min-height: 331px;
+  padding: 40px 35px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-card);
+  background: var(--card-plain);
+  color: #000;
+  box-shadow: var(--shadow-hard);
+}
+
+.step-head {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  min-height: 98px;
+}
+
+.step-badge {
+  position: relative;
+  flex-shrink: 0;
+  width: 98px;
+  height: 98px;
+  display: grid;
+  place-items: center;
+}
+
+.step-clover,
+.step-clover-top {
+  position: absolute;
+  width: 97.8px;
+  height: 97.8px;
+}
+
+.step-clover {
+  left: 0;
+  top: 0;
+}
+
+.step-clover-top {
+  left: -5px;
+  top: -4px;
+}
+
+.step-num {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 64px;
+  line-height: 1;
+  margin: -4px 0 0 -6px;
+}
+
+.step-head h3 {
+  margin-top: 20px;
+  max-width: 172px;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.step-dot {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 34px;
+}
+
+.step-line {
+  width: 100%;
+  height: 1px;
+  margin-top: 28px;
+}
+
+.step-card p {
+  margin-top: 28px;
+  font-family: var(--font-display);
+  font-size: clamp(18px, 1.67vw, 24px);
+}
+
+@media (max-width: 1100px) and (min-width: 768px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 387px));
+  }
+}
+
+/* ============ Celular ============ */
+@media (max-width: 767px) {
+  .video-section,
+  .steps-section {
+    padding: 0;
+    width: auto;
+  }
+
+  .video-wrap {
+    margin-top: 18px;
+  }
+
+  .vd-dot,
+  .vd-triangle {
+    display: none;
+  }
+
+  .vd-burst {
+    width: 66px;
+    height: 66px;
+    right: -17px;
+    top: -27px;
+    z-index: 2;
+  }
+
+  .vd-star {
+    width: 80px;
+    left: -20px;
+    bottom: -40px;
+    z-index: 2;
+  }
+
+  .steps-section {
+    margin-top: 39px;
+  }
+
+  .steps {
+    margin-top: 19px;
+    grid-template-columns: repeat(2, minmax(0, 165px));
+    gap: 25px 13px;
+  }
+
+  .step-card {
+    min-height: 224px;
+    padding: 20px 12px 20px 16px;
+  }
+
+  .step-head {
+    gap: 7px;
+    min-height: 35px;
+  }
+
+  .step-badge {
+    width: 35px;
+    height: 35px;
+  }
+
+  .step-clover-m {
+    position: absolute;
+    inset: 0;
+    width: 35px;
+    height: 35px;
+  }
+
+  .step-num {
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .step-head h3 {
+    margin-top: 2px;
+    font-size: 12px;
+    max-width: 100px;
+  }
+
+  .step-line {
+    width: 118px;
+    margin: 16px 0 0 7px;
+  }
+
+  .step-card p {
+    margin: 14px 0 0 13px;
+    font-size: 14px;
+  }
+}

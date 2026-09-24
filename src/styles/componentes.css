@@ -1,0 +1,211 @@
+.comp-section {
+  padding-top: 23px;
+  padding-bottom: 135px;
+}
+
+.comp-intro {
+  width: min(1234px, 100%);
+  margin: 50px 0 0 -1px;
+  min-height: 325px;
+  padding: 47px 60px 40px 52px;
+}
+
+.comp-intro h2 {
+  font-size: clamp(28px, 2.78vw, 40px);
+}
+
+.comp-intro p {
+  margin: 41px 0 0 8px;
+  max-width: 1114px;
+  font-size: clamp(20px, 2.22vw, 32px);
+}
+
+.comp-grid {
+  list-style: none;
+  padding: 0;
+  margin: 49px -26px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 59px 69px;
+}
+
+.comp-card {
+  position: relative;
+  width: 387px;
+  max-width: 100%;
+  min-height: 491px;
+  padding: 39px 34px 30px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-card);
+  background: var(--card-plain);
+  color: #000;
+  box-shadow: var(--shadow-hard);
+  overflow: hidden;
+}
+
+.comp-card.is-tall {
+  min-height: 575px;
+}
+
+.comp-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 98px;
+}
+
+.comp-price {
+  position: relative;
+  width: 150px;
+  height: 127px;
+  margin: -9px 0 -20px -13px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+
+.comp-price img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.comp-price span {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 24px;
+  white-space: nowrap;
+}
+
+.comp-head h3 {
+  margin-left: 17px;
+  max-width: 135px;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.comp-card .comp-sparkle,
+:root[data-theme='dark'] .comp-card .comp-sparkle {
+  --cw: 53px;
+  position: absolute;
+  right: -10px;
+  top: -15px;
+}
+
+
+.comp-line {
+  width: 100%;
+  height: 1px;
+  margin-top: 28px;
+}
+
+.comp-media {
+  flex: 1;
+  min-height: 214px;
+  display: grid;
+  place-items: center;
+  padding: 4px 0 18px;
+}
+
+.tilt-esp32 .crop {
+  rotate: 30.67deg;
+  --cw: 209px;
+  max-width: 70%;
+}
+
+.tilt-leds {
+  margin: 0 -34px;
+}
+
+.tilt-leds .crop {
+  rotate: -7.3deg;
+  border-radius: 21px;
+  --cw: 343px;
+}
+
+.comp-card p {
+  font-size: clamp(18px, 1.67vw, 24px);
+}
+
+@media (max-width: 767px) {
+  .comp-section {
+    padding: 0;
+    width: auto;
+  }
+
+  .comp-intro {
+    margin: 30px 0 0;
+    min-height: 0;
+    padding: 20px 16px 30px;
+  }
+
+  .comp-intro h2 {
+    font-size: 20px;
+  }
+
+  .comp-intro p {
+    margin: 22px 0 0;
+    font-size: 15px;
+  }
+
+  .comp-grid {
+    margin: 40px 0 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 165px));
+    justify-content: center;
+    align-items: start;
+    gap: 25px 13px;
+  }
+
+  .comp-card,
+  .comp-card.is-tall {
+    min-height: 0;
+    padding: 14px 10px 16px;
+  }
+
+  .comp-head {
+    min-height: 44px;
+  }
+
+  .comp-price {
+    width: 62px;
+    height: 52px;
+    margin: -8px 0 -8px -6px;
+  }
+
+  .comp-price span {
+    font-size: 10px;
+  }
+
+  .comp-head h3 {
+    margin-left: 6px;
+    font-size: 13px;
+    max-width: 80px;
+  }
+
+  .comp-card .comp-sparkle,
+  :root[data-theme='dark'] .comp-card .comp-sparkle {
+    display: none;
+  }
+
+  .comp-line {
+    margin-top: 10px;
+  }
+
+  .comp-media {
+    min-height: 90px;
+    padding: 8px 0;
+  }
+
+  .tilt-leds {
+    margin: 0 -10px;
+  }
+
+  .comp-card p {
+    font-size: 12px;
+  }
+}

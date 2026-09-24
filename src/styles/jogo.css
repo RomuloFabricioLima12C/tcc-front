@@ -1,0 +1,292 @@
+.game-section {
+  position: relative;
+  padding-top: 115px;
+  padding-bottom: 78px;
+}
+
+.game-card-wrap {
+  position: relative;
+  width: min(1232px, 100%);
+  margin-left: 29px;
+}
+
+.feature-card {
+  min-height: 528px;
+  padding: 41px 157px 90px 126px;
+  border: 1px solid var(--ink);
+  box-shadow: 0 4px 4px rgba(25, 26, 35, 0.6);
+}
+
+.feature-card.is-short {
+  min-height: 389px;
+  padding-right: 126px;
+}
+
+.feature-card h2 {
+  font-size: clamp(40px, 4.44vw, 64px);
+  line-height: 0.78;
+  text-align: center;
+  padding-top: 8px;
+}
+
+.feature-card:not(.is-short) h2 {
+  margin-right: -31px;
+}
+
+.feature-card p {
+  margin-top: 28px;
+  max-width: 949px;
+  font-size: clamp(18px, 1.67vw, 24px);
+  line-height: 1.33;
+}
+
+@media (min-width: 768px) {
+  .feature-card:not(.is-short) p {
+    max-width: 800px;
+  }
+}
+
+.feature-card .sparkle {
+  top: 13px;
+  right: 27px;
+}
+
+.feature-char {
+  --cw: 188px;
+  left: 939px;
+  top: 233px;
+  z-index: 1;
+}
+
+.game-burger {
+  --cw: 268px;
+  position: absolute;
+  left: 1046px;
+  top: -56px;
+  z-index: 2;
+}
+
+.interest-row {
+  position: relative;
+  margin-top: 66px;
+  margin-left: 24px;
+}
+
+.interest-row.is-monitor {
+  margin-top: 205px;
+}
+
+.game-section:has(.is-monitor) {
+  padding-bottom: 156px;
+}
+
+.interest-card {
+  position: relative;
+  z-index: 1;
+  width: min(600px, 100%);
+  min-height: 528px;
+  padding: 49px 55px 96px;
+  display: flex;
+  flex-direction: column;
+  background: var(--card-feedback);
+  color: var(--card-on-dark);
+  border: 0.5px solid var(--ink);
+  box-shadow: 0 5px 0 rgba(25, 26, 35, 0.6);
+}
+
+.interest-card.is-compact {
+  min-height: 450px;
+  padding-bottom: 88px;
+}
+
+.interest-card h2 {
+  max-width: 474px;
+  font-size: clamp(44px, 4.44vw, 64px);
+  line-height: 0.78;
+  padding-top: 8px;
+}
+
+.interest-card p {
+  margin-top: 25px;
+  max-width: 489px;
+  font-size: clamp(18px, 1.67vw, 24px);
+  line-height: 1.33;
+}
+
+.interest-actions {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 17px;
+}
+
+.is-compact .interest-actions {
+  margin-right: 38px;
+}
+
+.interest-card .sparkle {
+  top: 13px;
+  right: 13px;
+}
+
+:root[data-theme='dark'] .interest-card .sparkle {
+  top: -3px;
+  right: -23px;
+}
+
+.interest-char {
+  --cw: 296px;
+  left: -37px;
+  top: 333px;
+  z-index: 1;
+}
+
+.is-compact .interest-char {
+  left: -57px;
+  top: 249px;
+}
+
+.game-characters {
+  --cw: 515px;
+  position: absolute;
+  left: 709px;
+  top: 294px;
+  z-index: 2;
+}
+
+.monitor-cucumber {
+  --cw: 689px;
+  position: absolute;
+  left: 614px;
+  top: -90px;
+  z-index: 0;
+}
+
+@media (max-width: 1340px) and (min-width: 768px) {
+  .game-burger {
+    left: auto;
+    right: -30px;
+  }
+
+  .feature-char {
+    left: auto;
+    right: 20px;
+  }
+
+  .game-characters {
+    left: auto;
+    right: 0;
+    --cw: 40vw;
+  }
+
+  .monitor-cucumber {
+    left: auto;
+    right: -40px;
+    --cw: 45vw;
+  }
+}
+
+/* ============ Celular ============ */
+@media (max-width: 767px) {
+  .game-section {
+    padding: 0;
+    width: auto;
+    margin-top: 60px;
+  }
+
+  .game-section:has(.is-monitor) {
+    padding-bottom: 0;
+  }
+
+  .game-card-wrap {
+    width: 100%;
+    margin: 0;
+  }
+
+  .feature-card,
+  .feature-card.is-short {
+    min-height: 0;
+    padding: 20px 16px 70px;
+    border-radius: 20px;
+  }
+
+  .feature-card h2,
+  .feature-card:not(.is-short) h2 {
+    font-size: 20px;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0 60px 0 0;
+    text-align: left;
+  }
+
+  .feature-card p {
+    margin-top: 16px;
+    font-size: 14px;
+  }
+
+  .feature-card .stripes {
+    height: 41px;
+  }
+
+  .feature-char {
+    display: none;
+  }
+
+  .game-burger {
+    --cw: 80px;
+    left: auto;
+    right: -4px;
+    top: -18px;
+  }
+
+  .interest-row,
+  .interest-row.is-monitor {
+    margin: 32px 0 0;
+    padding-bottom: 60px;
+  }
+
+  .interest-card,
+  .interest-card.is-compact {
+    width: 100%;
+    min-height: 0;
+    padding: 18px 16px 56px;
+    border-radius: 20px;
+  }
+
+  .interest-card h2 {
+    font-size: 20px;
+    line-height: 1.2;
+    padding: 0;
+  }
+
+  .interest-card p {
+    margin-top: 16px;
+    font-size: 13px;
+  }
+
+  .interest-card .stripes {
+    height: 30px;
+  }
+
+  .interest-actions,
+  .is-compact .interest-actions {
+    margin-right: 10px;
+  }
+
+  .interest-char {
+    display: none;
+  }
+
+  .game-characters {
+    --cw: 170px;
+    position: relative;
+    left: auto;
+    top: auto;
+    margin: 16px 0 -40px auto;
+  }
+
+  .monitor-cucumber {
+    display: none;
+  }
+}

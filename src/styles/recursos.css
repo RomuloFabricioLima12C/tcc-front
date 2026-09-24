@@ -1,0 +1,165 @@
+.recursos {
+  padding-top: 23px;
+  padding-bottom: 120px;
+}
+
+.rec-intro {
+  margin-top: 50px;
+  padding: 40px 60px 48px 52px;
+  border: 0.5px solid var(--ink);
+}
+
+.rec-intro h2 {
+  font-size: clamp(28px, 2.78vw, 40px);
+}
+
+.rec-intro p {
+  margin-top: 30px;
+  font-size: clamp(20px, 2.22vw, 32px);
+}
+
+.rec-grid {
+  list-style: none;
+  padding: 0;
+  margin: 60px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 387px));
+  justify-content: center;
+  gap: 40px;
+}
+
+.rec-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 300px;
+  padding: 40px 35px;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-card);
+  background: var(--card-plain);
+  color: #000;
+  box-shadow: var(--shadow-hard);
+  transition: translate 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rec-card:hover {
+  translate: 0 -3px;
+  box-shadow: 0 8px 0 var(--ink);
+}
+
+.rec-head {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.rec-badge {
+  position: relative;
+  width: 120px;
+  height: 81px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.rec-badge img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.rec-badge span {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 56px;
+  margin-left: -10px;
+}
+
+.rec-name {
+  font-family: var(--font-display);
+  font-size: 32px;
+}
+
+.rec-line {
+  width: 100%;
+  height: 1px;
+  margin-top: 36px;
+}
+
+.rec-text {
+  margin-top: 36px;
+  font-size: clamp(20px, 1.94vw, 28px);
+}
+
+@media (max-width: 1000px) and (min-width: 768px) {
+  .rec-grid {
+    grid-template-columns: repeat(2, minmax(0, 387px));
+  }
+}
+
+@media (max-width: 767px) {
+  .recursos {
+    padding: 0;
+    width: auto;
+  }
+
+  .rec-intro {
+    margin-top: 36px;
+    padding: 15px 16px 22px;
+  }
+
+  .rec-intro h2 {
+    font-size: 20px;
+  }
+
+  .rec-intro p {
+    margin-top: 22px;
+    font-size: 15px;
+  }
+
+  .rec-grid {
+    margin-top: 27px;
+    grid-template-columns: repeat(2, minmax(0, 165px));
+    gap: 34px 13px;
+  }
+
+  .rec-grid li:nth-child(3) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 165px;
+  }
+
+  .rec-card {
+    min-height: 151px;
+    padding: 20px 14px 18px 16px;
+  }
+
+  .rec-head {
+    gap: 12px;
+  }
+
+  .rec-badge {
+    width: 52px;
+    height: 35px;
+  }
+
+  .rec-badge span {
+    font-size: 24px;
+    margin-left: -6px;
+  }
+
+  .rec-name {
+    font-size: 14px;
+  }
+
+  .rec-line {
+    width: 118px;
+    margin: 18px 0 0 7px;
+  }
+
+  .rec-text {
+    margin: 18px 0 0 4px;
+    font-size: 12px;
+  }
+}

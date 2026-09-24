@@ -1,0 +1,284 @@
+.auth {
+  display: grid;
+  grid-template-columns: minmax(0, 679fr) minmax(0, 761fr);
+  background: var(--auth-bg);
+  color: var(--text);
+}
+
+.auth-cadastro {
+  grid-template-columns: minmax(0, 746fr) minmax(0, 694fr);
+}
+
+.auth-login .space-panel {
+  order: 2;
+}
+
+/* ============ Painel espacial ============ */
+.space-panel {
+  position: relative;
+  background: #000;
+}
+
+.space-panel .crop {
+  max-width: none;
+}
+
+.space-bg {
+  width: 100.53%;
+  margin-left: -0.53%;
+}
+
+.space-cadastro .space-bg {
+  width: 102.55%;
+  margin-left: -2.95%;
+  margin-top: 11px;
+}
+
+.space-carrot,
+.space-tomato {
+  position: absolute;
+}
+
+.space-login .space-carrot {
+  left: -6.7%;
+  top: 57.7%;
+  width: 51.5%;
+}
+
+.space-login .space-tomato {
+  left: 67.67%;
+  top: 42.4%;
+  width: 61.2%;
+}
+
+.space-cadastro .space-carrot {
+  left: -20.78%;
+  top: 56%;
+  width: 52.5%;
+}
+
+.space-cadastro .space-tomato {
+  left: 61.5%;
+  top: 40.8%;
+  width: 38.5%;
+}
+
+/* ============ Formulário ============ */
+.auth-side {
+  position: relative;
+  z-index: 1;
+  padding: 24px 24px 60px 54px;
+}
+
+.auth-cadastro .auth-side {
+  padding: 0 24px 60px 79px;
+}
+
+.auth-top {
+  position: relative;
+  height: 142px;
+}
+
+.auth-logo {
+  display: block;
+  width: 186px;
+  margin-left: -36px;
+}
+
+.auth-cadastro .auth-logo {
+  margin-left: -52px;
+}
+
+.auth-logo .crop {
+  --cw: 186px;
+}
+
+:root[data-theme='dark'] .auth-logo .crop {
+  --cw: 226px;
+  margin: -11px 0 0 -18px;
+}
+
+.auth-toggle {
+  position: absolute;
+  top: 1px;
+  right: 11px;
+  margin: 0;
+}
+
+.auth-cadastro .auth-toggle {
+  top: 15px;
+  right: 61px;
+}
+
+.auth-form {
+  max-width: 547px;
+}
+
+.auth-form h1 {
+  margin-top: 139px;
+  font-size: clamp(40px, 4.44vw, 64px);
+  white-space: nowrap;
+}
+
+.auth-cadastro .auth-form h1 {
+  margin-top: 134px;
+}
+
+.auth-sub {
+  margin: 3px 0 0 5px;
+  font-size: clamp(22px, 2.22vw, 32px);
+}
+
+.auth-field {
+  display: block;
+}
+
+.auth-field span {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.22vw, 32px);
+}
+
+.auth-field input {
+  display: block;
+  width: 100%;
+  height: 79px;
+  margin: 5px 0 0 -6px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--input);
+  box-shadow: var(--shadow-soft);
+  font: 26px var(--font-body);
+  color: #000;
+}
+
+:root[data-theme='dark'] .auth-field input {
+  color: #fff;
+}
+
+.auth-field input:focus-visible {
+  outline: 3px solid var(--deep);
+  outline-offset: 2px;
+}
+
+.auth-field:first-of-type {
+  margin-top: 161px;
+}
+
+.auth-field + .auth-field {
+  margin-top: 94px;
+}
+
+.auth-submit {
+  display: block;
+  width: min(536px, 100%);
+  height: 130px;
+  margin: 245px 0 0 5px;
+  border-radius: 20px;
+  background: var(--auth-btn);
+  box-shadow: var(--shadow-soft);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(44px, 4.44vw, 64px);
+  transition: filter 0.15s ease;
+}
+
+.auth-submit:hover {
+  filter: brightness(1.1);
+}
+
+.auth-switch {
+  margin: 30px 0 0 8px;
+  font-size: clamp(22px, 2.22vw, 32px);
+}
+
+.auth-switch a {
+  font-family: var(--font-display);
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
+/* ============ Celular ============ */
+@media (max-width: 767px) {
+  .page-account .page-main {
+    padding-bottom: 40px;
+    min-height: calc(100vh - 96px);
+  }
+
+  .auth,
+  .auth-cadastro {
+    display: block;
+    background: none;
+  }
+
+  .space-panel {
+    display: none;
+  }
+
+  .auth-side,
+  .auth-cadastro .auth-side {
+    padding: 0 0 0;
+  }
+
+  .auth-form {
+    max-width: none;
+  }
+
+  .auth-form h1,
+  .auth-cadastro .auth-form h1 {
+    margin: -2px 0 0 33px;
+    font-size: 32px;
+    line-height: 42px;
+  }
+
+  .auth-sub {
+    margin: -8px 0 0 34px;
+    font-size: 15px;
+  }
+
+  .auth-field span {
+    font-size: 16px;
+    line-height: 42px;
+  }
+
+  .auth-field input {
+    height: 46px;
+    margin: -2px 0 0;
+    border-radius: 10px;
+    box-shadow: none;
+    font-size: 16px;
+    padding: 0 14px;
+  }
+
+  .auth-field:first-of-type {
+    margin-top: 18px;
+  }
+
+  .auth-field + .auth-field {
+    margin-top: 28px;
+  }
+
+  .auth-submit {
+    width: 100%;
+    height: 67px;
+    margin: 63px 0 0;
+    border-radius: 10px;
+    box-shadow: none;
+    background: var(--deep);
+    font-size: 36px;
+  }
+
+  .auth-switch {
+    margin: 16px 0 0;
+    text-align: center;
+    font-size: 15px;
+  }
+
+  .auth-logo-m {
+    --cw: 131px;
+    margin: 40px auto 0;
+  }
+}

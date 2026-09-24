@@ -1,0 +1,826 @@
+/* ============ Tokens (cores do Figma) ============ */
+:root {
+  --green: #00bf63;
+  --teal: #149d8d;
+  --deep: #0d675c;
+  --deeper: #08423b;
+  --lime: #b9ff66;
+  --soft: #d3ff9e;
+  --ink: #191a23;
+
+  --font-display: 'Cal Sans', 'League Spartan', system-ui, sans-serif;
+  --font-body: 'Questrial', system-ui, sans-serif;
+  --font-footer: 'League Spartan', system-ui, sans-serif;
+
+  --gutter: clamp(16px, 5.2vw, 75px);
+  --radius-card: 45px;
+  --shadow-soft: 0 5px 0 rgba(25, 26, 35, 0.5);
+  --shadow-hard: 0 5px 0 var(--ink);
+
+  /* Tema claro */
+  --bg: #fff;
+  --text: #000;
+  --text-soft: #232625;
+  --nav: var(--deep);
+  --search-bg: rgba(217, 217, 217, 0.6);
+  --pill: var(--teal);
+  --btn: var(--teal);
+  --card-soft: var(--soft);
+  --card-on-dark: #000; /* texto sobre os cards que escurecem no tema escuro */
+  --card-plain: #fff;
+  --card-feedback: #fff;
+  --card-contato: #a2febb;
+  --card-grey: #f5f5f5;
+  --video: #f3f3f3;
+  --input: var(--soft);
+  --auth-btn: var(--teal);
+  --auth-bg: #fff;
+  --table-head: rgba(8, 66, 59, 0.56);
+  --table-head-text: #fff;
+  --table-body: rgba(211, 255, 158, 0.77);
+
+  --m-top: var(--green);
+  --m-surface: #eee;
+  --m-tab: #d9d9d9;
+  --m-tab-text: var(--deep);
+  --m-row: #d9d9d9;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #000;
+  --text: #fff;
+  --text-soft: #fff;
+  --nav: var(--lime);
+  --search-bg: #d9d9d9;
+  --pill: var(--green);
+  --btn: var(--green);
+  --card-soft: var(--deep);
+  --card-on-dark: #fff;
+  --card-plain: var(--lime);
+  --card-feedback: var(--deeper);
+  --card-contato: #31a497;
+  --card-grey: var(--deep);
+  --video: #d9d9d9;
+  --input: var(--teal);
+  --auth-btn: var(--deeper);
+  --auth-bg: var(--ink);
+  --table-head: var(--deeper);
+  --table-head-text: var(--lime);
+  --table-body: var(--teal);
+
+  --m-top: var(--deep);
+  --m-surface: var(--ink);
+  --m-tab: var(--deep);
+  --m-tab-text: #fff;
+  --m-row: #2a2c38;
+
+  color-scheme: dark;
+}
+
+/* ============ Base ============ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+}
+
+:focus-visible {
+  outline: 3px solid var(--green);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.container {
+  width: min(1440px, 100%);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+}
+
+.page-main {
+  flex: 1;
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+.dark-only {
+  display: none;
+}
+
+:root[data-theme='dark'] .dark-only {
+  display: block;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Recorte de imagem do Figma */
+.crop {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  width: var(--cw, var(--cw-native));
+  max-width: 100%;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.crop img {
+  position: absolute;
+  max-width: none;
+  user-select: none;
+}
+
+.deco {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  max-width: none;
+}
+
+/* ============ Cabeçalho ============ */
+.site-header {
+  display: grid;
+  grid-template-columns: 163px 1fr 214px;
+  align-items: start;
+  column-gap: clamp(12px, 2vw, 32px);
+  padding-top: 44px;
+  position: relative;
+  z-index: 5;
+}
+
+.brand {
+  position: relative;
+  width: 163px;
+  height: 124px;
+}
+
+.brand .crop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+}
+
+.main-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px clamp(12px, 2.2vw, 40px);
+  margin-top: 47px;
+}
+
+.main-nav a {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 1.53vw, 22px);
+  color: var(--nav);
+  white-space: nowrap;
+  position: relative;
+}
+
+.main-nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.main-nav a:hover::after {
+  transform: scaleX(1);
+}
+
+.header-tools {
+  margin-top: 47px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.search {
+  width: 214px;
+  height: 31.43px;
+  border-radius: 20px;
+  background: var(--search-bg);
+  display: flex;
+  align-items: center;
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0 4px 0 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: #000;
+  outline: none;
+}
+
+.search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search input[aria-invalid] {
+  color: #b3261e;
+}
+
+.search button {
+  width: 31.43px;
+  height: 31.43px;
+  margin-right: 26px;
+  flex-shrink: 0;
+}
+
+.search button img {
+  width: 100%;
+  height: 100%;
+}
+
+.theme-toggle {
+  display: block;
+  margin-top: 7px;
+  border-radius: 30px;
+}
+
+.theme-toggle .crop {
+  --cw: 93px;
+}
+
+:root[data-theme='dark'] .theme-toggle .crop {
+  --cw: 90px;
+  margin-block: 6px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 7px;
+  background: var(--pill);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 20px;
+  white-space: nowrap;
+  transition: filter 0.15s ease;
+}
+
+.pill:hover,
+.btn:hover {
+  filter: brightness(1.1);
+}
+
+.pill-login {
+  margin-top: -1px;
+  margin-right: 4px;
+}
+
+/* ============ Rodapé ============ */
+.site-footer {
+  background: var(--deep);
+  color: #fff;
+  font-family: var(--font-footer);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: flex-start;
+  min-height: 156px;
+  padding-block: 14px;
+  padding-left: clamp(16px, 2.3vw, 33px);
+}
+
+.footer-logo {
+  --cw: 127px;
+  margin-right: clamp(32px, 11.25vw, 162px);
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  padding-top: 21px;
+  font-size: clamp(18px, 1.67vw, 24px);
+  line-height: 32px;
+  font-weight: 300;
+  min-width: clamp(140px, 14.6vw, 210px);
+}
+
+.footer-col h2 {
+  font-family: var(--font-footer);
+  font-weight: 500;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.footer-col a:hover {
+  text-decoration: underline;
+}
+
+/* ============ Peças comuns ============ */
+.section-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-title {
+  position: relative;
+  color: var(--text);
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.section-title > span {
+  position: relative;
+  z-index: 1;
+}
+
+.section-title .st-underline {
+  position: absolute;
+  z-index: 0;
+  left: -0.25em;
+  top: 0.667em;
+  width: 9.92em;
+  max-width: none;
+}
+
+.st-lg {
+  font-size: clamp(28px, 2.78vw, 40px);
+}
+
+.st-lg .st-underline {
+  left: -0.225em;
+  top: 0.65em;
+  width: 12.43em;
+}
+
+.st-md {
+  font-size: clamp(26px, 2.5vw, 36px);
+}
+
+.st-sm {
+  font-size: clamp(26px, 2.5vw, 36px);
+}
+
+.st-sm .st-underline {
+  width: 7.8em;
+  top: 0.8em;
+}
+
+:root[data-theme='dark'] .section-title .st-underline {
+  left: -0.5em;
+  top: 0.28em;
+  width: 9.2em;
+}
+
+:root[data-theme='dark'] .st-lg .st-underline {
+  left: -0.52em;
+  top: 0.25em;
+  width: 10.2em;
+}
+
+.stripes {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--sh);
+  z-index: 0;
+}
+
+.sparkle {
+  --cw: 53px;
+}
+
+:root[data-theme='dark'] .sparkle {
+  --cw: 111px;
+}
+
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.card > .stripes,
+.card > .sparkle,
+.card > .crop,
+.card > .deco {
+  position: absolute;
+}
+
+.card > .stripes {
+  z-index: 0;
+}
+
+.card-soft {
+  background: var(--card-soft);
+  color: var(--card-on-dark);
+  box-shadow: var(--shadow-soft);
+}
+
+.card .sparkle {
+  position: absolute;
+  top: 31px;
+  right: 34px;
+}
+
+:root[data-theme='dark'] .card .sparkle {
+  top: -4px;
+  right: -3px;
+}
+
+.btn {
+  display: inline-block;
+  background: var(--btn);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 2.78vw, 40px);
+  line-height: normal;
+  padding: 0 7px;
+  border-radius: 7px;
+  white-space: nowrap;
+  transition: filter 0.15s ease;
+}
+
+.video-card {
+  position: relative;
+  width: min(1240px, 100%);
+  aspect-ratio: 1240 / 557;
+  margin-inline: auto;
+  border-radius: var(--radius-card);
+  background: var(--video);
+  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.69));
+  display: grid;
+  place-items: center;
+}
+
+.video-play {
+  --cw: clamp(82px, 16.7vw, 240px);
+}
+
+/* ============ Celular (layout de app) ============ */
+@media (max-width: 767px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .page {
+    background: var(--m-top);
+  }
+
+  .page-main {
+    background: var(--m-surface);
+    border-radius: 40px 40px 0 0;
+    padding: 41px 17px 130px;
+    min-height: calc(100vh - 95px);
+  }
+
+  .m-top {
+    height: 95px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-top: 14px;
+  }
+
+  .m-brand {
+    width: 224px;
+    height: 72px;
+    border-radius: 20px;
+    background: var(--m-surface);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .m-brand .crop {
+    width: auto;
+    height: 72px;
+  }
+
+  .m-top-tools {
+    position: absolute;
+    right: 15px;
+    top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .m-toggle {
+    margin-top: 0;
+  }
+
+  .m-toggle .crop,
+  :root[data-theme='dark'] .m-toggle .crop {
+    --cw: 44px;
+    margin-block: 0;
+  }
+
+  :root[data-theme='dark'] .m-toggle .crop {
+    margin-block: 3px;
+  }
+
+  .m-game {
+    margin-top: -3px;
+  }
+
+  .m-titlebar {
+    height: 96px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+
+  .m-titlebar h1 {
+    font-size: 20px;
+    line-height: 42px;
+    margin-top: -10px;
+  }
+
+  .m-back {
+    position: absolute;
+    left: 20px;
+    top: 38px;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+  }
+
+  .m-back img {
+    width: 16px;
+    height: 10px;
+    rotate: 90deg;
+  }
+
+  .m-tabbar {
+    position: fixed;
+    z-index: 20;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 77px;
+    background: var(--m-tab);
+    display: grid;
+    grid-template-columns: 1fr 1fr 96px 1fr 1fr;
+    align-items: end;
+    padding: 0 6px 14px;
+  }
+
+  .m-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-family: var(--font-display);
+    font-size: 11px;
+    color: var(--m-tab-text);
+    white-space: nowrap;
+  }
+
+  .m-tab.active span {
+    text-decoration: underline;
+  }
+
+  .m-tab-icon {
+    --cw: 32px;
+  }
+
+  .home-icon {
+    position: relative;
+    width: 20px;
+    height: 22px;
+    margin: 6px 0 5px;
+  }
+
+  .home-icon img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 20px;
+    height: 22px;
+  }
+
+  .home-icon .home-door {
+    left: 6px;
+    top: 10px;
+    width: 8px;
+    height: 12px;
+  }
+
+  :root[data-theme='dark'] .home-icon img,
+  :root[data-theme='dark'] .m-tab-icon img {
+    filter: invert(1);
+  }
+
+  .m-perfil {
+    position: relative;
+    align-self: stretch;
+  }
+
+  .m-perfil-bump {
+    position: absolute;
+    left: 50%;
+    top: -25px;
+    translate: -50% 0;
+    width: 71px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--m-surface);
+  }
+
+  .m-perfil-berry {
+    position: absolute;
+    left: 50%;
+    top: -60px;
+    width: 150px;
+    height: 134px;
+    translate: -50% 0;
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+  }
+
+  .m-perfil-berry .crop {
+    --cw: 124px;
+    rotate: 26.65deg;
+  }
+
+  .m-perfil-label {
+    --cw: 66px;
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    top: -49px;
+    translate: -50% 0;
+  }
+
+  .section-title-row {
+    align-items: center;
+  }
+
+  .section-title,
+  .st-lg,
+  .st-md,
+  .st-sm {
+    font-size: 16px;
+  }
+
+  .section-title .st-underline,
+  .st-lg .st-underline,
+  .st-sm .st-underline {
+    width: 10.4em;
+    top: 0.69em;
+    left: -0.31em;
+  }
+
+  :root[data-theme='dark'] .section-title .st-underline,
+  :root[data-theme='dark'] .st-lg .st-underline {
+    width: 10em;
+    top: 0.1em;
+    left: -0.9em;
+  }
+
+  .pill-login-m {
+    margin-top: -4px;
+    border-radius: 7px;
+  }
+
+  .card {
+    border-radius: 20px;
+  }
+
+  .card .sparkle,
+  :root[data-theme='dark'] .card .sparkle {
+    --cw: 23px;
+    top: 12px;
+    right: 18px;
+    margin: 0;
+  }
+
+  :root[data-theme='dark'] .card .sparkle {
+    --cw: 44px;
+    top: 4px;
+    right: 8px;
+  }
+
+  .btn {
+    font-size: 20px;
+  }
+
+  .video-card {
+    aspect-ratio: 346 / 260;
+    border-radius: 45px;
+  }
+}
+
+/* ============ 404 ============ */
+.not-found {
+  padding-top: 23px;
+  padding-bottom: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  font-size: clamp(18px, 1.67vw, 24px);
+}
+
+.not-found .section-title-row {
+  align-self: stretch;
+}
+
+/* ============ Tema escuro: traços pretos das ilustrações viram brancos ============ */
+:root[data-theme='dark'] .vd-burst-plain,
+:root[data-theme='dark'] .chart-burst,
+:root[data-theme='dark'] .chart-line-top,
+:root[data-theme='dark'] .chart-line-left,
+:root[data-theme='dark'] .chart-line-right,
+:root[data-theme='dark'] .chart-line-bottom,
+:root[data-theme='dark'] .refs-burst-left,
+:root[data-theme='dark'] .refs-burst-right {
+  filter: invert(1) hue-rotate(180deg);
+}
+

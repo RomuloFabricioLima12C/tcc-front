@@ -1,5 +1,17 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/home.html" }
-  ]
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "redirects": [
+    { "source": "/home.html", "destination": "/", "permanent": true },
+    { "source": "/passo.html", "destination": "/projeto", "permanent": true },
+    { "source": "/compo.html", "destination": "/componentes", "permanent": true },
+    { "source": "/quem.html", "destination": "/quem-somos", "permanent": true },
+    { "source": "/ref.html", "destination": "/referencias", "permanent": true },
+    { "source": "/game.html", "destination": "/jogo", "permanent": true },
+    { "source": "/login.html", "destination": "/login", "permanent": true },
+    { "source": "/cadastro.html", "destination": "/cadastro", "permanent": true }
+  ],
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

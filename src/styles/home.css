@@ -1,0 +1,464 @@
+/* ============ Hero ============ */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 689px);
+  min-height: 600px;
+  padding-top: 23px;
+}
+
+.hero-kicker {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 2.5vw, 36px);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.hero-title {
+  margin-top: 27px;
+  font-size: clamp(34px, 3.33vw, 48px);
+  line-height: 0.875;
+  color: var(--green);
+}
+
+.hero-lead {
+  margin-top: 29px;
+  max-width: 485px;
+  font-size: clamp(22px, 2.22vw, 32px);
+  color: var(--text-soft);
+}
+
+.hero-motto {
+  margin-top: 25px;
+  max-width: none;
+}
+
+.hero-art {
+  position: relative;
+  justify-self: end;
+  width: 100%;
+  max-width: 689px;
+  margin-top: -53px;
+  margin-right: -9px;
+}
+
+.hero-cucumber {
+  --cw: 689px;
+  width: 100%;
+}
+
+.hero-cucumber-dark {
+  --cw: 651px;
+  width: 94.5%;
+  margin: 11px 0 0 auto;
+  margin-right: 2.9%;
+}
+
+/* O recorte escuro tem enquadramento diferente: alinha o pepino com o do tema claro. */
+@media (min-width: 768px) {
+  :root[data-theme='dark'] .hero-art > * {
+    translate: 35px 31px;
+  }
+
+  :root[data-theme='dark'] .hero-cucumber-dark {
+    scale: 1.037;
+  }
+
+  /* bolinhas nos mesmos lugares das do tema claro */
+  :root[data-theme='dark'] .hero-art > .hero-dot-1 {
+    translate: 7px 27px;
+  }
+
+  :root[data-theme='dark'] .hero-art > .hero-dot-2 {
+    translate: 12px 17px;
+  }
+
+  :root[data-theme='dark'] .hero-art > .hero-dot-3 {
+    translate: 16px 0;
+  }
+}
+
+.hero-dot-1 {
+  left: 16.1%;
+  top: 2.1%;
+  width: 9.4%;
+}
+
+.hero-dot-2,
+.hero-dot-3 {
+  width: 4.9%;
+}
+
+.hero-dot-2 {
+  left: 27.6%;
+  top: 12.5%;
+}
+
+.hero-dot-3 {
+  left: 70.2%;
+  top: 81.7%;
+}
+
+.hero-scroll {
+  position: absolute;
+  left: 50%;
+  top: 549px;
+  translate: -50% 0;
+  width: 116px;
+  padding: 4px;
+  transition: translate 0.2s ease;
+}
+
+.hero-scroll:hover {
+  translate: -50% 4px;
+}
+
+.hero-scroll img {
+  width: 100%;
+  height: auto;
+}
+
+/* ============ Sobre o projeto ============ */
+.about {
+  position: relative;
+  padding-top: 164px;
+}
+
+.about-burst {
+  top: 230px;
+  left: -423px;
+  width: 691.57px;
+  height: 648px;
+  transform: scaleX(-1);
+}
+
+.about-glow {
+  top: 392px;
+  left: -30px;
+  width: 299px;
+  height: 404px;
+  transform: scaleX(-1);
+}
+
+.services-burst {
+  top: 1157px;
+  right: -366px;
+  width: 691.57px;
+  height: 648px;
+}
+
+.about .section-title-row,
+.about-list {
+  position: relative;
+  z-index: 1;
+}
+
+.about-list {
+  margin-top: 98px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 87px;
+}
+
+.about-card {
+  width: min(1234px, 100%);
+  min-height: 279px;
+  padding: 47px 60px 40px;
+  background: var(--card-soft);
+  color: var(--card-on-dark);
+  box-shadow: var(--shadow-soft);
+}
+
+.about-card:nth-child(2) {
+  translate: -9px 0;
+}
+
+.about-card-title {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-left: -18px;
+  font-size: clamp(28px, 2.78vw, 40px);
+  line-height: normal;
+}
+
+.about-num {
+  font-size: clamp(40px, 4.17vw, 60px);
+}
+
+.about-card p {
+  margin-top: 18px;
+  font-size: clamp(20px, 2.22vw, 32px);
+  max-width: 1114px;
+}
+
+/* ============ Nossos serviços ============ */
+.services {
+  position: relative;
+  z-index: 1;
+  padding-top: 288px;
+  padding-bottom: 91px;
+}
+
+.services-grid {
+  margin-top: 70px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 600px));
+  justify-content: center;
+  column-gap: clamp(24px, 8.4vw, 121px);
+  row-gap: 91px;
+  margin-inline: calc(-1 * clamp(0px, 1.1vw, 16px));
+}
+
+.promo-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 528px;
+  padding: 41px 55px 100px;
+  border: 1px solid var(--ink);
+  box-shadow: 0 4px 4px rgba(25, 26, 35, 0.6);
+  color: var(--card-on-dark);
+}
+
+.promo-card h3 {
+  font-size: clamp(44px, 4.44vw, 64px);
+  line-height: 0.78;
+  max-width: 485px;
+  padding-top: 8px;
+}
+
+.promo-card p {
+  margin-top: 22px;
+  max-width: 489px;
+  font-size: clamp(18px, 1.67vw, 24px);
+  line-height: 1.33;
+}
+
+.promo-actions {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+}
+
+.promo-card .sparkle {
+  top: 13px;
+  right: 13px;
+}
+
+:root[data-theme='dark'] .promo-card .sparkle {
+  top: -3px;
+  right: -23px;
+}
+
+.promo-char {
+  z-index: 1;
+}
+
+.promo-feedback {
+  background: var(--card-feedback);
+  border-width: 0.5px;
+  box-shadow: 0 5px 0 rgba(25, 26, 35, 0.6);
+}
+
+.promo-feedback .promo-actions {
+  justify-content: flex-end;
+  margin-right: 19px;
+}
+
+.promo-feedback .promo-char {
+  --cw: 200px;
+  left: 0;
+  bottom: 45px;
+}
+
+.promo-redes {
+  background: var(--card-soft);
+}
+
+.promo-redes .promo-char {
+  --cw: 144px;
+  right: -17px;
+  bottom: 49px;
+}
+
+.promo-contato {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: min(600px, 100%);
+  background: var(--card-contato);
+  translate: 9px 0;
+}
+
+.promo-contato .promo-char {
+  --cw: 167px;
+  right: 1px;
+  bottom: 41px;
+}
+
+/* ============ Celular ============ */
+@media (max-width: 767px) {
+  .hero {
+    display: block;
+    min-height: 178px;
+    height: 178px;
+    margin: 18px 5px 29px;
+    padding: 26px 12px;
+    width: auto;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  :root[data-theme='dark'] .hero {
+    background: #000;
+  }
+
+  .hero-kicker {
+    font-size: 15px;
+  }
+
+  .hero-title {
+    margin-top: 15px;
+    width: 152px;
+    font-size: 24px;
+    line-height: 20px;
+  }
+
+  .hero-title br {
+    display: none;
+  }
+
+  .hero-art {
+    position: absolute;
+    left: 166px;
+    top: 21px;
+    width: 161px;
+    margin: 0;
+  }
+
+  .hero-cucumber {
+    --cw: 161px;
+  }
+
+  .hero-cucumber-dark {
+    --cw: 152px;
+    width: 152px;
+    margin: 4px 0 0 4px;
+  }
+
+  .hero-dot {
+    display: none;
+  }
+
+  .hero .hero-sparkle {
+    --cw: 23px;
+    position: absolute;
+    right: 10px;
+    top: 7px;
+  }
+
+  :root[data-theme='dark'] .hero .hero-sparkle {
+    --cw: 40px;
+    right: 2px;
+    top: 0;
+  }
+
+  .about {
+    padding: 0;
+  }
+
+  .about-burst,
+  .about-glow,
+  :root[data-theme='dark'] .about-glow,
+  .services-burst {
+    display: none;
+  }
+
+  .about-list {
+    margin-top: 0;
+    gap: 28px;
+  }
+
+  .about-card,
+  .about-card:nth-child(2) {
+    width: 100%;
+    max-width: 337px;
+    min-height: 193px;
+    padding: 9.5px 16.5px 60px;
+    border: 0.5px solid var(--ink);
+    box-shadow: 0 5px 0 rgba(25, 26, 35, 0.6);
+    color: #000;
+    translate: none;
+  }
+
+  .about-card-1 {
+    background: #fff;
+  }
+
+  .about-card-2 {
+    background: rgba(196, 255, 0, 0.46);
+  }
+
+  .about-card-3 {
+    background: rgba(0, 218, 58, 0.41);
+  }
+
+  :root[data-theme='dark'] .about-card {
+    color: #fff;
+  }
+
+  :root[data-theme='dark'] .about-card-1 {
+    background: var(--deeper);
+  }
+
+  :root[data-theme='dark'] .about-card-2 {
+    background: var(--deep);
+  }
+
+  :root[data-theme='dark'] .about-card-3 {
+    background: #31a497;
+  }
+
+  .about-card-title {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .about-card p {
+    margin-top: 13px;
+    font-size: 14px;
+    max-width: 303px;
+  }
+
+  .about-extra {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .about-char {
+    position: absolute;
+    z-index: 1;
+  }
+
+  .about-card-1 .about-char {
+    --cw: 86px;
+    right: -2px;
+    top: 105px;
+    transform: scaleX(-1);
+  }
+
+  .about-card-2 .about-char {
+    --cw: 50px;
+    right: -5px;
+    top: 95px;
+  }
+
+  .about-card-3 .about-char {
+    --cw: 48px;
+    right: -6px;
+    top: 105px;
+  }
+}
