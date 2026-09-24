@@ -317,10 +317,6 @@ img {
   --cw: 93px;
 }
 
-:root[data-theme='dark'] .theme-toggle .crop {
-  --cw: 90px;
-  margin-block: 6px;
-}
 
 .pill {
   display: inline-flex;
@@ -595,10 +591,6 @@ img {
   :root[data-theme='dark'] .m-toggle .crop {
     --cw: 44px;
     margin-block: 0;
-  }
-
-  :root[data-theme='dark'] .m-toggle .crop {
-    margin-block: 3px;
   }
 
   .m-game {

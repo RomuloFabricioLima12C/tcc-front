@@ -17,8 +17,7 @@ const socials = [
   { label: 'VICTOR', href: links.instagram.victor },
   { label: 'ENZO', href: links.instagram.enzo },
   { label: 'RÔMULO', href: links.instagram.romulo },
-  // Sem link no Figma — trocar pelo @ do Gabriel quando houver.
-  { label: 'GABRIEL', href: null },
+  { label: 'GABRIEL', href: links.instagram.gabriel },
 ]
 
 const green = 'rgba(0, 218, 58, 0.41)'

@@ -9,12 +9,13 @@ const crop = (file, w, h, iw, ih, l, t, extra = {}) => ({ src: f(file), w, h, iw
 export const img = {
   // Marca
   logo: crop('eef0f.png', 163, 124, 625.06, 1155.88, -37.46, -113.96),
-  logoDark: crop('29bff.png', 214, 158, 447.47, 858.37, -175.32, -216.31),
+  // Recortes escuros ajustados para o desenho ocupar o mesmo tamanho/posição dos claros
+  logoDark: crop('29bff.png', 163, 124, 624.2, 1162.1, -262.29, -305.1),
   logoFooter: crop('ed84f.png', 127, 121, 687.26, 406.41, -288.75, -150),
 
   // Botão de tema (lua = claro, sol = escuro)
   toggleLight: crop('80213.png', 93, 59, 311.45, 689.66, -104.41, -174.83),
-  toggleDark: crop('38ebe.png', 90, 46, 199.15, 549.45, -51.27, -155.22, { flipX: true }),
+  toggleDark: crop('38ebe.png', 93, 59, 232.48, 516.76, -64.89, -150.83, { flipX: true }),
 
   // Sublinhado com estrela dos títulos de seção
   underline: crop('c74b2.png', 497, 60, 111.43, 1315.79, -5.75, -305.26, { flipY: true }),
@@ -149,7 +150,8 @@ export const links = {
   instagram: {
     laura: 'https://www.instagram.com/laurarodrigues_araujo/',
     victor: 'https://www.instagram.com/oli.fustte/',
-    enzo: 'https://www.instagram.com/gfelix270109/',
+    enzo: 'https://www.instagram.com/_enzxy_?stkn=MWNhcnRndXNid2gzdQ==',
+    gabriel: 'https://www.instagram.com/gfelix270109?stkn=YWlhbGN3bWt3MmJs',
     romulo: 'https://www.instagram.com/rml.og/',
   },
 }

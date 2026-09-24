@@ -93,10 +93,6 @@
   --cw: 186px;
 }
 
-:root[data-theme='dark'] .auth-logo .crop {
-  --cw: 226px;
-  margin: -11px 0 0 -18px;
-}
 
 .auth-toggle {
   position: absolute;

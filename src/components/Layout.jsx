@@ -15,7 +15,7 @@ function useScrollTopOnNavigate() {
 export function SiteLayout({ children, title }) {
   useScrollTopOnNavigate()
   useEffect(() => {
-    document.title = title ? `${title} · LightLab` : 'LightLab'
+    document.title = title ? `${title} · Lab Cam` : 'Lab Cam'
   }, [title])
 
   return (
@@ -41,7 +41,7 @@ export function SiteLayout({ children, title }) {
 export function AccountLayout({ children, title, desktopHeader = true }) {
   useScrollTopOnNavigate()
   useEffect(() => {
-    document.title = `${title} · LightLab`
+    document.title = `${title} · Lab Cam`
   }, [title])
 
   return (

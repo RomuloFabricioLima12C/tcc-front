@@ -4,30 +4,30 @@ import { SectionTitle } from '../components/Bits.jsx'
 import { img, svg } from '../assets.js'
 import '../styles/referencias.css'
 
-// Os links são os que estão no Figma (os artigos 3 e 4 apontam para o mesmo site).
+// Links dos artigos (os artigos 3 e 4 apontam para o mesmo site).
 const refs = [
   {
     title: '1. PERCEPÇÃO DO CONSUMIDOR EM RELAÇÃO À VALIDADE DE PRODUTOS ALIMENTÍCIOS',
     text: 'O artigo analisa como os consumidores observam e interpretam os prazos de validade nos alimentos industrializados. A pesquisa mostra que a maioria confia nas datas presentes nos rótulos, mas poucos sabem como elas são definidas pelas indústrias.',
-    href: 'https://www.vozdocampo.pt',
+    href: 'https://www.vozdocampo.pt?utm_source=chatgpt.com',
     fruit: img.blueberry,
   },
   {
     title: '2. CADEIA DO FRIO PARA ALIMENTOS',
     text: 'O trabalho explica a importância da refrigeração e do congelamento na conservação de alimentos. Também destaca como o controle correto da temperatura durante armazenamento e transporte ajuda a evitar contaminações e desperdícios.',
-    href: 'https://www.revistaseletronicas.fmu.br/index.php/ASA',
+    href: 'https://www.revistaseletronicas.fmu.br/index.php/ASA?utm_source=chatgpt.com',
     fruit: img.carrot,
   },
   {
     title: '3. PRAZO DE VALIDADE DE ALIMENTOS INDUSTRIALIZADOS',
     text: 'O livro aborda os principais fatores que influenciam a vida útil dos alimentos industrializados, como embalagem, temperatura e armazenamento. Além disso, compara os prazos de validade de diferentes categorias de produtos.',
-    href: 'https://www.eq.ufrj.br',
+    href: 'https://www.eq.ufrj.br?utm_source=chatgpt.com',
     fruit: img.salami,
   },
   {
     title: '4. PRAZO DE VALIDADE ALIMENTAR',
     text: 'O artigo explica os diferentes tipos de prazo de validade e os fatores que afetam a conservação dos alimentos. Também destaca a relação entre validade, qualidade e segurança alimentar.',
-    href: 'https://www.eq.ufrj.br',
+    href: 'https://www.eq.ufrj.br?utm_source=chatgpt.com',
     fruit: img.tomato,
   },
 ]
