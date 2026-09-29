@@ -72,7 +72,7 @@ export function MobileTabBar() {
         <span className="m-perfil-bump" aria-hidden="true" />
         <Crop s={img.perfilLabel} className="m-perfil-label" />
         <span className="m-perfil-berry">
-          <Crop s={img.blueberry} />
+          <ThemeCrop light={img.blueberry} dark={img.blueberryDark} />
         </span>
       </Link>
       {right.map(renderTab)}

@@ -104,6 +104,8 @@
 }
 
 .comp-media {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
   flex: 1;
   min-height: 214px;
   display: grid;

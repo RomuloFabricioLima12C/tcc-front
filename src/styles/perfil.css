@@ -126,3 +126,22 @@
     width: calc(100% + 6px);
   }
 }
+
+.pf-camera {
+  position: absolute;
+  left: 10.5px;
+  top: 13.5px;
+  width: 32px;
+  height: 26px;
+}
+
+.pf-soon {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 7px;
+  background: var(--lime);
+  color: var(--deep);
+  font-size: 11px;
+  vertical-align: 2px;
+}
