@@ -278,3 +278,227 @@
     margin: 40px auto 0;
   }
 }
+
+/* ============ "Esqueceu a senha?" (link no login) ============ */
+.auth-forgot {
+  max-width: 547px;
+  margin: 16px 0 0;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: clamp(18px, 1.53vw, 22px);
+}
+
+.auth-forgot a {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.auth-forgot a:hover {
+  color: var(--green);
+}
+
+.auth-forgot + .auth-submit {
+  margin-top: 205px;
+}
+
+/* ============ Página de nova senha ============ */
+.auth-reset .auth-field {
+  margin-top: 36px;
+}
+
+.auth-reset .auth-sub + .auth-field {
+  margin-top: 80px;
+}
+
+.auth-reset .auth-field label {
+  display: block;
+}
+
+.auth-pass {
+  position: relative;
+  display: block;
+}
+
+.auth-pass input {
+  padding-right: 130px;
+}
+
+.auth-eye {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  translate: 0 -50%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--deep);
+}
+
+:root[data-theme='dark'] .auth-eye {
+  color: #fff;
+}
+
+.auth-eye:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.pass-rules {
+  list-style: none;
+  max-width: 547px;
+  margin: 22px 0 0;
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: 2px dashed rgba(13, 103, 92, 0.35);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
+  font-size: 18px;
+  color: var(--text);
+}
+
+:root[data-theme='dark'] .pass-rules {
+  border-color: rgba(185, 255, 102, 0.35);
+}
+
+.pass-rules li {
+  display: flex;
+  gap: 8px;
+  opacity: 0.7;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.pass-mark {
+  width: 1.1em;
+  flex-shrink: 0;
+  font-weight: 700;
+  text-align: center;
+}
+
+.pass-rules li.is-ok,
+.pass-match.is-ok {
+  color: #00a352;
+  opacity: 1;
+}
+
+.pass-rules li.is-bad,
+.pass-match.is-bad,
+.pass-error {
+  color: #d93025;
+  opacity: 1;
+}
+
+:root[data-theme='dark'] .pass-rules li.is-ok,
+:root[data-theme='dark'] .pass-match.is-ok {
+  color: var(--lime);
+}
+
+:root[data-theme='dark'] .pass-rules li.is-bad,
+:root[data-theme='dark'] .pass-match.is-bad,
+:root[data-theme='dark'] .pass-error {
+  color: #ff8a80;
+}
+
+.pass-match {
+  min-height: 26px;
+  margin-top: 12px;
+  font-size: 18px;
+}
+
+.pass-error {
+  margin-top: 16px;
+  font-size: 20px;
+}
+
+.auth-reset .reset-submit {
+  margin-top: 56px;
+}
+
+.reset-done h1 {
+  white-space: normal;
+}
+
+.reset-done .auth-sub {
+  margin-top: 16px;
+  max-width: 547px;
+}
+
+.reset-back {
+  display: grid;
+  place-items: center;
+  margin-top: 80px;
+  font-size: clamp(32px, 3.33vw, 48px);
+}
+
+@media (max-width: 767px) {
+  .auth-forgot {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+
+  .auth-forgot + .auth-submit {
+    margin-top: 40px;
+  }
+
+  .auth-reset .auth-field {
+    margin-top: 20px;
+  }
+
+  .auth-reset .auth-sub + .auth-field {
+    margin-top: 18px;
+  }
+
+  .auth-pass input {
+    padding-right: 90px;
+  }
+
+  .auth-eye {
+    right: 8px;
+    font-size: 13px;
+  }
+
+  .pass-rules {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  .pass-match {
+    min-height: 18px;
+    margin-top: 6px;
+    font-size: 13px;
+  }
+
+  .pass-error {
+    font-size: 14px;
+  }
+
+  .auth-reset .reset-submit {
+    margin-top: 28px;
+  }
+
+  .reset-done h1 {
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .reset-done .auth-sub {
+    margin: 12px 0 0;
+    text-align: center;
+  }
+
+  .reset-back {
+    margin-top: 40px;
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 768px) {
+  .auth-reset .auth-form > .auth-sub {
+    white-space: nowrap;
+  }
+}

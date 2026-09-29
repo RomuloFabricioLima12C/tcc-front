@@ -16,6 +16,7 @@ export const extraPages = [
   { to: '/perfil', label: 'Perfil', keywords: 'perfil conta usuario usuário compras' },
   { to: '/login', label: 'Login', keywords: 'login entrar' },
   { to: '/cadastro', label: 'Cadastro', keywords: 'cadastro cadastrar conta' },
+  { to: '/esqueci-senha', label: 'Esqueceu a senha', keywords: 'esqueci esqueceu senha recuperar redefinir nova senha' },
 ]
 
 const normalize = (s) =>

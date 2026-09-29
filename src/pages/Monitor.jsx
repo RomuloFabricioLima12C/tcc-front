@@ -1,5 +1,4 @@
 import { SiteLayout } from '../components/Layout.jsx'
-import Crop from '../components/Crop.jsx'
 import ThemeCrop from '../components/ThemeImage.jsx'
 import { Button, SectionTitle, Sparkle, Stripes, VideoCard } from '../components/Bits.jsx'
 import { VideoDecor } from './Projeto.jsx'

@@ -26,7 +26,7 @@ const copy = {
   },
 }
 
-function SpacePanel({ mode }) {
+export function SpacePanel({ mode }) {
   return (
     <div className={`space-panel space-${mode}`} aria-hidden="true">
       <Crop s={img.space} className="space-bg" />
@@ -89,6 +89,11 @@ export default function Auth({ mode }) {
                 onChange={(e) => setSenha(e.target.value)}
               />
             </label>
+            {mode === 'login' && (
+              <p className="auth-forgot">
+                <Link to="/esqueci-senha">Esqueceu a senha?</Link>
+              </p>
+            )}
 
             <button type="submit" className="auth-submit">
               {t.submit}
