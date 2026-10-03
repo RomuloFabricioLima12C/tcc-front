@@ -1,0 +1,307 @@
+/* Página "Meus alimentos" — estilo próprio e simples, usando as cores do site */
+.al-page {
+  padding-top: 23px;
+  padding-bottom: 100px;
+  color: var(--text);
+}
+
+.al-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.al-top h1 {
+  font-size: clamp(30px, 3.3vw, 48px);
+}
+
+.al-ola {
+  margin-top: 4px;
+  font-size: 20px;
+}
+
+.al-sair {
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: 2px solid var(--deep);
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--text);
+}
+
+.al-sair:hover {
+  background: var(--deep);
+  color: #fff;
+}
+
+.al-alerta {
+  margin-top: 24px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  background: #fff4d6;
+  border: 2px solid #f0b429;
+  color: #5c3c00;
+  font-size: 18px;
+  display: grid;
+  gap: 4px;
+}
+
+:root[data-theme='dark'] .al-alerta {
+  background: #3a2c08;
+  color: #ffe08a;
+}
+
+.al-grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.al-card {
+  padding: 24px;
+  border-radius: 24px;
+  border: 1px solid var(--ink);
+  background: var(--card-soft);
+  color: var(--card-on-dark);
+  box-shadow: var(--shadow-soft);
+}
+
+.al-card h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.al-form {
+  display: grid;
+  gap: 14px;
+}
+
+.al-form label {
+  display: grid;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+
+.al-form input,
+.al-form select {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(25, 26, 35, 0.3);
+  background: #fff;
+  color: #000;
+  font: 16px var(--font-body);
+}
+
+.al-linha {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 12px;
+}
+
+.al-btn {
+  height: 48px;
+  margin-top: 4px;
+  border-radius: 12px;
+  background: var(--btn);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 20px;
+}
+
+.al-btn:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.al-ok,
+.al-erro {
+  font-size: 15px;
+}
+
+.al-ok {
+  color: var(--deep);
+}
+
+:root[data-theme='dark'] .al-ok {
+  color: var(--lime);
+}
+
+.al-erro {
+  color: #d93025;
+}
+
+:root[data-theme='dark'] .al-erro {
+  color: #ff8a80;
+}
+
+.al-lista {
+  background: var(--card-plain);
+  color: #000;
+}
+
+.al-conta {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 26px;
+  margin-left: 6px;
+  padding: 0 8px;
+  border-radius: 13px;
+  background: var(--deep);
+  color: #fff;
+  font-size: 15px;
+  vertical-align: 3px;
+}
+
+.al-lista ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.al-vazio {
+  font-size: 17px;
+  opacity: 0.75;
+}
+
+.al-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border-left: 6px solid #2ea043;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.al-item.is-atencao {
+  border-left-color: #f0b429;
+  background: #fff8e1;
+}
+
+.al-item.is-urgente {
+  border-left-color: #f57c00;
+  background: #ffefe0;
+}
+
+.al-item.is-vencido {
+  border-left-color: #d93025;
+  background: #fdecea;
+}
+
+.al-info {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.al-info strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 19px;
+}
+
+.al-meta {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.al-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 0 7px;
+  border-radius: 6px;
+  background: var(--deep);
+  color: #fff;
+  font-size: 12px;
+}
+
+.al-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  white-space: nowrap;
+  background: #2ea043;
+  color: #fff;
+}
+
+.al-badge.is-atencao {
+  background: #f0b429;
+  color: #3d2a00;
+}
+
+.al-badge.is-urgente {
+  background: #f57c00;
+}
+
+.al-badge.is-vencido {
+  background: #d93025;
+}
+
+.al-remover {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #555;
+}
+
+.al-remover:hover {
+  background: rgba(217, 48, 37, 0.12);
+  color: #d93025;
+}
+
+@media (max-width: 900px) {
+  .al-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .al-page {
+    padding: 0;
+    width: auto;
+  }
+
+  .al-top h1 {
+    font-size: 26px;
+  }
+
+  .al-ola {
+    font-size: 15px;
+  }
+
+  .al-alerta {
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  .al-card {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .al-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .al-badge {
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .al-remover {
+    grid-row: 1;
+    grid-column: 2;
+  }
+}

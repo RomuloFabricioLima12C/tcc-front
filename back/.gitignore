@@ -1,0 +1,4 @@
+node_modules
+.env
+.banco-dados
+esp32/LabCamTela/config.h

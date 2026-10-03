@@ -9,6 +9,7 @@ export const mainNav = [
 ]
 
 export const extraPages = [
+  { to: '/alimentos', label: 'Meus alimentos', keywords: 'meus alimentos geladeira cadastrar validade vencendo lista' },
   { to: '/relatorio', label: 'Relatório', keywords: 'relatorio relatório tabela grafico gráfico validade filtros' },
   { to: '/camera', label: 'Câmera', keywords: 'camera câmera monitorar monitore alimentos' },
   { to: '/monitoramento', label: 'Monitoramento', keywords: 'monitoramento monitorar' },

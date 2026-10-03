@@ -502,3 +502,31 @@
     white-space: nowrap;
   }
 }
+
+/* ============ Mensagem de erro do login (vinda da API) ============ */
+.auth-error {
+  max-width: 547px;
+  margin: 18px 0 0 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(217, 48, 37, 0.1);
+  color: #d93025;
+  font-size: clamp(16px, 1.53vw, 20px);
+}
+
+:root[data-theme='dark'] .auth-error {
+  background: rgba(255, 138, 128, 0.12);
+  color: #ff8a80;
+}
+
+.auth-submit:disabled {
+  cursor: wait;
+  filter: saturate(0.6);
+}
+
+@media (max-width: 767px) {
+  .auth-error {
+    margin: 12px 0 0;
+    font-size: 14px;
+  }
+}

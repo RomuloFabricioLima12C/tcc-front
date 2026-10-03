@@ -9,6 +9,7 @@ import Monitor from './pages/Monitor.jsx'
 import Relatorio from './pages/Relatorio.jsx'
 import Auth from './pages/Auth.jsx'
 import RecuperarSenha from './pages/RecuperarSenha.jsx'
+import Alimentos from './pages/Alimentos.jsx'
 import Perfil from './pages/Perfil.jsx'
 import Recursos from './pages/Recursos.jsx'
 import NotFound from './pages/NotFound.jsx'
@@ -28,6 +29,7 @@ export default function App() {
       <Route path="/login" element={<Auth mode="login" />} />
       <Route path="/cadastro" element={<Auth mode="cadastro" />} />
       <Route path="/esqueci-senha" element={<RecuperarSenha />} />
+      <Route path="/alimentos" element={<Alimentos />} />
       <Route path="/perfil" element={<Perfil />} />
       <Route path="/recursos" element={<Recursos />} />
       <Route path="*" element={<NotFound />} />

@@ -5,6 +5,7 @@ import Crop from '../components/Crop.jsx'
 import ThemeCrop from '../components/ThemeImage.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import { img } from '../assets.js'
+import { cadastrar, entrar, salvarSessao } from '../api.js'
 import '../styles/auth.css'
 
 const copy = {
@@ -40,16 +41,30 @@ export function SpacePanel({ mode }) {
   )
 }
 
-// Sem back-end ainda: o formulário valida os campos e leva para a área de recursos.
+// Login e Cadastro chamam a API (back/) e guardam o token.
 export default function Auth({ mode }) {
   const t = copy[mode]
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
+  const [erro, setErro] = useState('')
+  const [enviando, setEnviando] = useState(false)
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
-    navigate('/recursos')
+    setErro('')
+    setEnviando(true)
+    try {
+      // Login entra na conta; Cadastro cria a conta (o nome vem do começo do e-mail)
+      const { token, usuario } =
+        mode === 'login' ? await entrar(email, senha) : await cadastrar(email.split('@')[0], email, senha)
+      salvarSessao(token, usuario) // guarda o token para as próximas chamadas
+      navigate('/alimentos')
+    } catch (falha) {
+      setErro(falha.message)
+    } finally {
+      setEnviando(false)
+    }
   }
 
   return (
@@ -83,7 +98,6 @@ export default function Auth({ mode }) {
               <input
                 type="password"
                 required
-                minLength={6}
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
@@ -95,9 +109,14 @@ export default function Auth({ mode }) {
               </p>
             )}
 
-            <button type="submit" className="auth-submit">
-              {t.submit}
+            <button type="submit" className="auth-submit" disabled={enviando}>
+              {enviando ? 'ENTRANDO...' : t.submit}
             </button>
+            {erro && (
+              <p className="auth-error" role="alert">
+                {erro}
+              </p>
+            )}
             <p className="auth-switch">
               {t.switchText} <Link to={t.switchTo}>{t.switchLabel}</Link>
             </p>
