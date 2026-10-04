@@ -1,6 +1,7 @@
 import { SiteLayout } from '../components/Layout.jsx'
 import ThemeCrop from '../components/ThemeImage.jsx'
-import { Button, SectionTitle, Sparkle, Stripes, VideoCard } from '../components/Bits.jsx'
+import { Button, SectionTitle, Sparkle, Stripes } from '../components/Bits.jsx'
+import CameraAoVivo from '../components/CameraAoVivo.jsx'
 import { VideoDecor } from './Projeto.jsx'
 import { InterestCard, green, white } from './Jogo.jsx'
 import { img } from '../assets.js'
@@ -17,7 +18,7 @@ export default function Monitor({ title }) {
         </SectionTitle>
         <div className="video-wrap">
           <VideoDecor plainBurst />
-          <VideoCard title="imagem da câmera" />
+          <CameraAoVivo />
         </div>
       </section>
 

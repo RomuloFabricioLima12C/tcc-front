@@ -23,10 +23,35 @@ CREATE TABLE IF NOT EXISTS alimentos (
   quantidade     INTEGER      NOT NULL DEFAULT 1 CHECK (quantidade > 0),
   data_validade  DATE         NOT NULL,
   origem         VARCHAR(10)  NOT NULL DEFAULT 'site'
-                 CHECK (origem IN ('touch', 'site')), -- de onde veio o cadastro
+                 CHECK (origem IN ('site', 'touch', 'voz', 'camera')), -- de onde veio o cadastro
+  status         VARCHAR(12)  NOT NULL DEFAULT 'ativo'
+                 CHECK (status IN ('ativo', 'consumido')), -- 'consumido' = já saiu da geladeira
   criado_em      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
+
+-- Atualiza bancos criados por uma versão anterior deste arquivo
+-- (antes não havia "status" e a origem só aceitava 'touch' e 'site').
+ALTER TABLE alimentos ADD COLUMN IF NOT EXISTS status VARCHAR(12) NOT NULL DEFAULT 'ativo';
+ALTER TABLE alimentos DROP CONSTRAINT IF EXISTS alimentos_origem_check;
+ALTER TABLE alimentos ADD CONSTRAINT alimentos_origem_check
+  CHECK (origem IN ('site', 'touch', 'voz', 'camera'));
+ALTER TABLE alimentos DROP CONSTRAINT IF EXISTS alimentos_status_check;
+ALTER TABLE alimentos ADD CONSTRAINT alimentos_status_check
+  CHECK (status IN ('ativo', 'consumido'));
 
 -- Índice para deixar rápida a busca "alimentos do usuário X ordenados por validade"
 CREATE INDEX IF NOT EXISTS idx_alimentos_usuario_validade
   ON alimentos (usuario_id, data_validade);
+
+-- Fotos tiradas pela ESP32-CAM dentro da geladeira.
+-- A imagem (JPEG) fica guardada no próprio banco, no tipo BYTEA (bytes).
+-- A API guarda só as últimas fotos de cada usuário para o banco não crescer sem parar.
+CREATE TABLE IF NOT EXISTS fotos (
+  id          SERIAL PRIMARY KEY,
+  usuario_id  INTEGER     NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  imagem      BYTEA       NOT NULL,
+  tamanho     INTEGER     NOT NULL,              -- em bytes
+  criado_em   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_fotos_usuario ON fotos (usuario_id, id DESC);

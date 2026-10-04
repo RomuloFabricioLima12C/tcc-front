@@ -1,61 +1,38 @@
 // =====================================================================
-// Rotas usadas pelo DISPOSITIVO (ESP32 com a tela touch).
+// Rotas com respostas ENXUTAS para placas com pouca memória.
 // Autenticação: cabeçalho "x-device-key" (veja middleware/deviceAuth.js).
+// Respostas só com id, nome, data_validade e dias_restantes.
 //
-// O ESP32 tem pouca memória RAM, então as respostas são ENXUTAS:
-// só id, nome, data_validade e dias_restantes — nada de categoria,
-// datas de criação etc.
+// Obs.: a ESP32 principal da robótica usa GET/POST /api/alimentos com a
+// chave; estas rotas continuam disponíveis para quem quiser a versão curta.
 // =====================================================================
 const express = require('express')
-const { query } = require('../db')
 const deviceAuth = require('../middleware/deviceAuth')
-const { validarAlimento } = require('../validacao')
+const alimentos = require('../servicos/alimentos')
+const camera = require('../servicos/camera')
 
 const router = express.Router()
 router.use(deviceAuth)
 
-const COLUNAS_ENXUTAS = 'id, nome, data_validade, (data_validade - CURRENT_DATE) AS dias_restantes'
+const enxuto = ({ id, nome, data_validade: dataValidade, dias_restantes: diasRestantes }) => ({
+  id,
+  nome,
+  data_validade: dataValidade,
+  dias_restantes: diasRestantes,
+})
 
 // ---------------------------------------------------------------------
 // POST /api/dispositivo/alimentos  (cadastro pela tela touch)
 // Corpo: { "nome": "Iogurte", "data_validade": "2026-10-05" }
-//    ou: { "nome": "Iogurte", "dias_para_vencer": 3 }   <- o que a tela touch usa
-//   (opcionais: "categoria", "quantidade")
+//    ou: { "nome": "Iogurte", "dias_para_vencer": 3 }   (a API calcula a data)
 // Resposta: { "id": 7, "nome": "Iogurte", "data_validade": "2026-10-05", "dias_restantes": 3 }
 // ---------------------------------------------------------------------
 router.post('/alimentos', async (req, res, next) => {
   try {
-    // A tela touch pode mandar "dias_para_vencer" (ex.: 5) em vez da data:
-    // assim o ESP32 nem precisa saber a data de hoje — quem calcula é o banco.
-    const dias = req.body?.dias_para_vencer
-    if (dias !== undefined && req.body.data_validade === undefined) {
-      const n = Number(dias)
-      if (!Number.isInteger(n) || n < 0 || n > 3650) {
-        return res.status(400).json({ erro: 'dias_para_vencer precisa ser um número inteiro de 0 a 3650.' })
-      }
-      const hoje = await query('SELECT (CURRENT_DATE + $1::int)::text AS data', [n])
-      req.body.data_validade = hoje.rows[0].data
-    }
-
-    const erro = validarAlimento(req.body)
-    if (erro) return res.status(400).json({ erro })
-
-    const { nome, categoria, quantidade, data_validade: dataValidade } = req.body
-    const resultado = await query(
-      `INSERT INTO alimentos (usuario_id, nome, categoria, quantidade, data_validade, origem)
-       VALUES ($1, $2, $3, $4, $5, 'touch')
-       RETURNING ${COLUNAS_ENXUTAS}`,
-      [
-        req.usuario.id,
-        nome.trim(),
-        categoria ? String(categoria).trim() : null,
-        quantidade ? Number(quantidade) : 1,
-        dataValidade,
-      ],
-    )
-    return res.status(201).json(resultado.rows[0])
+    const item = await alimentos.cadastrar(req.usuario.id, req.body || {}, { origemPadrao: 'touch' })
+    return res.status(201).json(enxuto(item))
   } catch (erro) {
-    // Código 23503 = o DEVICE_USER_ID do .env não existe na tabela usuarios
+    if (erro.status === 400) return res.status(400).json({ erro: erro.message })
     if (erro.code === '23503') {
       return res.status(500).json({ erro: 'DEVICE_USER_ID não corresponde a um usuário cadastrado.' })
     }
@@ -65,8 +42,7 @@ router.post('/alimentos', async (req, res, next) => {
 
 // ---------------------------------------------------------------------
 // GET /api/dispositivo/validades?limite=10
-// Lista curta para a tela "VER VALIDADES": os que vencem antes aparecem primeiro.
-// Os já vencidos também aparecem (dias_restantes negativo) para o usuário tirar da geladeira.
+// Lista curta: os que vencem antes primeiro (inclui os já vencidos).
 // ---------------------------------------------------------------------
 router.get('/validades', async (req, res, next) => {
   try {
@@ -74,17 +50,30 @@ router.get('/validades', async (req, res, next) => {
     if (!Number.isInteger(limite) || limite < 1 || limite > 30) {
       return res.status(400).json({ erro: 'O "limite" precisa ser um número de 1 a 30.' })
     }
-    const resultado = await query(
-      `SELECT ${COLUNAS_ENXUTAS} FROM alimentos
-        WHERE usuario_id = $1
-        ORDER BY data_validade, nome
-        LIMIT $2`,
-      [req.usuario.id, limite],
-    )
-    return res.json(resultado.rows)
+    const lista = await alimentos.listar(req.usuario.id)
+    return res.json(lista.slice(0, limite).map(enxuto))
   } catch (erro) {
     return next(erro)
   }
 })
+
+// ---------------------------------------------------------------------
+// POST /api/dispositivo/foto  — mesmo que POST /api/fotos (veja routes/comando.js)
+// ---------------------------------------------------------------------
+router.post(
+  '/foto',
+  express.raw({ type: ['image/jpeg', 'application/octet-stream'], limit: '3mb' }),
+  async (req, res, next) => {
+    try {
+      if (!camera.ehJpeg(req.body)) {
+        return res.status(400).json({ erro: 'Envie uma imagem JPEG com Content-Type: image/jpeg.' })
+      }
+      const foto = await camera.salvarFoto(req.usuario.id, req.body)
+      return res.status(201).json({ id: foto.id, tamanho: foto.tamanho })
+    } catch (erro) {
+      return next(erro)
+    }
+  },
+)
 
 module.exports = router

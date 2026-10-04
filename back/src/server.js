@@ -1,6 +1,6 @@
 // =====================================================================
 // Ponto de entrada da API do Lab Cam.
-//   npm start   -> liga o banco (se BANCO_LOCAL=true), cria as tabelas e abre a API
+//   npm start   -> liga o banco (se BANCO_LOCAL=true), cria as tabelas, abre a API e liga a voz
 //   npm run dev -> igual, mas reinicia sozinho quando um arquivo muda
 // =====================================================================
 const fs = require('fs')
@@ -34,11 +34,31 @@ async function main() {
   const schema = fs.readFileSync(path.join(__dirname, '..', 'sql', 'schema.sql'), 'utf8')
   await pool.query(schema)
 
+  // 3) Conta da casa (opcional): se o banco não tem nenhum usuário e o .env tem
+  //    CONTA_EMAIL e CONTA_SENHA, cria essa conta. Ela vira o usuário id 1, o
+  //    "dono da geladeira" das placas e da voz.
+  const { rows } = await pool.query('SELECT COUNT(*)::int AS total FROM usuarios')
+  if (rows[0].total === 0 && process.env.CONTA_EMAIL && process.env.CONTA_SENHA) {
+    const bcrypt = require('bcryptjs')
+    await pool.query('INSERT INTO usuarios (nome, email, senha_hash) VALUES ($1, $2, $3)', [
+      process.env.CONTA_NOME || 'Lab Cam',
+      process.env.CONTA_EMAIL.trim().toLowerCase(),
+      await bcrypt.hash(process.env.CONTA_SENHA, 10),
+    ])
+    console.log(`Conta da casa criada: ${process.env.CONTA_EMAIL}`)
+  }
+
   const app = express()
 
   // ---- CORS: quais sites podem chamar esta API pelo navegador ----
   const origens = (process.env.CORS_ORIGIN || '*').split(',').map((o) => o.trim())
-  app.use(cors({ origin: origens.includes('*') ? true : origens }))
+  // exposedHeaders: deixa o site ler o id e a hora da foto (cabeçalhos X-Foto-...)
+  app.use(
+    cors({
+      origin: origens.includes('*') ? true : origens,
+      exposedHeaders: ['X-Foto-Id', 'X-Foto-Data'],
+    }),
+  )
 
   // ---- Lê o corpo das requisições em JSON (limite pequeno: ninguém precisa mandar mais que isso) ----
   app.use(express.json({ limit: '20kb' }))
@@ -57,6 +77,8 @@ async function main() {
   app.use('/api/usuarios', require('./routes/usuarios'))
   app.use('/api/alimentos', require('./routes/alimentos'))
   app.use('/api/dispositivo', require('./routes/dispositivo'))
+  app.use('/api/camera', require('./routes/camera'))
+  app.use('/api', require('./routes/comando')) // /api/fotos e /api/comando (robótica)
 
   // ---- Rota que não existe ----
   app.use((req, res) => {
@@ -82,9 +104,15 @@ async function main() {
     return res.status(500).json({ erro: 'Erro interno no servidor. Tente novamente.' })
   })
 
-  const PORTA = Number(process.env.PORT) || 3001
+  const PORTA = Number(process.env.PORT) || 3000
   app.listen(PORTA, () => {
     console.log(`API do Lab Cam rodando em http://localhost:${PORTA}/api`)
+  })
+
+  // 4) Assistente de voz (Xiaozhi). Fica desligado se XIAOZHI_MCP_ENDPOINT estiver vazio.
+  require('./voz').iniciarVoz({
+    endpoint: process.env.XIAOZHI_MCP_ENDPOINT,
+    usuarioId: Number(process.env.DEVICE_USER_ID),
   })
 }
 

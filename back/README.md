@@ -1,234 +1,230 @@
-# Lab Cam — Backend (API)
+# Lab Cam — Backend (API) + códigos das placas
 
-API do **Lab Cam**, o dispositivo IoT para geladeiras/despensas que ajuda a monitorar a validade dos
-alimentos e reduzir o desperdício.
+Backend do **Lab Cam**, o dispositivo IoT para geladeiras e despensas que ajuda a monitorar a validade
+dos alimentos e reduzir o desperdício. **Um servidor só** atende todo mundo:
 
-A mesma API atende dois "clientes":
-
-- **o site** (pasta raiz do repositório), com login por **JWT**;
-- **o ESP32 com a tela touch**, com uma **chave fixa** no cabeçalho `x-device-key`.
-
-Os alimentos cadastrados pelos dois caminhos vão para o **mesmo banco** e aparecem nos dois lugares.
+| Quem | Como se identifica | O que usa |
+| ---- | ------------------ | --------- |
+| **Site** | token JWT (login) | usuários, alimentos, câmera |
+| **ESP32 principal** (tela touch, relé, sensor de porta) | `x-device-key` | `GET/POST /api/alimentos`, `POST /api/comando` |
+| **ESP32-CAM** | `x-device-key` | `GET /api/comando`, `POST /api/fotos` |
+| **AI Voice (Xiaozhi)** | conexão MCP aberta pelo servidor | `src/voz.js` |
 
 ```
- [Tela touch ESP32] --x-device-key--> \
-                                        [API Express] --> [PostgreSQL]
- [Site React]      ----token JWT----> /
+ ESP32 principal (tela) ──┐
+ ESP32-CAM (fotos) ───────┼──Wi-Fi──> API (Node + PostgreSQL) <──── Site
+ Xiaozhi (voz) ── xiaozhi.me ─────────┘   (src/voz.js se conecta ao xiaozhi.me)
 ```
+
+Tudo o que é cadastrado pela tela, pela voz ou pelo site vai para o **mesmo banco** e aparece nos três.
 
 ## Tecnologias
 
-| Parte          | Usado                                      |
-| -------------- | ------------------------------------------ |
-| Servidor       | Node.js + Express                          |
+| Parte          | Usado |
+| -------------- | ----- |
+| Servidor       | Node.js 22 + Express |
 | Banco          | PostgreSQL com a biblioteca `pg` (SQL puro, sem ORM); `embedded-postgres` liga o banco local |
 | Senhas         | `bcryptjs` (guarda só o hash, nunca a senha) |
-| Login do site  | `jsonwebtoken` (JWT)                        |
-| Configuração   | `dotenv` (arquivo `.env`)                   |
+| Login do site  | `jsonwebtoken` (JWT) |
+| Voz            | MCP (JSON-RPC por WebSocket, nativo do Node 22) |
+| Configuração   | `dotenv` (arquivo `.env`) |
 
 ## Estrutura
 
 ```
 back/
   src/
-    server.js            liga o Express, CORS, rotas e tratamento de erros
-    db.js                conexão com o PostgreSQL (pool do "pg")
-    bancoLocal.js        liga o PostgreSQL local sozinho (BANCO_LOCAL=true)
-    validacao.js         regras dos campos (senha, e-mail, alimento, data)
+    server.js              liga banco, tabelas, rotas, voz e tratamento de erros
+    db.js                  conexão com o PostgreSQL (pool do "pg")
+    bancoLocal.js          liga o PostgreSQL local sozinho (BANCO_LOCAL=true)
+    validacao.js           regras dos campos (senha, e-mail, data)
+    voz.js                 AI Voice: ferramentas do Xiaozhi (MCP)
+    servicos/
+      alimentos.js         regras dos alimentos (site, placas e voz usam as mesmas)
+      camera.js            fotos e "pedido de foto"
     routes/
-      usuarios.js        cadastro, login e "quem sou eu"
-      alimentos.js       CRUD de alimentos do site + "vencendo"
-      dispositivo.js     rotas do ESP32 (respostas enxutas)
+      usuarios.js          cadastro, login e "quem sou eu"
+      alimentos.js         alimentos (site com token ou placa com chave)
+      camera.js            fotos para o site
+      comando.js           /api/fotos e /api/comando (ESP32-CAM e ESP32 principal)
+      dispositivo.js       versões enxutas para placas com pouca memória
     middleware/
-      auth.js            confere o token JWT do site
-      deviceAuth.js      confere a chave x-device-key do ESP32
-  sql/schema.sql         criação das tabelas usuarios e alimentos (roda sozinho ao ligar)
-  esp32/LabCamTela/     firmware da tela touch (abrir na Arduino IDE)
-    LabCamTela.ino       programa do ESP32
-    config.exemplo.h     modelo das configurações (Wi-Fi, IP da API, chave)
-  .env.example           modelo das configurações
+      auth.js              token JWT do site (e "site ou placa")
+      deviceAuth.js        chave x-device-key das placas
+  sql/schema.sql           tabelas usuarios, alimentos e fotos (roda sozinho ao ligar)
+  esp32/                   códigos da equipe de robótica (Arduino IDE)
+    1_esp32_principal/     tela touch 2,4", relé da fita de LED e sensor de porta
+    2_esp32_cam/           câmera: fotos por pedido ou a cada 10 min
+    3_ai_voice_xiaozhi/    como configurar o módulo de voz
+  .env.example             modelo das configurações
 ```
 
 ## Como ligar
 
-Precisa só do **Node.js 18 ou mais novo**. **Não precisa instalar o PostgreSQL**: com
-`BANCO_LOCAL=true` no `.env`, a própria API liga um PostgreSQL de verdade e guarda os dados na pasta
-`back/.banco-dados`. As tabelas são criadas sozinhas na primeira vez.
+Precisa só do **Node.js 22**. **Não precisa instalar o PostgreSQL**: com `BANCO_LOCAL=true` no `.env`,
+a própria API liga um PostgreSQL de verdade e guarda os dados em `back/.banco-dados`.
+As tabelas são criadas (e atualizadas) sozinhas.
 
 1. Instale as dependências (só na primeira vez):
    ```bash
    cd back
    npm install
    ```
-2. Confira o arquivo `.env`. Se não existir, copie o modelo (no Windows: `copy .env.example .env`)
-   e troque `JWT_SECRET` e `DEVICE_KEY` por frases suas.
+2. Confira o `.env` (se não existir: `copy .env.example .env` no Windows). Troque `JWT_SECRET` e
+   `DEVICE_KEY` por frases suas.
 3. Ligue:
    ```bash
    npm start
    ```
-   Deve aparecer `API do Lab Cam rodando em http://localhost:3001/api`. Para desligar: **Ctrl+C**.
+   Deve aparecer `API do Lab Cam rodando em http://localhost:3000/api`. Para desligar: **Ctrl+C**.
 
-**Primeiro usuário = dono da geladeira:** a primeira conta criada (pela tela **Cadastro** do site)
-recebe o `id` 1. É para ela que vão os alimentos cadastrados pela tela touch (`DEVICE_USER_ID=1`).
+**Dono da geladeira (usuário id 1):** é para ele que vão os alimentos da tela e da voz e as fotos.
+Duas formas de criar:
+- preencher `CONTA_EMAIL` e `CONTA_SENHA` no `.env` antes do primeiro `npm start` (a "conta da casa"); ou
+- criar a primeira conta pela tela **Cadastro** do site.
 
-**Usar outro PostgreSQL** (instalado ou na nuvem, como Neon ou Supabase): coloque
-`BANCO_LOCAL=false` e preencha `DATABASE_URL` (com `DATABASE_SSL=true` se for na nuvem). As tabelas
-são criadas sozinhas do mesmo jeito: o `sql/schema.sql` roda a cada partida, sem apagar nada.
+Para ver no site o que veio das placas e da voz, entre com essa conta.
+
+**Usar outro PostgreSQL** (instalado, no servidor da equipe ou na nuvem): `BANCO_LOCAL=false` e
+preencha `DATABASE_URL` (com `DATABASE_SSL=true` se for na nuvem).
+
+## Placas (códigos da robótica)
+
+Os códigos ficam em `esp32/` e **funcionam com esta API sem mudar a lógica deles**. (No
+`esp32_principal.ino` só subimos as definições `Retangulo` e `Alimento` para o topo, porque sem isso
+ele não compilava na Arduino IDE.) Os passos de cada placa
+estão nos `LEIA-ME.md` de cada pasta. Em **todos**, use:
+
+- o **mesmo `DEVICE_KEY`** do `back/.env`;
+- o **endereço do computador** onde roda o `npm start` e a **porta 3000**:
+
+| Arquivo | O que preencher |
+| ------- | --------------- |
+| `esp32/1_esp32_principal/esp32_principal/esp32_principal.ino` | `WIFI_SSID`, `WIFI_PASSWORD`, `BACKEND_HOST` (ex.: `192.168.0.10`), `BACKEND_PORT` (3000), `DEVICE_KEY` |
+| `esp32/2_esp32_cam/esp32_cam/esp32_cam.ino` | `WIFI_SSID`, `WIFI_PASSWORD`, `SERVIDOR` (ex.: `http://192.168.0.10:3000`), `DEVICE_KEY` |
+
+Dicas:
+- O IP do computador aparece no comando `ipconfig` (linha "Endereço IPv4"). **Não use `localhost`**:
+  na placa isso é a própria placa. Computador e placas precisam estar **na mesma rede**, de 2,4 GHz.
+- Na primeira vez que rodar `npm start`, o Windows pergunta se libera o Node.js no firewall: **Permitir**.
+- **Não mande para o GitHub** os `.ino` com a senha do Wi-Fi preenchida.
+
+### O que acontece quando...
+- **Toca num alimento na tela:** ele é cadastrado e aparece no site e na voz.
+- **A porta abre** (com o sensor): a fita de LED acende e a ESP32-CAM tira uma foto, que aparece no site.
+- **Alguém toca em "Ver câmera"** no site: a câmera tira a foto em até 3 s.
+- **Fala "adiciona leite":** cadastra; aparece no site na hora e na tela em até 2 min.
+
+## AI Voice (Xiaozhi)
+
+Passo a passo em `esp32/3_ai_voice_xiaozhi/LEIA-ME.md`. No fim, cole o endereço MCP (`wss://...`)
+do painel xiaozhi.me em `XIAOZHI_MCP_ENDPOINT` no `.env` e reinicie: deve aparecer
+`[voz] Conectado ao Xiaozhi`. Quem abre a conexão é o servidor, então não precisa abrir porta no roteador.
+
+| Frase | Ferramenta |
+| ----- | ---------- |
+| "O que está vencendo?" | `alimentos_vencendo` (inclui os já vencidos) |
+| "O que tem na geladeira?" | `listar_alimentos` |
+| "Adiciona leite" / "Coloquei 6 ovos" / "Guardei frango que vence dia 10" | `cadastrar_alimento` (sem data, usa a validade média) |
+| "Acabou o leite" / "Joguei o frango fora" | `marcar_consumido` |
+| "Tira uma foto da geladeira" | `tirar_foto_geladeira` |
+
+A tabela de validade média fica em `src/servicos/alimentos.js` (fácil de editar).
 
 ## Rotas
 
-Todas as respostas são JSON. Erros sempre vêm assim: `{ "erro": "mensagem em português" }`.
+Respostas em JSON (menos as fotos, que são JPEG). Erros sempre assim: `{ "erro": "mensagem em português" }`.
+O **site** manda `Authorization: Bearer <token>`; as **placas** mandam `x-device-key: <DEVICE_KEY>`.
 
 ### Usuários
 
-#### `POST /api/usuarios/cadastro`
-A senha precisa ter 8+ caracteres, maiúscula, minúscula, número e caractere especial, sem espaços.
-```json
-// requisição
-{ "nome": "Rômulo", "email": "romulo@labcam.com", "senha": "Tcc@2026" }
+| Método | Rota | Corpo → resposta |
+| ------ | ---- | ---------------- |
+| POST | `/api/usuarios/cadastro` | `{nome, email, senha}` → `201 {usuario, token}` |
+| POST | `/api/usuarios/login` | `{email, senha}` → `{usuario, token}` |
+| GET | `/api/usuarios/eu` | dados de quem está logado |
 
-// resposta 201
-{
-  "usuario": { "id": 1, "nome": "Rômulo", "email": "romulo@labcam.com", "criado_em": "2026-10-02T22:53:52.402Z" },
-  "token": "eyJhbGciOiJIUzI1NiIs..."
-}
-```
-Erros: `400` (campo inválido), `409` (e-mail já cadastrado).
+A senha precisa de 8+ caracteres, maiúscula, minúscula, número e caractere especial, sem espaços.
 
-#### `POST /api/usuarios/login`
 ```json
-// requisição
+// POST /api/usuarios/login
 { "email": "romulo@labcam.com", "senha": "Tcc@2026" }
-
 // resposta 200
 { "token": "eyJhbGciOiJIUzI1NiIs...", "usuario": { "id": 1, "nome": "Rômulo", "email": "romulo@labcam.com" } }
 ```
-Erro: `401` → `{ "erro": "E-mail ou senha incorretos." }`
 
-#### `GET /api/usuarios/eu` *(precisa de token)*
-Devolve os dados de quem está logado.
+### Alimentos — site (token) ou placa (chave)
 
-### Alimentos (site) — todas precisam do cabeçalho `Authorization: Bearer <token>`
+| Método | Rota | Para quê |
+| ------ | ---- | -------- |
+| GET | `/api/alimentos` | os que estão na geladeira (`?todos=1` inclui consumidos) |
+| GET | `/api/alimentos/vencendo?dias=3` | vencem de hoje até N dias (`&vencidos=1` inclui vencidos) |
+| POST | `/api/alimentos` | cadastra |
+| PUT | `/api/alimentos/:id` | altera `nome`, `categoria`, `quantidade`, `data_validade` ou `status` |
+| DELETE | `/api/alimentos/:id` | apaga |
 
-Cada usuário só vê e altera os **próprios** alimentos. `dias_restantes` é calculado pelo banco
-(negativo = já venceu).
-
-#### `GET /api/alimentos`
 ```json
-[
-  {
-    "id": 4, "nome": "Pão", "categoria": "Padaria", "quantidade": 2,
-    "data_validade": "2026-10-01", "origem": "site",
-    "criado_em": "2026-10-02T22:54:03.120Z", "dias_restantes": -1
-  }
-]
-```
-
-#### `GET /api/alimentos/vencendo?dias=3`
-Mesmo formato, só com os que vencem de **hoje** até daqui a `dias` dias (padrão 3).
-
-#### `POST /api/alimentos`
-```json
-// requisição (categoria e quantidade são opcionais; quantidade padrão = 1)
+// POST pelo site
 { "nome": "Leite", "categoria": "Laticínio", "quantidade": 2, "data_validade": "2026-10-20" }
-
-// resposta 201: o alimento criado (com "origem": "site" e "dias_restantes")
-```
-
-#### `PUT /api/alimentos/:id`
-Mande só o que quer mudar:
-```json
-{ "quantidade": 1, "data_validade": "2026-10-22" }
-```
-Resposta `200` com o alimento atualizado, ou `404` se não for seu / não existir.
-
-#### `DELETE /api/alimentos/:id`
-```json
-{ "mensagem": "Alimento removido." }
-```
-
-### Dispositivo (ESP32) — todas precisam do cabeçalho `x-device-key: <DEVICE_KEY>`
-
-Respostas **enxutas** (só `id`, `nome`, `data_validade`, `dias_restantes`) porque o ESP32 tem pouca memória.
-
-#### `POST /api/dispositivo/alimentos` — botão **CADASTRAR** da tela
-```json
-// requisição (categoria e quantidade opcionais)
-{ "nome": "Iogurte", "data_validade": "2026-10-05" }
-
-// ou, sem precisar saber a data de hoje (é o que a tela touch usa):
-{ "nome": "Iogurte", "categoria": "Laticínio", "dias_para_vencer": 3 }
+// POST pela tela touch (como o esp32_principal.ino manda)
+{ "nome": "Leite", "quantidade": 1, "validade_dias": 7, "origem": "touch" }
 
 // resposta 201
-{ "id": 7, "nome": "Iogurte", "data_validade": "2026-10-05", "dias_restantes": 3 }
+{
+  "id": 4, "nome": "Leite", "categoria": "Laticínio", "quantidade": 2,
+  "data_validade": "2026-10-20", "origem": "site", "status": "ativo",
+  "criado_em": "2026-10-04T13:47:44.044Z", "dias_restantes": 16, "validade_estimada": false
+}
+
+// PUT /api/alimentos/4  -> tira da lista sem apagar
+{ "status": "consumido" }
 ```
 
-#### `GET /api/dispositivo/validades?limite=10` — botão **VER VALIDADES** da tela
-Os que vencem antes vêm primeiro (inclusive os já vencidos). `limite` de 1 a 30, padrão 10.
+Validade: `data_validade` > `validade_dias` > validade média do alimento. `dias_restantes` é calculado
+pelo banco (negativo = já venceu). `origem`: `site`, `touch`, `voz` ou `camera`.
+
+### Câmera
+
+| Método | Rota | Quem | Para quê |
+| ------ | ---- | ---- | -------- |
+| POST | `/api/fotos` | ESP32-CAM | envia a foto: corpo = JPEG puro, `Content-Type: image/jpeg` |
+| GET | `/api/comando` | ESP32-CAM | pergunta se tem pedido: `{ "foto": true }` ou `{ "foto": false }` |
+| POST | `/api/comando` | ESP32 principal | porta abriu, pede foto: `{ "acao": "foto" }` |
+| POST | `/api/comando/foto` | site | botão "Ver câmera" |
+| GET | `/api/camera/ultima` | site | a foto mais recente (JPEG; hora no cabeçalho `X-Foto-Data`) |
+| GET | `/api/camera/fotos` | site | lista das fotos guardadas (as últimas 30) |
+| GET | `/api/camera/fotos/:id` | site | uma foto específica (JPEG) |
+
 ```json
-[
-  { "id": 5, "nome": "Queijo", "data_validade": "2026-10-04", "dias_restantes": 2 },
-  { "id": 7, "nome": "Iogurte", "data_validade": "2026-10-05", "dias_restantes": 3 }
-]
+// resposta do POST /api/fotos
+{ "ok": true, "id": 12, "tamanho": 45210, "criado_em": "2026-10-04T13:47:44.044Z" }
 ```
 
-## ESP32 com a tela touch (firmware)
+### Versões enxutas (opcionais) — chave
 
-O programa da tela fica em `esp32/LabCamTela/`. Ele tem as duas opções da tela:
+Para placas com pouca memória: respostas só com `id`, `nome`, `data_validade`, `dias_restantes`.
 
-- **CADASTRAR**: escolhe o alimento numa grade (Leite, Iogurte, Queijo, Presunto, Frango, Carne,
-  Fruta, Verdura), ajusta em quantos dias vence (-1, +1, +7, +30) e toca em **SALVAR**.
-  Ele manda `dias_para_vencer` e a API calcula a data — assim o ESP32 não precisa de relógio.
-- **VER VALIDADES**: mostra os 6 que vencem primeiro, com cor (vermelho = vencido, laranja = hoje,
-  amarelo = até 3 dias, verde = ok).
-
-### Hardware
-ESP32 WROOM + tela TFT 2,4" SPI (ILI9341) com touch (XPT2046). Ligações:
-
-| Tela        | ESP32 |
-| ----------- | ----- |
-| VCC / LED   | 3.3V  |
-| GND         | GND   |
-| CS          | 15    |
-| RESET       | 4     |
-| DC          | 2     |
-| SDI (MOSI) e T_DIN | 23 |
-| SCK e T_CLK | 18    |
-| SDO (MISO) e T_DO  | 19 |
-| T_CS        | 21    |
-
-Os pinos podem ser trocados no `config.h`.
-
-### Gravar
-1. Instale a **Arduino IDE** e o pacote **esp32** (Espressif) pelo Gerenciador de Placas.
-2. Pelo Gerenciador de Bibliotecas, instale: **Adafruit ILI9341**, **XPT2046_Touchscreen** e **ArduinoJson**.
-3. Abra `esp32/LabCamTela/LabCamTela.ino`.
-4. No `config.h` (se não existir, copie o `config.exemplo.h` com esse nome) preencha o **Wi-Fi**
-   (rede de 2,4 GHz), o **IP do computador** onde roda a API (`ipconfig` → Endereço IPv4) e a
-   **DEVICE_KEY** igual à do `back/.env`.
-5. Placa: **ESP32 Dev Module** → escolha a porta → **Carregar**.
-
-Dicas:
-- Computador e ESP32 precisam estar **na mesma rede**. Na primeira vez que rodar `npm start`, o
-  Windows pergunta se libera o Node.js no firewall: clique em **Permitir** (redes privadas).
-- A bolinha no canto da tela fica **verde** com Wi-Fi e **vermelha** sem.
-- Se o toque cair no lugar errado, use `MODO_AJUSTE_TOQUE` no `config.h` (as instruções estão lá).
-- O `config.h` tem a senha do Wi-Fi e **não vai para o GitHub**.
+| Método | Rota | Corpo |
+| ------ | ---- | ----- |
+| POST | `/api/dispositivo/alimentos` | `{ "nome": "Iogurte", "dias_para_vencer": 3 }` ou com `data_validade` |
+| GET | `/api/dispositivo/validades?limite=10` | — |
+| POST | `/api/dispositivo/foto` | JPEG (mesmo que `/api/fotos`) |
 
 ## Ligação com o site
 
 - O site lê o endereço da API em `VITE_API_URL` (arquivo `.env` na raiz do site). Sem isso, usa
-  `http://localhost:3001`.
-- Coloque o endereço do site em `CORS_ORIGIN` no `.env` da API (ex.: `http://localhost:5173`).
-- O login do site chama `POST /api/usuarios/login`, guarda o token no navegador e abre a página
-  **Meus alimentos** (`/alimentos`), que lista, cadastra e remove alimentos e destaca os que vencem
-  em até 3 dias.
+  `http://localhost:3000`.
+- Login e Cadastro chamam a API e guardam o token. A página **Meus alimentos** (`/alimentos`) lista,
+  cadastra e remove, e mostra de onde veio cada item (tela touch, voz). A página **Câmera** mostra a
+  última foto, atualiza a cada 10 s e tem o botão **Ver câmera**.
+- Se o site estiver em **https** (Vercel), o navegador só aceita uma API também em **https**
+  (por exemplo, hospedada no Render ou no Railway).
 
 ## Segurança (o que foi feito)
 
 - Senhas guardadas só como **hash bcrypt**.
 - Todo SQL usa **parâmetros** (`$1`, `$2`...), o que evita SQL injection.
-- Rotas do site exigem **token JWT**; cada usuário só acessa os próprios alimentos.
-- Rotas do ESP32 exigem a **chave do dispositivo**.
-- Campos obrigatórios e formatos são validados, com mensagens de erro em português.
-- O `.env` (com senhas e chaves) **não vai para o GitHub**.
+- Site com **token JWT**; cada usuário só acessa os próprios alimentos e fotos.
+- Placas com **chave do dispositivo** (comparada em tempo constante).
+- Campos e formatos validados, com mensagens de erro em português. Fotos conferidas (precisam ser JPEG).
+- O `.env` (senhas e chaves) e a pasta do banco **não vão para o GitHub**.

@@ -32,9 +32,8 @@ function CameraIcon() {
 }
 
 const menu = [
-  // O projeto de robótica ainda não está pronto: por enquanto leva à página da câmera
-  // (com o vídeo de exemplo). Quando a ESP32-CAM estiver no ar, é só apontar para a transmissão.
-  { to: '/camera', label: 'Ver câmera', icon: <CameraIcon />, soon: true },
+  // Leva à página Câmera, que mostra a última foto mandada pela ESP32-CAM.
+  { to: '/camera', label: 'Ver câmera', icon: <CameraIcon /> },
   { to: '/relatorio', label: 'Minhas compras', icon: <CartIcon /> },
   {
     to: '/',

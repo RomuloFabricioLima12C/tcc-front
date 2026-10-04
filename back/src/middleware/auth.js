@@ -26,4 +26,19 @@ function auth(req, res, next) {
   }
 }
 
+// Deixa passar quem tem login (site) OU a chave das placas (ESP32 da robótica).
+// Usado em /api/alimentos e /api/comando, que as placas também chamam.
+// Placa -> os dados ficam com o dono da geladeira (DEVICE_USER_ID).
+function siteOuDispositivo(req, res, next) {
+  // require aqui dentro para evitar dependência circular entre os middlewares
+  const { ehDispositivo } = require('./deviceAuth')
+  if (ehDispositivo(req)) {
+    req.dispositivo = true
+    req.usuario = { id: Number(process.env.DEVICE_USER_ID) }
+    return next()
+  }
+  return auth(req, res, next)
+}
+
 module.exports = auth
+module.exports.siteOuDispositivo = siteOuDispositivo

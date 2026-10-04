@@ -30,6 +30,9 @@ function situacao(dias) {
 // "2026-10-05" -> "05/10/2026"
 const dataBr = (iso) => iso.split('-').reverse().join('/')
 
+// Etiqueta de onde veio o cadastro (o do site não ganha etiqueta)
+const ORIGEM = { touch: 'tela touch', voz: 'voz', camera: 'câmera' }
+
 const VAZIO = { nome: '', categoria: '', quantidade: 1, data_validade: '' }
 
 export default function Alimentos() {
@@ -210,7 +213,7 @@ export default function Alimentos() {
                         <strong>{a.nome}</strong>
                         <span className="al-meta">
                           {a.categoria || 'Sem categoria'} · {a.quantidade} un. · vence {dataBr(a.data_validade)}
-                          {a.origem === 'touch' && <span className="al-tag">tela touch</span>}
+                          {ORIGEM[a.origem] && <span className="al-tag">{ORIGEM[a.origem]}</span>}
                         </span>
                       </div>
                       <span className={`al-badge is-${s.classe}`}>{s.texto}</span>

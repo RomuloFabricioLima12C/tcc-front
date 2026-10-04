@@ -12,7 +12,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const PASTA = path.join(__dirname, '..', '.banco-dados')
+const PASTA = process.env.BANCO_LOCAL_PASTA || path.join(__dirname, '..', '.banco-dados')
 const PORTA = Number(process.env.BANCO_LOCAL_PORTA) || 5433
 const SENHA = 'labcam'
 

@@ -1,53 +1,49 @@
 // =====================================================================
-// Rotas de alimentos usadas pelo SITE. Todas precisam de login (token JWT),
-// e cada usuário só enxerga e altera os PRÓPRIOS alimentos
-// (por isso todo SQL tem "WHERE usuario_id = $...").
+// Rotas de alimentos. Usadas pelo SITE (token JWT) e também pela
+// ESP32 principal da robótica (chave x-device-key).
+// Cada usuário só enxerga e altera os PRÓPRIOS alimentos.
+// As regras ficam em servicos/alimentos.js.
 // =====================================================================
 const express = require('express')
-const { query } = require('../db')
-const auth = require('../middleware/auth')
-const { validarAlimento } = require('../validacao')
+const { siteOuDispositivo } = require('../middleware/auth')
+const alimentos = require('../servicos/alimentos')
 
 const router = express.Router()
-router.use(auth) // aplica o login em todas as rotas abaixo
-
-// Colunas devolvidas ao site. "dias_restantes" é calculado pelo próprio banco:
-// data de validade menos a data de hoje (negativo = já venceu).
-const COLUNAS = `
-  id, nome, categoria, quantidade, data_validade, origem, criado_em,
-  (data_validade - CURRENT_DATE) AS dias_restantes
-`
+router.use(siteOuDispositivo)
 
 // Transforma o texto do id da URL em número e confere se é válido
 function lerId(req, res) {
   const id = Number(req.params.id)
-  if (!Number.isInteger(id) || id < 1) {
+  if (!Number.isInteger(id) || id < 1 || id > 2147483647) {
     res.status(400).json({ erro: 'Id inválido.' })
     return null
   }
   return id
 }
 
+// Erros de dado errado (status 400) viram resposta; os outros vão para o tratador geral
+function tratar(erro, res, next) {
+  if (erro.status === 400) return res.status(400).json({ erro: erro.message })
+  return next(erro)
+}
+
 // ---------------------------------------------------------------------
-// GET /api/alimentos  -> todos os alimentos do usuário, os que vencem antes primeiro
+// GET /api/alimentos  -> alimentos na geladeira, os que vencem antes primeiro
+//   ?todos=1 inclui também os já consumidos
 // ---------------------------------------------------------------------
 router.get('/', async (req, res, next) => {
   try {
-    const resultado = await query(
-      `SELECT ${COLUNAS} FROM alimentos WHERE usuario_id = $1 ORDER BY data_validade, nome`,
-      [req.usuario.id],
-    )
-    return res.json(resultado.rows)
+    res.json(await alimentos.listar(req.usuario.id, { incluirConsumidos: req.query.todos === '1' }))
   } catch (erro) {
-    return next(erro)
+    tratar(erro, res, next)
   }
 })
 
 // ---------------------------------------------------------------------
 // GET /api/alimentos/vencendo?dias=3
 // Alimentos que vencem de hoje até daqui a N dias (padrão: 3).
-// IMPORTANTE: esta rota fica ANTES de "/:id", senão o Express acharia que
-// "vencendo" é um id.
+//   &vencidos=1 inclui também os que já venceram
+// (esta rota fica ANTES de "/:id", senão o Express acharia que "vencendo" é um id)
 // ---------------------------------------------------------------------
 router.get('/vencendo', async (req, res, next) => {
   try {
@@ -55,89 +51,48 @@ router.get('/vencendo', async (req, res, next) => {
     if (!Number.isInteger(dias) || dias < 0 || dias > 365) {
       return res.status(400).json({ erro: 'O parâmetro "dias" precisa ser um número inteiro de 0 a 365.' })
     }
-    const resultado = await query(
-      `SELECT ${COLUNAS} FROM alimentos
-        WHERE usuario_id = $1
-          AND data_validade BETWEEN CURRENT_DATE AND CURRENT_DATE + $2::int
-        ORDER BY data_validade, nome`,
-      [req.usuario.id, dias],
-    )
-    return res.json(resultado.rows)
+    return res.json(await alimentos.vencendo(req.usuario.id, dias, { incluirVencidos: req.query.vencidos === '1' }))
   } catch (erro) {
-    return next(erro)
+    return tratar(erro, res, next)
   }
 })
 
 // ---------------------------------------------------------------------
 // POST /api/alimentos
-// Corpo: { "nome": "Leite", "categoria": "Laticínio", "quantidade": 2, "data_validade": "2026-10-20" }
+// Site:  { "nome": "Leite", "categoria": "Laticínio", "quantidade": 2, "data_validade": "2026-10-20" }
+// Placa: { "nome": "Leite", "quantidade": 1, "validade_dias": 7, "origem": "touch" }
+// Sem data nem dias, usa a validade média do alimento.
 // ---------------------------------------------------------------------
 router.post('/', async (req, res, next) => {
   try {
-    const erro = validarAlimento(req.body)
-    if (erro) return res.status(400).json({ erro })
-
-    const { nome, categoria, quantidade, data_validade: dataValidade } = req.body
-    const resultado = await query(
-      `INSERT INTO alimentos (usuario_id, nome, categoria, quantidade, data_validade, origem)
-       VALUES ($1, $2, $3, $4, $5, 'site')
-       RETURNING ${COLUNAS}`,
-      [
-        req.usuario.id,
-        nome.trim(),
-        categoria ? categoria.trim() : null,
-        quantidade ? Number(quantidade) : 1,
-        dataValidade,
-      ],
-    )
-    return res.status(201).json(resultado.rows[0])
+    const dados = { ...(req.body || {}) }
+    // O site sempre grava "site"; a placa pode dizer a origem (padrão "touch")
+    if (!req.dispositivo) dados.origem = 'site'
+    const item = await alimentos.cadastrar(req.usuario.id, dados, {
+      origemPadrao: req.dispositivo ? 'touch' : 'site',
+    })
+    res.status(201).json(item)
   } catch (erro) {
-    return next(erro)
+    if (erro.code === '23503') {
+      return res.status(500).json({ erro: 'DEVICE_USER_ID não corresponde a um usuário cadastrado.' })
+    }
+    return tratar(erro, res, next)
   }
 })
 
 // ---------------------------------------------------------------------
 // PUT /api/alimentos/:id
-// Pode mandar só os campos que quer mudar, ex.: { "quantidade": 1 }
+// Mande só o que quer mudar, ex.: { "quantidade": 1 } ou { "status": "consumido" }
 // ---------------------------------------------------------------------
 router.put('/:id', async (req, res, next) => {
   try {
     const id = lerId(req, res)
     if (id === null) return undefined
-
-    const erro = validarAlimento(req.body, true)
-    if (erro) return res.status(400).json({ erro })
-
-    // Monta o "SET" só com os campos enviados. Os NOMES das colunas vêm desta
-    // lista fixa (nunca do usuário) e os VALORES vão como parâmetros $n.
-    const permitidos = ['nome', 'categoria', 'quantidade', 'data_validade']
-    const sets = []
-    const valores = []
-    for (const campo of permitidos) {
-      if (req.body[campo] === undefined) continue
-      let valor = req.body[campo]
-      if (campo === 'quantidade' && (valor === null || valor === '')) continue
-      if (campo === 'nome') valor = valor.trim()
-      if (campo === 'categoria') valor = valor ? String(valor).trim() : null
-      if (campo === 'quantidade') valor = Number(valor)
-      valores.push(valor)
-      sets.push(`${campo} = $${valores.length}`)
-    }
-    if (sets.length === 0) {
-      return res.status(400).json({ erro: 'Envie pelo menos um campo para alterar.' })
-    }
-
-    valores.push(id, req.usuario.id)
-    const resultado = await query(
-      `UPDATE alimentos SET ${sets.join(', ')}
-        WHERE id = $${valores.length - 1} AND usuario_id = $${valores.length}
-        RETURNING ${COLUNAS}`,
-      valores,
-    )
-    if (resultado.rowCount === 0) return res.status(404).json({ erro: 'Alimento não encontrado.' })
-    return res.json(resultado.rows[0])
+    const item = await alimentos.atualizar(req.usuario.id, id, req.body || {})
+    if (!item) return res.status(404).json({ erro: 'Alimento não encontrado.' })
+    return res.json(item)
   } catch (erro) {
-    return next(erro)
+    return tratar(erro, res, next)
   }
 })
 
@@ -148,15 +103,11 @@ router.delete('/:id', async (req, res, next) => {
   try {
     const id = lerId(req, res)
     if (id === null) return undefined
-
-    const resultado = await query('DELETE FROM alimentos WHERE id = $1 AND usuario_id = $2', [
-      id,
-      req.usuario.id,
-    ])
-    if (resultado.rowCount === 0) return res.status(404).json({ erro: 'Alimento não encontrado.' })
+    const ok = await alimentos.remover(req.usuario.id, id)
+    if (!ok) return res.status(404).json({ erro: 'Alimento não encontrado.' })
     return res.json({ mensagem: 'Alimento removido.' })
   } catch (erro) {
-    return next(erro)
+    return tratar(erro, res, next)
   }
 })
 

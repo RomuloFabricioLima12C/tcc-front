@@ -3,7 +3,7 @@
 // O endereço da API vem de VITE_API_URL (arquivo .env do site) e, se não
 // existir, usa a API rodando no próprio computador.
 // =====================================================================
-export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/$/, '')
+export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '')
 
 const CHAVE_TOKEN = 'labcam-token'
 const CHAVE_USUARIO = 'labcam-usuario'
@@ -79,3 +79,33 @@ export const listarAlimentos = () => api('/api/alimentos')
 export const listarVencendo = (dias = 3) => api(`/api/alimentos/vencendo?dias=${dias}`)
 export const criarAlimento = (alimento) => api('/api/alimentos', { metodo: 'POST', corpo: alimento })
 export const apagarAlimento = (id) => api(`/api/alimentos/${id}`, { metodo: 'DELETE' })
+
+// ---- Câmera ----
+// A foto vem como imagem (não JSON). Como uma <img> não consegue mandar o token,
+// buscamos com fetch e transformamos em um endereço local (blob) para a <img>.
+// Devolve null quando a câmera ainda não mandou nenhuma foto.
+export async function buscarUltimaFoto() {
+  const sessao = lerSessao()
+  let resposta
+  try {
+    resposta = await fetch(`${API_URL}/api/camera/ultima`, {
+      headers: sessao?.token ? { Authorization: `Bearer ${sessao.token}` } : {},
+      cache: 'no-store',
+    })
+  } catch {
+    throw new ErroApi('Não foi possível falar com o servidor. Ele está ligado?', 0)
+  }
+  if (resposta.status === 404) return null
+  if (!resposta.ok) {
+    const dados = await resposta.json().catch(() => ({}))
+    throw new ErroApi(dados.erro || 'Não foi possível carregar a foto.', resposta.status)
+  }
+  return {
+    id: resposta.headers.get('X-Foto-Id'),
+    data: resposta.headers.get('X-Foto-Data'),
+    url: URL.createObjectURL(await resposta.blob()),
+  }
+}
+
+// Pede para a ESP32-CAM tirar uma foto agora (ela atende em até 3 s)
+export const pedirFoto = () => api('/api/comando/foto', { metodo: 'POST' })
