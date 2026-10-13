@@ -1,6 +1,9 @@
+/* A tela de conta ocupa a altura da janela: formulário centralizado de um lado
+   e a arte espacial cobrindo o outro, colada nas bordas. */
 .auth {
   display: grid;
   grid-template-columns: minmax(0, 679fr) minmax(0, 761fr);
+  min-height: 100vh;
   background: var(--auth-bg);
   color: var(--text);
 }
@@ -16,22 +19,40 @@
 /* ============ Painel espacial ============ */
 .space-panel {
   position: relative;
+  overflow: hidden;
   background: #000;
+  /* deixa a arte saber o tamanho do painel (unidades cqw/cqh) */
+  container-type: size;
 }
 
 .space-panel .crop {
   max-width: none;
 }
 
+/* A arte mantém a proporção do Figma (largura x --ratio = altura) e cresce até
+   cobrir o painel todo, presa no topo (o pepino aparece inteiro). O que sobra
+   embaixo é cortado. */
+.space-art {
+  --ratio: 2.501;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: max(100cqw, 100cqh / var(--ratio));
+  translate: -50% 0;
+}
+
+.space-cadastro .space-art {
+  --ratio: 2.551;
+}
+
 .space-bg {
-  width: 100.53%;
+  --cw: 100.53%;
   margin-left: -0.53%;
 }
 
 .space-cadastro .space-bg {
-  width: 102.55%;
+  --cw: 102.55%;
   margin-left: -2.95%;
-  margin-top: 11px;
 }
 
 .space-carrot,
@@ -42,87 +63,71 @@
 .space-login .space-carrot {
   left: -6.7%;
   top: 57.7%;
-  width: 51.5%;
+  --cw: 51.5%;
 }
 
 .space-login .space-tomato {
   left: 67.67%;
   top: 42.4%;
-  width: 61.2%;
+  --cw: 61.2%;
 }
 
 .space-cadastro .space-carrot {
   left: -20.78%;
   top: 56%;
-  width: 52.5%;
+  --cw: 52.5%;
 }
 
 .space-cadastro .space-tomato {
   left: 61.5%;
   top: 40.8%;
-  width: 38.5%;
+  --cw: 38.5%;
 }
 
 /* ============ Formulário ============ */
 .auth-side {
   position: relative;
   z-index: 1;
-  padding: 24px 24px 60px 54px;
-}
-
-.auth-cadastro .auth-side {
-  padding: 0 24px 60px 79px;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(16px, 2.2vw, 32px) clamp(24px, 4vw, 64px) clamp(24px, 4vh, 48px);
 }
 
 .auth-top {
   position: relative;
-  height: 142px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
 .auth-logo {
   display: block;
-  width: 186px;
-  margin-left: -36px;
-}
-
-.auth-cadastro .auth-logo {
-  margin-left: -52px;
 }
 
 .auth-logo .crop {
-  --cw: 186px;
+  --cw: clamp(110px, 10vw, 150px);
 }
 
-
 .auth-toggle {
-  position: absolute;
-  top: 1px;
-  right: 11px;
   margin: 0;
 }
 
-.auth-cadastro .auth-toggle {
-  top: 15px;
-  right: 61px;
-}
-
+/* margin-block: auto centraliza o formulário na altura que sobra */
 .auth-form {
-  max-width: 547px;
+  width: 100%;
+  max-width: 460px;
+  margin: auto;
+  padding-block: clamp(16px, 4vh, 40px);
 }
 
 .auth-form h1 {
-  margin-top: 139px;
-  font-size: clamp(40px, 4.44vw, 64px);
-  white-space: nowrap;
-}
-
-.auth-cadastro .auth-form h1 {
-  margin-top: 134px;
+  font-size: clamp(30px, 3vw, 44px);
+  line-height: 1.1;
 }
 
 .auth-sub {
-  margin: 3px 0 0 5px;
-  font-size: clamp(22px, 2.22vw, 32px);
+  margin-top: 6px;
+  font-size: clamp(16px, 1.3vw, 19px);
 }
 
 .auth-field {
@@ -132,20 +137,20 @@
 .auth-field span {
   display: block;
   font-family: var(--font-display);
-  font-size: clamp(22px, 2.22vw, 32px);
+  font-size: clamp(16px, 1.3vw, 19px);
 }
 
 .auth-field input {
   display: block;
   width: 100%;
-  height: 79px;
-  margin: 5px 0 0 -6px;
-  padding: 0 24px;
+  height: clamp(44px, 6vh, 54px);
+  margin-top: 6px;
+  padding: 0 18px;
   border: 0;
-  border-radius: 20px;
+  border-radius: 14px;
   background: var(--input);
   box-shadow: var(--shadow-soft);
-  font: 26px var(--font-body);
+  font: 17px var(--font-body);
   color: #000;
 }
 
@@ -159,24 +164,24 @@
 }
 
 .auth-field:first-of-type {
-  margin-top: 161px;
+  margin-top: clamp(20px, 4.5vh, 40px);
 }
 
 .auth-field + .auth-field {
-  margin-top: 94px;
+  margin-top: clamp(14px, 2.8vh, 24px);
 }
 
 .auth-submit {
   display: block;
-  width: min(536px, 100%);
-  height: 130px;
-  margin: 245px 0 0 5px;
-  border-radius: 20px;
+  width: 100%;
+  height: clamp(50px, 7vh, 62px);
+  margin-top: clamp(24px, 4.5vh, 40px);
+  border-radius: 14px;
   background: var(--auth-btn);
   box-shadow: var(--shadow-soft);
   color: #fff;
   font-family: var(--font-display);
-  font-size: clamp(44px, 4.44vw, 64px);
+  font-size: clamp(22px, 2vw, 30px);
   transition: filter 0.15s ease;
 }
 
@@ -185,8 +190,9 @@
 }
 
 .auth-switch {
-  margin: 30px 0 0 8px;
-  font-size: clamp(22px, 2.22vw, 32px);
+  margin-top: 16px;
+  text-align: center;
+  font-size: clamp(15px, 1.2vw, 18px);
 }
 
 .auth-switch a {
@@ -207,6 +213,7 @@
   .auth,
   .auth-cadastro {
     display: block;
+    min-height: 0;
     background: none;
   }
 
@@ -221,17 +228,24 @@
 
   .auth-form {
     max-width: none;
+    margin: 0;
+    padding: 0;
   }
 
+  /* Título e subtítulo centralizados; o título diminui em telas estreitas e pode quebrar linha */
   .auth-form h1,
   .auth-cadastro .auth-form h1 {
-    margin: -2px 0 0 33px;
-    font-size: 32px;
-    line-height: 42px;
+    margin: 0;
+    text-align: center;
+    font-size: clamp(24px, 8.4vw, 32px);
+    line-height: 1.15;
+    white-space: normal;
+    text-wrap: balance;
   }
 
   .auth-sub {
-    margin: -8px 0 0 34px;
+    margin: 6px 0 0;
+    text-align: center;
     font-size: 15px;
   }
 
@@ -281,11 +295,10 @@
 
 /* ============ "Esqueceu a senha?" (link no login) ============ */
 .auth-forgot {
-  max-width: 547px;
-  margin: 16px 0 0;
+  margin: 12px 0 0;
   text-align: right;
   font-family: var(--font-display);
-  font-size: clamp(18px, 1.53vw, 22px);
+  font-size: clamp(14px, 1.1vw, 16px);
 }
 
 .auth-forgot a {
@@ -299,16 +312,16 @@
 }
 
 .auth-forgot + .auth-submit {
-  margin-top: 205px;
+  margin-top: clamp(20px, 3.5vh, 32px);
 }
 
 /* ============ Página de nova senha ============ */
 .auth-reset .auth-field {
-  margin-top: 36px;
+  margin-top: clamp(12px, 2.2vh, 20px);
 }
 
 .auth-reset .auth-sub + .auth-field {
-  margin-top: 80px;
+  margin-top: clamp(20px, 4vh, 36px);
 }
 
 .auth-reset .auth-field label {
@@ -321,18 +334,18 @@
 }
 
 .auth-pass input {
-  padding-right: 130px;
+  padding-right: 100px;
 }
 
 .auth-eye {
   position: absolute;
-  right: 22px;
+  right: 12px;
   top: 50%;
   translate: 0 -50%;
   padding: 6px 10px;
   border-radius: 8px;
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 15px;
   color: var(--deep);
 }
 
@@ -346,15 +359,14 @@
 
 .pass-rules {
   list-style: none;
-  max-width: 547px;
-  margin: 22px 0 0;
-  padding: 18px 20px;
-  border-radius: 20px;
+  margin: 12px 0 0;
+  padding: 12px 16px;
+  border-radius: 14px;
   border: 2px dashed rgba(13, 103, 92, 0.35);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 18px;
-  font-size: 18px;
+  gap: 4px 16px;
+  font-size: 14px;
   color: var(--text);
 }
 
@@ -401,18 +413,18 @@
 }
 
 .pass-match {
-  min-height: 26px;
-  margin-top: 12px;
-  font-size: 18px;
+  min-height: 20px;
+  margin-top: 8px;
+  font-size: 14px;
 }
 
 .pass-error {
-  margin-top: 16px;
-  font-size: 20px;
+  margin-top: 12px;
+  font-size: 15px;
 }
 
 .auth-reset .reset-submit {
-  margin-top: 56px;
+  margin-top: clamp(20px, 4vh, 36px);
 }
 
 .reset-done h1 {
@@ -420,15 +432,14 @@
 }
 
 .reset-done .auth-sub {
-  margin-top: 16px;
-  max-width: 547px;
+  margin-top: 12px;
 }
 
 .reset-back {
   display: grid;
   place-items: center;
-  margin-top: 80px;
-  font-size: clamp(32px, 3.33vw, 48px);
+  margin-top: clamp(24px, 5vh, 48px);
+  font-size: clamp(22px, 2vw, 30px);
 }
 
 @media (max-width: 767px) {
@@ -505,13 +516,12 @@
 
 /* ============ Mensagem de erro do login (vinda da API) ============ */
 .auth-error {
-  max-width: 547px;
-  margin: 18px 0 0 8px;
+  margin: 14px 0 0;
   padding: 10px 14px;
   border-radius: 12px;
   background: rgba(217, 48, 37, 0.1);
   color: #d93025;
-  font-size: clamp(16px, 1.53vw, 20px);
+  font-size: 15px;
 }
 
 :root[data-theme='dark'] .auth-error {
@@ -528,5 +538,26 @@
   .auth-error {
     margin: 12px 0 0;
     font-size: 14px;
+  }
+}
+
+/* ============ Tablet: o painel espacial sai e o formulário fica centralizado ============ */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .auth,
+  .auth-cadastro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .space-panel {
+    display: none;
+  }
+
+  .auth-side {
+    padding-inline: var(--gutter);
+  }
+
+  .auth-form h1,
+  .auth-sub {
+    text-align: center;
   }
 }

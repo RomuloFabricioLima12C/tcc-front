@@ -11,9 +11,13 @@
     - Relé da fita de LED (liga quando a porta abre ou quando
       uma foto é pedida, e desliga sozinho depois)
     - Sensor de porta (reed switch), opcional
+    - Wi-Fi trocado pelo site (página "Wi-Fi das placas"): a placa
+      baixa a lista de redes e guarda na memória. Ao ligar, conecta
+      na rede salva que estiver ao alcance. A rede escrita aqui no
+      código (WIFI_SSID) continua valendo como reserva.
 
   AI Voice (Xiaozhi): é uma placa separada, com o próprio ESP32-S3.
-  Ela conversa com o backend pelo Wi-Fi (veja 4_backend/src/voz.js).
+  Ela conversa com o backend pelo Wi-Fi (veja back/src/voz.js).
   O que for cadastrado por voz aparece aqui em até 2 minutos.
 
   ARQUIVOS DESTA PASTA:
@@ -22,7 +26,7 @@
 
   BIBLIOTECAS (Ferramentas > Gerenciar Bibliotecas):
     - TFT_eSPI     (Bodmer)
-    - ArduinoJson  (Benoit Blanchon)
+    - ArduinoJson  (Benoit Blanchon), versão 7 ou mais nova
 
   ANTES DE GRAVAR: copie o User_Setup.h que veio junto para a
   pasta da biblioteca TFT_eSPI (veja o LEIA-ME).
@@ -35,6 +39,7 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <WiFi.h>
+#include <WiFiMulti.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <Preferences.h>
@@ -52,6 +57,7 @@ struct Alimento {
 };
 
 // ================= CONFIGURE AQUI =================
+// Rede de reserva. As outras redes são cadastradas pelo site e ficam salvas na placa.
 const char* WIFI_SSID     = "NOME_DO_WIFI";
 const char* WIFI_PASSWORD = "SENHA_DO_WIFI";
 
@@ -149,6 +155,7 @@ ItemValidade itens[MAX_ITENS];
 int totalItens = 0;
 int alertas = 0;             // itens vencendo em até 2 dias
 bool listaCarregada = false;
+bool erroLista = false;      // a última busca falhou (servidor fora do ar, chave errada...)
 
 unsigned long ultimaVerificacao = 0;
 bool ledLigado = false;
@@ -337,9 +344,10 @@ void telaValidades() {
     tft.setFreeFont(&FreeSans9pt7b);
     tft.setTextColor(C_INK);
     tft.setTextDatum(ML_DATUM);
-    const char* msg = !listaCarregada
-        ? (WiFi.status() == WL_CONNECTED ? "Carregando..." : "Sem Wi-Fi")
-        : "Nenhum alimento cadastrado";
+    const char* msg = listaCarregada                 ? "Nenhum alimento cadastrado"
+                    : WiFi.status() != WL_CONNECTED  ? "Sem Wi-Fi"
+                    : erroLista                      ? "Erro ao falar com o servidor"
+                    :                                  "Carregando...";
     tft.drawString(msg, TX + 56, y + 2 * LIN_H);
   } else {
     int mostrar = min(totalItens, LINHAS);
@@ -348,7 +356,11 @@ void telaValidades() {
       tft.setFreeFont(&FreeSans9pt7b);
       tft.setTextColor(C_INK);
       tft.setTextDatum(ML_DATUM);
-      tft.drawString(itens[i].nome, TX + 10, y + LIN_H / 2);
+      // Nome comprido: corta com "." para não passar por cima do selo de dias
+      String nome = itens[i].nome;
+      const int LARGURA_NOME = TW - 82 - 16;
+      while (nome.length() > 1 && tft.textWidth(nome) > LARGURA_NOME) nome = nome.substring(0, nome.length() - 2) + ".";
+      tft.drawString(nome, TX + 10, y + LIN_H / 2);
 
       int d = itens[i].dias;
       uint16_t cor = (d <= 0) ? C_RED : (d <= 2) ? C_ORANGE : C_TEAL;
@@ -457,7 +469,7 @@ bool enviarAlimento(const Alimento& a) {
   http.addHeader("Content-Type", "application/json");
   cabecalhos(http);
 
-  StaticJsonDocument<256> doc;
+  JsonDocument doc;
   doc["usuario_id"] = USUARIO_ID;
   doc["nome"] = a.nome;
   doc["quantidade"] = 1;
@@ -470,6 +482,7 @@ bool enviarAlimento(const Alimento& a) {
 
   int code = http.POST(corpo);
   Serial.printf("[POST] /api/alimentos -> %d\n", code);
+  if (code == 401) Serial.println("HTTP 401: a DEVICE_KEY daqui está diferente da do backend");
   http.end();
   return code == 200 || code == 201;
 }
@@ -494,10 +507,15 @@ void buscarValidades() {
   cabecalhos(http);
   int code = http.GET();
   Serial.printf("[GET] /api/alimentos -> %d\n", code);
+  if (code == 401) Serial.println("HTTP 401: a DEVICE_KEY daqui está diferente da do backend");
+  erroLista = true;   // vira false só se a lista chegar inteira
 
   if (code == 200) {
-    DynamicJsonDocument doc(12288);
-    if (!deserializeJson(doc, http.getString())) {
+    JsonDocument doc;
+    DeserializationError falha = deserializeJson(doc, http.getString());
+    if (falha) Serial.printf("Lista não coube na memória ou veio errada: %s\n", falha.c_str());
+    if (!falha) {
+      erroLista = false;
       JsonArray lista = doc.is<JsonArray>() ? doc.as<JsonArray>() : doc["alimentos"].as<JsonArray>();
       totalItens = 0;
       alertas = 0;
@@ -526,6 +544,90 @@ void buscarValidades() {
     }
   }
   http.end();
+}
+
+// ============================================================
+//  Redes Wi-Fi (cadastradas no site, guardadas na memória da placa)
+// ============================================================
+const char* NOME_PLACA = "principal";   // aparece assim na página do site
+const int   MAX_REDES  = 5;             // igual ao MAX_REDES do backend
+
+WiFiMulti wifiMulti;    // conecta na rede conhecida com o sinal mais forte
+Preferences memRedes;   // memória que não apaga quando a placa desliga
+String versaoRedes = "";
+
+// "Casa da Vó" -> "Casa%20da%20V%C3%B3" (para mandar o nome da rede na URL)
+String codificarUrl(const String& texto) {
+  String r;
+  char hex[4];
+  for (size_t i = 0; i < texto.length(); i++) {
+    char c = texto[i];
+    if (isalnum((unsigned char)c) || c == '-' || c == '_' || c == '.' || c == '~') r += c;
+    else { snprintf(hex, sizeof(hex), "%%%02X", (unsigned char)c); r += hex; }
+  }
+  return r;
+}
+
+// Na hora de ligar: a rede do código + as redes que o site mandou da última vez
+void carregarRedes() {
+  wifiMulti.addAP(WIFI_SSID, WIFI_PASSWORD);
+  memRedes.begin("redes", true);
+  versaoRedes = memRedes.getString("versao", "");
+  int n = memRedes.getInt("n", 0);
+  for (int i = 0; i < n && i < MAX_REDES; i++) {
+    String ssid  = memRedes.getString(("s" + String(i)).c_str(), "");
+    String senha = memRedes.getString(("p" + String(i)).c_str(), "");
+    if (ssid.length()) {
+      wifiMulti.addAP(ssid.c_str(), senha.c_str());
+      Serial.println("[REDES] salva: " + ssid);
+    }
+  }
+  memRedes.end();
+}
+
+// Pergunta a lista ao backend. Só grava na memória se ela mudou.
+// Formato da resposta (texto):  LABCAM-REDES 1 / versao <v> / <rede>\t<senha> ...
+void sincronizarRedes() {
+  if (WiFi.status() != WL_CONNECTED) return;
+  HTTPClient http;
+  http.begin(urlBase() + "/api/redes/placa?placa=" + NOME_PLACA +
+             "&rssi=" + String(WiFi.RSSI()) + "&rede=" + codificarUrl(WiFi.SSID()));
+  cabecalhos(http);
+  http.setTimeout(5000);
+  int code = http.GET();
+  String corpo = (code == 200) ? http.getString() : "";
+  http.end();
+  if (code != 200) { Serial.printf("[REDES] HTTP %d\n", code); return; }
+  if (!corpo.startsWith("LABCAM-REDES 1\n")) return;
+
+  int pos = corpo.indexOf('\n') + 1;
+  int fim = corpo.indexOf('\n', pos);
+  if (fim < 0 || !corpo.substring(pos, fim).startsWith("versao ")) return;
+  String versao = corpo.substring(pos + 7, fim);
+  if (versao == versaoRedes) return;   // nada mudou
+
+  memRedes.begin("redes", false);
+  int n = 0;
+  pos = fim + 1;
+  while (pos < (int)corpo.length() && n < MAX_REDES) {
+    fim = corpo.indexOf('\n', pos);
+    if (fim < 0) fim = corpo.length();
+    String linha = corpo.substring(pos, fim);
+    pos = fim + 1;
+    int tab = linha.indexOf('\t');
+    if (tab <= 0) continue;
+    String ssid = linha.substring(0, tab);
+    String senha = linha.substring(tab + 1);
+    memRedes.putString(("s" + String(n)).c_str(), ssid);
+    memRedes.putString(("p" + String(n)).c_str(), senha);
+    wifiMulti.addAP(ssid.c_str(), senha.c_str());   // já vale para a próxima reconexão
+    n++;
+  }
+  memRedes.putInt("n", n);
+  memRedes.putString("versao", versao);
+  memRedes.end();
+  versaoRedes = versao;
+  Serial.printf("[REDES] lista nova salva (%d redes)\n", n);
 }
 
 // ============================================================
@@ -600,6 +702,7 @@ void tratarToque() {
   if (dentro(x, y, abaCadastrar)) { telaCadastro(); return; }
   if (dentro(x, y, abaValidades)) {
     listaCarregada = false;
+    erroLista = false;
     telaValidades();     // mostra "Carregando..."
     buscarValidades();
     telaValidades();
@@ -618,7 +721,10 @@ void tratarToque() {
       aviso(ok ? "Alimento salvo!" : "Erro ao salvar", ok);
       delay(1500);
       telaCadastro();
-      if (ok) buscarValidades();
+      if (ok) {
+        buscarValidades();
+        desenharAbas();   // atualiza a bolinha de alertas com o alimento novo
+      }
     } else if (dentro(x, y, btnVoltar)) {
       telaCadastro();
     }
@@ -629,11 +735,11 @@ void tratarToque() {
 //  setup / loop
 // ============================================================
 void conectarWiFi() {
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  unsigned long inicio = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - inicio < 15000) delay(300);
+  WiFi.mode(WIFI_STA);
+  carregarRedes();
+  wifiMulti.run(15000);   // procura as redes salvas e entra na de sinal mais forte
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.print("Wi-Fi conectado, IP: ");
+    Serial.print("Wi-Fi conectado em \"" + WiFi.SSID() + "\", IP: ");
     Serial.println(WiFi.localIP());
   } else {
     Serial.println("Sem Wi-Fi (seguindo offline).");
@@ -659,6 +765,7 @@ void setup() {
   telaInicial();
   conectarWiFi();
   if (WiFi.status() == WL_CONNECTED) iniciarRelogio();
+  sincronizarRedes();
   buscarValidades();
   ultimaVerificacao = millis();
 
@@ -697,13 +804,15 @@ void loop() {
     estavaOnline = online;
     if (online && !temHora) iniciarRelogio();
   }
-  if (!online && millis() - ultimoWifi > 30000) {
-    WiFi.reconnect();
+  // (a cada 60 s: procurar as redes trava a tela por alguns segundos)
+  if (!online && millis() - ultimoWifi > 60000) {
+    wifiMulti.run(8000);   // tenta todas as redes salvas, não só a última
     ultimoWifi = millis();
   }
 
-  // Checagem periódica das validades
+  // Checagem periódica das validades (e da lista de redes do site)
   if (millis() - ultimaVerificacao > INTERVALO_VERIFICACAO) {
+    sincronizarRedes();
     buscarValidades();
     ultimaVerificacao = millis();
     if (telaAtual == TELA_VALIDADES) telaValidades();

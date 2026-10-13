@@ -18,6 +18,7 @@ function validarSenha(senha) {
 
 function validarEmail(email) {
   if (typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) return 'Informe um e-mail válido.'
+  if (email.trim().length > 160) return 'O e-mail pode ter no máximo 160 caracteres.' // tamanho da coluna no banco
   return null
 }
 

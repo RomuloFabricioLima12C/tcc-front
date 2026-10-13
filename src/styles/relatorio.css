@@ -5,6 +5,8 @@
 .report-toolbar {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   margin: 43px -11px 0 11px;
 }
 
@@ -21,10 +23,6 @@
 
 .report-btn:hover {
   filter: brightness(1.25);
-}
-
-.report-apply {
-  margin-top: -5px;
 }
 
 .report-filters {
@@ -120,13 +118,290 @@
   margin: 150px auto 0;
 }
 
-.chart-img {
-  --cw: 995px;
+/* Cartão do gráfico (linha do tempo das validades) */
+.chart-card {
+  --chart-bg: #ddefdb;
+  --chart-ink: #2f6b4a;
+  --chart-food-bg: #fbfcf7;
+  --chart-axis: #5a9e62;
+  --st-vencido: #c8423b;
+  --st-urgente: #e07b00;
+  --st-atencao: #c99a00;
+  --st-ok: var(--green);
   position: relative;
   z-index: 1;
-  width: 100%;
+  margin: 0;
+  padding: 32px 28px 24px;
   border-radius: 20px;
+  background: var(--chart-bg);
+  color: var(--chart-ink);
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme='dark'] .chart-card {
+  --chart-bg: var(--deeper);
+  --chart-ink: var(--lime);
+  --chart-food-bg: #0f5249;
+  --chart-axis: var(--lime);
+  --st-vencido: #ff7a70;
+  --st-urgente: #ffa94d;
+  --st-atencao: #ffd84d;
+  --st-ok: var(--lime);
+}
+
+.chart-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  font-family: var(--font-display);
+  font-size: clamp(26px, 2.8vw, 40px);
+}
+
+.chart-card-title::before,
+.chart-card-title::after {
+  content: '';
+  width: min(120px, 12%);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.4;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+}
+
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chart-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--st);
+}
+
+/* cor de cada situação (sempre acompanhada de texto) */
+.chart-card .is-vencido { --st: var(--st-vencido); }
+.chart-card .is-urgente { --st: var(--st-urgente); }
+.chart-card .is-atencao { --st: var(--st-atencao); }
+.chart-card .is-ok { --st: var(--st-ok); }
+
+.chart-scroll {
+  margin: 20px -28px 0;
+  padding: 10px 28px 4px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+
+.chart-timeline {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chart-item {
+  flex: 1 0 150px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 8px;
+  scroll-snap-align: center;
+}
+
+/* trecho da linha do tempo que passa por este item */
+.chart-item::before,
+.chart-hoje::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 36px;
+  height: 4px;
+  background: var(--chart-axis);
+}
+
+.chart-food {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 10px 12px;
+  border: 0;
+  border-top: 5px solid var(--st);
+  border-radius: 18px;
+  background: var(--chart-food-bg);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+  transition: translate 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* "bico" do cartão apontando para a linha */
+.chart-food::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  translate: -50% 0;
+  rotate: 45deg;
+  background: var(--chart-food-bg);
+  border-radius: 0 0 4px 0;
+}
+
+.chart-food:hover,
+.chart-food:focus-visible {
+  translate: 0 -4px;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.18);
+}
+
+.chart-food:focus-visible {
+  outline: 3px solid var(--st);
+  outline-offset: 3px;
+}
+
+.chart-item.is-ativo .chart-food {
+  translate: 0 -6px;
+  box-shadow: 0 0 0 3px var(--st), 0 10px 18px rgba(0, 0, 0, 0.18);
+}
+
+.chart-food-nome {
+  display: flex;
+  align-items: center;
+  min-height: 2.3em;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.chart-food-icone {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(0, 191, 99, 0.12);
+}
+
+:root[data-theme='dark'] .chart-food-icone {
+  background: rgba(185, 255, 102, 0.14);
+}
+
+.chart-food-icone svg {
+  width: 46px;
+  height: 46px;
+}
+
+.chart-food-tipo {
+  margin-top: -4px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.chart-food-data {
+  width: 100%;
+  padding-top: 8px;
+  border-top: 1px solid rgba(47, 107, 74, 0.25);
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-food-tag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--st) 20%, transparent);
+  font-size: 13px;
+}
+
+.chart-dot {
+  position: relative;
+  z-index: 1;
+  width: 20px;
+  height: 20px;
+  margin-top: 22px;
+  border-radius: 50%;
+  background: var(--st);
+  border: 3px solid var(--chart-food-bg);
+  box-shadow: 0 0 0 2px var(--chart-axis);
+}
+
+.chart-axis-label {
+  margin-top: 8px;
+  font-size: 16px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+/* marcador "Hoje" entre os que já venceram e os que ainda vão vencer */
+.chart-hoje {
+  flex: 0 0 48px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.chart-hoje span {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.chart-hoje::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 30px;
+  left: 50%;
+  border-left: 2px dashed currentColor;
+  opacity: 0.6;
+}
+
+.chart-vazio,
+.chart-detalhe {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 16px;
+}
+
+.chart-vazio {
+  padding: 60px 0;
+}
+
+/* linha da tabela destacada pelo gráfico */
+.report-table tbody tr {
+  cursor: pointer;
+}
+
+.report-table tbody tr.is-selecionado td {
+  background: rgba(0, 191, 99, 0.28);
+}
+
+.report-aviso {
+  margin: 14px 0 0 11px;
+  font-size: 15px;
+  opacity: 0.8;
 }
 
 .chart-line-top {
@@ -163,14 +438,15 @@
 }
 
 .chart-star {
-  left: -54px;
-  top: 337px;
+  left: -110px;
+  top: auto;
+  bottom: 30px;
   width: 134px;
   z-index: 2;
 }
 
 .chart-triangle {
-  left: -50px;
+  left: -95px;
   top: 140px;
   width: 95px;
   rotate: -36.87deg;
@@ -207,6 +483,8 @@
 }
 
 @media (max-width: 1100px) {
+  .chart-star,
+  .chart-triangle,
   .chart-burst,
   .chart-dot-a,
   .chart-dot-b,
@@ -216,11 +494,24 @@
   }
 }
 
+
+/* ============ Card "Monitore seus alimentos" (abaixo da câmera) ============ */
+.report-monitor {
+  width: min(1232px, 100%);
+  margin: 72px auto 0;
+}
+
+/* ============ Celular ============ */
 @media (max-width: 767px) {
   .report-section,
+  .cam-video-section,
   .chart-section {
     padding: 0;
     width: auto;
+  }
+
+  .cam-video-section {
+    margin-top: 40px;
   }
 
   .report-toolbar {
@@ -235,35 +526,97 @@
     border-radius: 10px;
   }
 
-  .report-apply {
-    margin: 0;
-  }
-
   .report-filters {
     margin: 12px 0 0;
     font-size: 16px;
   }
 
+  .report-filters label {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .report-filters select {
+    flex: 1;
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  /* A tabela vira uma lista de cartões: cada alimento é um cartão com 4 informações */
   .report-table-wrap {
     width: 100%;
     margin: 12px 0 0;
     translate: none;
+    overflow: visible;
+    background: none;
   }
 
-  .report-table {
-    min-width: 520px;
+  .report-table,
+  .report-table tbody,
+  .report-table tr,
+  .report-table td {
+    display: block;
+    min-width: 0;
   }
 
-  .report-table th {
-    height: 52px;
-    font-size: 18px;
+  .report-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .report-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: var(--table-body);
+    text-align: left;
+  }
+
+  .report-table tr + tr {
+    margin-top: 10px;
   }
 
   .report-table td,
+  .report-table td + td,
   .report-table td:nth-child(3),
-  .report-table td:nth-child(4) {
+  .report-table td:nth-child(4),
+  .report-table tbody tr:first-child td,
+  .report-table tbody tr:last-child td {
+    height: auto;
+    padding: 0;
+    border: 0;
     font-size: 15px;
-    height: 40px;
+    overflow-wrap: anywhere;
+  }
+
+  .report-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--font-display);
+    font-size: 12px;
+    color: var(--deep);
+  }
+
+  :root[data-theme='dark'] .report-table td::before {
+    color: var(--lime);
+  }
+
+  .report-table td.report-vazio {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .report-table td.report-vazio::before {
+    content: none;
+  }
+
+  .report-monitor {
+    margin-top: 40px;
   }
 
   .chart-section {
@@ -276,5 +629,26 @@
 
   .chart-wrap .deco {
     display: none;
+  }
+
+  .chart-card {
+    padding: 22px 16px 18px;
+  }
+
+  .chart-scroll {
+    margin: 16px -16px 0;
+    padding: 10px 16px 4px;
+  }
+
+  .chart-item {
+    flex-basis: 136px;
+  }
+
+  .chart-food-nome {
+    font-size: 17px;
+  }
+
+  .report-aviso {
+    margin-left: 0;
   }
 }

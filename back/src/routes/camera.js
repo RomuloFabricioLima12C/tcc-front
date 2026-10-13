@@ -1,6 +1,6 @@
 // =====================================================================
 // Rotas da câmera usadas pelo SITE (precisam de login / token JWT).
-// As fotos chegam pela ESP32-CAM em POST /api/dispositivo/foto.
+// As fotos chegam pela ESP32-CAM em POST /api/fotos (veja routes/comando.js).
 // =====================================================================
 const express = require('express')
 const { query } = require('../db')
@@ -60,7 +60,7 @@ router.get('/fotos', async (req, res, next) => {
 router.get('/fotos/:id', async (req, res, next) => {
   try {
     const id = Number(req.params.id)
-    if (!Number.isInteger(id) || id < 1) return res.status(400).json({ erro: 'Id inválido.' })
+    if (!Number.isInteger(id) || id < 1 || id > 2147483647) return res.status(400).json({ erro: 'Id inválido.' })
     const resultado = await query(
       'SELECT id, imagem, criado_em FROM fotos WHERE id = $1 AND usuario_id = $2',
       [id, req.usuario.id],

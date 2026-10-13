@@ -1,0 +1,290 @@
+/* Página "Wi-Fi das placas" — usa os cards de alimentos.css e as cores do site */
+.wf-intro {
+  max-width: 900px;
+  margin-top: 28px;
+  font-size: 20px;
+  line-height: 1.45;
+}
+
+.wf-passos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+.wf-passos li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wf-passos span {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--deeper);
+  color: var(--lime);
+}
+
+/* ---- Situação das placas ---- */
+.wf-placas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  margin-top: 32px;
+}
+
+.wf-placa {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--card-plain);
+  color: #000;
+}
+
+.wf-placa h2 {
+  margin-bottom: 6px;
+}
+
+.wf-placa p {
+  font-size: 17px;
+}
+
+.wf-placa-icone {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  padding: 10px;
+  border-radius: 18px;
+  background: var(--soft);
+  color: var(--deep);
+}
+
+.wf-placa.is-offline .wf-placa-icone {
+  background: #eee;
+  color: #888;
+}
+
+.wf-status {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: #fff;
+}
+
+.wf-status.is-online {
+  background: #2ea043;
+}
+
+.wf-status.is-offline {
+  background: #8a8f98;
+}
+
+.wf-meta {
+  margin-top: 4px;
+  font-size: 14px !important;
+  opacity: 0.75;
+}
+
+.wf-grid {
+  margin-top: 28px;
+}
+
+/* ---- Formulário ---- */
+.wf-senha {
+  position: relative;
+  display: block;
+}
+
+.wf-senha input {
+  padding-right: 84px;
+}
+
+.wf-olho {
+  position: absolute;
+  top: 50%;
+  right: 6px;
+  translate: 0 -50%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font: 14px var(--font-body);
+  color: var(--deep);
+}
+
+.wf-olho:hover {
+  background: rgba(13, 103, 92, 0.1);
+}
+
+.al-form input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wf-dica {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.wf-reserva {
+  margin-top: 16px;
+}
+
+/* ---- Lista de redes ---- */
+.wf-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border-left: 6px solid var(--teal);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.wf-item.is-editando {
+  display: block;
+  background: var(--soft);
+}
+
+.wf-item-icone {
+  width: 30px;
+  height: 30px;
+  color: var(--deep);
+}
+
+.wf-uso {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #2ea043;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.wf-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wf-btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--btn);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+
+.wf-btn.is-secundario {
+  background: none;
+  border: 2px solid var(--deep);
+  color: var(--deep);
+}
+
+.wf-btn:hover {
+  filter: brightness(1.1);
+}
+
+.wf-editar {
+  display: grid;
+  gap: 10px;
+}
+
+.wf-editar label {
+  display: grid;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+
+.wf-editar input:not([type='checkbox']) {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(25, 26, 35, 0.3);
+  background: #fff;
+  color: #000;
+  font: 16px var(--font-body);
+}
+
+.wf-editar .wf-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wf-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--deep);
+}
+
+.wf-aviso-card {
+  margin-top: 32px;
+  max-width: 640px;
+}
+
+@media (max-width: 900px) {
+  .wf-placas {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .wf-intro {
+    margin-top: 16px;
+    font-size: 15px;
+  }
+
+  .wf-passos {
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .wf-passos span {
+    width: 26px;
+    height: 26px;
+  }
+
+  .wf-placas {
+    margin-top: 20px;
+  }
+
+  .wf-placa {
+    gap: 12px;
+  }
+
+  .wf-placa-icone {
+    width: 48px;
+    height: 48px;
+    padding: 8px;
+    border-radius: 14px;
+  }
+
+  .wf-placa p {
+    font-size: 14px;
+  }
+
+  .wf-item {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .wf-item .wf-acoes {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}

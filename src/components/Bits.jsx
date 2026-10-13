@@ -1,22 +1,32 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import Crop from './Crop.jsx'
 import ThemeCrop from './ThemeImage.jsx'
 import { img } from '../assets.js'
+import { lerSessao } from '../api.js'
 
 // Título de seção com o sublinhado de estrela. `login` mostra o botão LOGIN ao lado
-// no celular, como no topo de cada tela mobile.
+// no celular, como no topo de cada tela mobile (logado, vira um atalho para o Relatório).
 export function SectionTitle({ children, as: Tag = 'h2', size = 'md', login = false, id }) {
+  const { pathname } = useLocation()
+  const logado = Boolean(lerSessao())
+  // Logado e já no Relatório: o atalho repetiria o título, então não aparece
+  const mostrarBotao = login && !(logado && pathname === '/relatorio')
   return (
     <div className={`section-title-row ${login ? 'has-login' : ''}`}>
       <Tag className={`section-title st-${size}`} id={id}>
         <span>{children}</span>
         <ThemeCrop light={img.underline} dark={img.underlineDark} className="st-underline" />
       </Tag>
-      {login && (
-        <Link to="/login" className="pill pill-login-m mobile-only">
-          LOGIN
-        </Link>
-      )}
+      {mostrarBotao &&
+        (logado ? (
+          <Link to="/relatorio" className="pill pill-login-m mobile-only">
+            RELATÓRIO
+          </Link>
+        ) : (
+          <Link to="/login" className="pill pill-login-m mobile-only">
+            LOGIN
+          </Link>
+        ))}
     </div>
   )
 }

@@ -176,6 +176,33 @@
   line-height: 47px;
 }
 
+/* Tablet: cards sem o deslocamento do desktop (a borda direita saía da tela) e com menos recuo no texto */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .qs-redes {
+    margin-left: 0;
+    padding: 40px 48px 90px;
+  }
+
+  .qs-redes h2,
+  .qs-form h2 {
+    margin-right: 0;
+  }
+
+  .qs-socials {
+    margin-left: 0;
+  }
+
+  .qs-form {
+    margin: 56px 0 0;
+    padding: 34px 48px 45px;
+  }
+
+  .qs-taco,
+  .qs-taco-alt {
+    display: none;
+  }
+}
+
 /* ============ Celular ============ */
 @media (max-width: 767px) {
   .qs-section {

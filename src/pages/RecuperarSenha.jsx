@@ -4,7 +4,7 @@ import { AccountLayout } from '../components/Layout.jsx'
 import ThemeCrop from '../components/ThemeImage.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import { SpacePanel } from './Auth.jsx'
-import { img } from '../assets.js'
+import { img, links } from '../assets.js'
 import '../styles/auth.css'
 
 // Regras da nova senha — cada uma aparece na lista e fica verde quando é cumprida.
@@ -36,7 +36,9 @@ function PasswordInput({ id, value, onChange, show, onToggle, describedBy }) {
   )
 }
 
-// Sem back-end ainda: valida as regras e mostra a confirmação na tela.
+// A API ainda não troca a senha (para isso ela precisaria mandar um e-mail confirmando
+// que a conta é de quem pediu). A página valida as regras e, no fim, explica isso e
+// manda para o Suporte, em vez de dizer que a senha foi trocada.
 export default function RecuperarSenha() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
@@ -70,9 +72,14 @@ export default function RecuperarSenha() {
 
           {pronto ? (
             <div className="auth-form reset-done" role="status">
-              <h1>Senha alterada!</h1>
+              <h1>Quase lá!</h1>
               <p className="auth-sub">
-                Sua nova senha foi criada para <strong>{email}</strong>. Agora é só entrar com ela.
+                A troca de senha pelo site ainda não está disponível, então a senha de{' '}
+                <strong>{email}</strong> <strong>não foi alterada</strong>. Peça a troca pelo{' '}
+                <a href={links.faq} target="_blank" rel="noreferrer">
+                  Suporte
+                </a>{' '}
+                e continue entrando com a senha antiga até lá.
               </p>
               <Link to="/login" className="auth-submit reset-back">
                 VOLTAR AO LOGIN

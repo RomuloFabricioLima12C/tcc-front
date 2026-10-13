@@ -7,7 +7,7 @@
 - `previa_telas_2_4.png` → como as telas ficam
 
 ## Passo a passo
-1. Na Arduino IDE, instale as bibliotecas **TFT_eSPI** (Bodmer) e **ArduinoJson** (Benoit Blanchon).
+1. Na Arduino IDE, instale as bibliotecas **TFT_eSPI** (Bodmer) e **ArduinoJson** (Benoit Blanchon, versão 7 ou mais nova).
 2. Copie o **`User_Setup.h`** por cima de `Documentos/Arduino/libraries/TFT_eSPI/User_Setup.h`.
 3. Abra `esp32_principal.ino` e preencha no topo: Wi-Fi, senha e `DEVICE_KEY`.
 4. Placa: **ESP32 Dev Module**. Grave.

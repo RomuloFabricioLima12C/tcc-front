@@ -10,10 +10,9 @@ export const mainNav = [
 
 export const extraPages = [
   { to: '/alimentos', label: 'Meus alimentos', keywords: 'meus alimentos geladeira cadastrar validade vencendo lista' },
-  { to: '/relatorio', label: 'Relatório', keywords: 'relatorio relatório tabela grafico gráfico validade filtros' },
-  { to: '/camera', label: 'Câmera', keywords: 'camera câmera monitorar monitore alimentos' },
-  { to: '/monitoramento', label: 'Monitoramento', keywords: 'monitoramento monitorar' },
+  { to: '/relatorio', label: 'Relatório', keywords: 'relatorio relatório tabela grafico gráfico validade filtros camera câmera video vídeo ao vivo monitorar monitoramento' },
   { to: '/recursos', label: 'Recursos', keywords: 'recursos' },
+  { to: '/wifi', label: 'Wi-Fi das placas', keywords: 'wifi wi-fi rede internet senha trocar esp32 placa conectar' },
   { to: '/perfil', label: 'Perfil', keywords: 'perfil conta usuario usuário compras' },
   { to: '/login', label: 'Login', keywords: 'login entrar' },
   { to: '/cadastro', label: 'Cadastro', keywords: 'cadastro cadastrar conta' },

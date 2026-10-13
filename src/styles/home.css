@@ -99,6 +99,23 @@
   top: 81.7%;
 }
 
+/* Tablet: texto e pepino dividem a largura (antes o pepino espremia o texto em uma palavra por linha) */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 24px;
+  }
+
+  .hero-kicker {
+    white-space: normal;
+  }
+
+  .hero-art {
+    margin-top: 0;
+    margin-right: 0;
+  }
+}
+
 .hero-scroll {
   position: absolute;
   left: 50%;
@@ -294,6 +311,19 @@
   --cw: 167px;
   right: 1px;
   bottom: 41px;
+}
+
+/* Tablet: um card de serviço por linha (lado a lado ficavam estreitos e o personagem cobria o texto) */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .services-grid {
+    grid-template-columns: minmax(0, 600px);
+    row-gap: 56px;
+    margin-inline: 0;
+  }
+
+  .promo-contato {
+    translate: none;
+  }
 }
 
 /* ============ Celular ============ */

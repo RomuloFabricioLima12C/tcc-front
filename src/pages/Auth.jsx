@@ -30,13 +30,16 @@ const copy = {
 export function SpacePanel({ mode }) {
   return (
     <div className={`space-panel space-${mode}`} aria-hidden="true">
-      <Crop s={img.space} className="space-bg" />
-      {mode === 'login' ? (
-        <Crop s={img.tomatoPlanet} className="space-tomato" />
-      ) : (
-        <Crop s={img.tomatoPlanetHalf} className="space-tomato" />
-      )}
-      <Crop s={img.carrotPlanet} className="space-carrot" />
+      {/* A arte inteira (fundo + planetas) cobre o painel sem distorcer, como object-fit: cover */}
+      <div className="space-art">
+        <Crop s={img.space} className="space-bg" />
+        {mode === 'login' ? (
+          <Crop s={img.tomatoPlanet} className="space-tomato" />
+        ) : (
+          <Crop s={img.tomatoPlanetHalf} className="space-tomato" />
+        )}
+        <Crop s={img.carrotPlanet} className="space-carrot" />
+      </div>
     </div>
   )
 }
@@ -59,7 +62,7 @@ export default function Auth({ mode }) {
       const { token, usuario } =
         mode === 'login' ? await entrar(email, senha) : await cadastrar(email.split('@')[0], email, senha)
       salvarSessao(token, usuario) // guarda o token para as próximas chamadas
-      navigate('/alimentos')
+      navigate('/relatorio')
     } catch (falha) {
       setErro(falha.message)
     } finally {

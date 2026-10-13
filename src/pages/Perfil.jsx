@@ -1,7 +1,10 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { AccountLayout } from '../components/Layout.jsx'
 import ThemeCrop from '../components/ThemeImage.jsx'
-import { img, svg } from '../assets.js'
+import { img, links, svg } from '../assets.js'
+import { avatares, acharAvatar } from '../avatares.js'
+import { lerSessao, sair, salvarAvatar } from '../api.js'
 import '../styles/perfil.css'
 
 function CartIcon() {
@@ -14,26 +17,46 @@ function CartIcon() {
   )
 }
 
-// Ícone de câmera no mesmo traço verde dos outros ícones do menu.
-function CameraIcon() {
+// Balão de conversa com "?" (mesmo verde dos outros ícones)
+function SupportIcon() {
   return (
-    <span className="pf-icon">
-      <svg className="pf-camera" viewBox="0 0 32 26" fill="none" aria-hidden="true">
-        <path
-          d="M3 7.5C3 6.4 3.9 5.5 5 5.5h4.2l2-3h9.6l2 3H27c1.1 0 2 .9 2 2v14c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2v-14Z"
-          stroke="#00BF63"
-          strokeWidth="2"
-          strokeLinejoin="round"
-        />
-        <circle cx="16" cy="14.5" r="5" stroke="#00BF63" strokeWidth="2" />
-      </svg>
-    </span>
+    <svg viewBox="0 0 32 32" className="pf-support" aria-hidden="true">
+      <path
+        d="M6 7h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H14l-6 5v-5H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M13.2 12.6a2.9 2.9 0 1 1 4.2 2.6c-.9.4-1.4 1-1.4 1.9v.4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <circle cx="16" cy="20.2" r="1.1" fill="currentColor" />
+    </svg>
+  )
+}
+
+// Símbolo do Wi-Fi (mesmo verde e tamanho do ícone de suporte)
+function WifiIcon() {
+  return (
+    <svg viewBox="0 0 32 32" className="pf-support" aria-hidden="true">
+      <path
+        d="M4 12.5a17 17 0 0 1 24 0M8.5 17a10.5 10.5 0 0 1 15 0M12.8 21.4a4.4 4.4 0 0 1 6.4 0"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+      <circle cx="16" cy="25.5" r="1.4" fill="currentColor" />
+    </svg>
   )
 }
 
 const menu = [
-  // Leva à página Câmera, que mostra a última foto mandada pela ESP32-CAM.
-  { to: '/camera', label: 'Ver câmera', icon: <CameraIcon /> },
   { to: '/relatorio', label: 'Minhas compras', icon: <CartIcon /> },
   {
     to: '/',
@@ -44,40 +67,149 @@ const menu = [
       </span>
     ),
   },
+  // Suporte: abre o formulário FAQ (o mesmo do rodapé), sem página própria
   {
-    to: '/componentes',
-    label: 'Componentes',
+    href: links.faq,
+    label: 'Suporte',
     icon: (
       <span className="pf-icon">
-        <img src={svg.book} alt="" className="pf-book" />
+        <SupportIcon />
+      </span>
+    ),
+  },
+  // Trocar a rede das ESP32 sem gravar o código de novo
+  {
+    to: '/wifi',
+    label: 'Wi-Fi das placas',
+    icon: (
+      <span className="pf-icon">
+        <WifiIcon />
       </span>
     ),
   },
 ]
 
-// Usuário de exemplo do Figma — substituir pelos dados reais quando houver login de verdade.
-const user = { name: 'João Pedro', email: 'joaopedro@gmail.com' }
+// Grade com as frutas do site para escolher a foto de perfil
+function EscolherAvatar({ atual, salvando, onEscolher }) {
+  return (
+    <div className="pf-escolha">
+      <p className="pf-escolha-titulo">Escolha sua foto de perfil</p>
+      <div className="pf-escolha-grade" role="radiogroup" aria-label="Foto de perfil">
+        {avatares.map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            role="radio"
+            aria-checked={a.id === atual}
+            className="pf-opcao"
+            title={a.nome}
+            disabled={salvando}
+            onClick={() => onEscolher(a.id)}
+          >
+            <ThemeCrop light={a.light} dark={a.dark} alt={a.nome} />
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export default function Perfil() {
+  const navigate = useNavigate()
+  const [usuario, setUsuario] = useState(() => lerSessao()?.usuario) // quem fez login (guardado em api.js)
+  const avatar = acharAvatar(usuario?.avatar)
+  // Sem foto ainda: as opções já aparecem abertas
+  const [escolhendo, setEscolhendo] = useState(false)
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState('')
+  const mostrarOpcoes = usuario && (escolhendo || !avatar)
+
+  const escolher = async (id) => {
+    setSalvando(true)
+    setErro('')
+    try {
+      await salvarAvatar(id)
+      setUsuario(lerSessao()?.usuario)
+      setEscolhendo(false)
+    } catch (e) {
+      setErro(e.message)
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  const sairDaConta = () => {
+    sair()
+    navigate('/login')
+  }
+
   return (
     <AccountLayout title="Perfil">
       <section className="profile">
-        <ThemeCrop light={img.salamiAvatar} dark={img.salamiAvatarDark} className="pf-avatar" alt="Avatar" />
-        <h1 className="pf-name">{user.name}</h1>
-        <p className="pf-email">{user.email}</p>
+        {avatar ? (
+          <span className="pf-avatar-foto">
+            <ThemeCrop light={avatar.light} dark={avatar.dark} alt={`Foto de perfil: ${avatar.nome}`} />
+          </span>
+        ) : (
+          <ThemeCrop light={img.salamiAvatar} dark={img.salamiAvatarDark} className="pf-avatar" alt="Avatar" />
+        )}
+        {usuario ? (
+          <>
+            <h1 className="pf-name">{usuario.nome}</h1>
+            <p className="pf-email">{usuario.email}</p>
+            {avatar && !escolhendo && (
+              <button type="button" className="pf-trocar" onClick={() => setEscolhendo(true)}>
+                Trocar foto
+              </button>
+            )}
+            {mostrarOpcoes && (
+              <EscolherAvatar atual={usuario.avatar} salvando={salvando} onEscolher={escolher} />
+            )}
+            {erro && (
+              <p className="pf-erro" role="alert">
+                {erro}
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <h1 className="pf-name">Você não está logado</h1>
+            <Link to="/login" className="pf-entrar">
+              ENTRAR
+            </Link>
+          </>
+        )}
 
         <nav className="pf-menu" aria-label="Menu do perfil">
-          {menu.map((m) => (
-            <Link key={m.label} to={m.to} className="pf-row">
-              {m.icon}
-              <span className="pf-label">
-                {m.label}
-                {m.soon && <span className="pf-soon">em breve</span>}
-              </span>
-              <img src={svg.chevronRight} alt="" className="pf-chevron" />
-            </Link>
-          ))}
+          {menu.map((m) => {
+            const conteudo = (
+              <>
+                {m.icon}
+                <span className="pf-label">
+                  {m.label}
+                  {m.soon && <span className="pf-soon">em breve</span>}
+                </span>
+                <img src={svg.chevronRight} alt="" className="pf-chevron" />
+              </>
+            )
+            // Link externo (Suporte) abre em outra aba; os outros navegam dentro do site
+            return m.href ? (
+              <a key={m.label} href={m.href} target="_blank" rel="noreferrer" className="pf-row">
+                {conteudo}
+              </a>
+            ) : (
+              <Link key={m.label} to={m.to} className="pf-row">
+                {conteudo}
+              </Link>
+            )
+          })}
         </nav>
+
+        {usuario && (
+          <button type="button" className="pf-sair" onClick={sairDaConta}>
+            Sair da conta
+          </button>
+        )}
 
         <ThemeCrop light={img.logo} dark={img.logoDark} className="pf-logo" />
       </section>

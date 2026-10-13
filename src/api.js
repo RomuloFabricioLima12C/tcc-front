@@ -1,9 +1,12 @@
 // =====================================================================
 // Ligação do site com o backend (pasta back/).
-// O endereço da API vem de VITE_API_URL (arquivo .env do site) e, se não
-// existir, usa a API rodando no próprio computador.
+// O endereço da API vem de VITE_API_URL (arquivo .env do site). Se não existir:
+// - em "npm run dev", usa o próprio endereço do site (o Vite repassa /api para a API);
+// - na versão final, usa a API rodando no próprio computador.
 // =====================================================================
-export const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '')
+export const API_URL = (
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '' : 'http://localhost:3000')
+).replace(/\/$/, '')
 
 const CHAVE_TOKEN = 'labcam-token'
 const CHAVE_USUARIO = 'labcam-usuario'
@@ -75,37 +78,49 @@ export async function api(caminho, { metodo = 'GET', corpo } = {}) {
 export const entrar = (email, senha) => api('/api/usuarios/login', { metodo: 'POST', corpo: { email, senha } })
 export const cadastrar = (nome, email, senha) =>
   api('/api/usuarios/cadastro', { metodo: 'POST', corpo: { nome, email, senha } })
+
+// Salva a fruta escolhida como foto de perfil e atualiza o usuário guardado no navegador
+export async function salvarAvatar(avatar) {
+  await api('/api/usuarios/avatar', { metodo: 'PUT', corpo: { avatar } })
+  const sessao = lerSessao()
+  if (sessao) salvarSessao(sessao.token, { ...sessao.usuario, avatar })
+}
 export const listarAlimentos = () => api('/api/alimentos')
 export const listarVencendo = (dias = 3) => api(`/api/alimentos/vencendo?dias=${dias}`)
 export const criarAlimento = (alimento) => api('/api/alimentos', { metodo: 'POST', corpo: alimento })
 export const apagarAlimento = (id) => api(`/api/alimentos/${id}`, { metodo: 'DELETE' })
 
-// ---- Câmera ----
-// A foto vem como imagem (não JSON). Como uma <img> não consegue mandar o token,
-// buscamos com fetch e transformamos em um endereço local (blob) para a <img>.
-// Devolve null quando a câmera ainda não mandou nenhuma foto.
-export async function buscarUltimaFoto() {
+// ---- Wi-Fi das placas (as ESP32 baixam esta lista e guardam na memória) ----
+export const listarRedes = () => api('/api/redes')
+export const criarRede = (rede) => api('/api/redes', { metodo: 'POST', corpo: rede })
+export const editarRede = (id, dados) => api(`/api/redes/${id}`, { metodo: 'PUT', corpo: dados })
+export const apagarRede = (id) => api(`/api/redes/${id}`, { metodo: 'DELETE' })
+
+// ---- Vídeo ao vivo ----
+// Espera o próximo quadro da câmera mais novo que "depois" (o servidor segura o
+// pedido até 5 s). Devolve { id, data, url } ou null se nenhum quadro chegou.
+// Enquanto o site pede quadros, a ESP32-CAM continua mandando.
+export async function buscarQuadro(depois, sinal) {
   const sessao = lerSessao()
   let resposta
   try {
-    resposta = await fetch(`${API_URL}/api/camera/ultima`, {
+    resposta = await fetch(`${API_URL}/api/video/quadro?depois=${depois}`, {
       headers: sessao?.token ? { Authorization: `Bearer ${sessao.token}` } : {},
       cache: 'no-store',
+      signal: sinal,
     })
-  } catch {
+  } catch (falha) {
+    if (falha.name === 'AbortError') throw falha
     throw new ErroApi('Não foi possível falar com o servidor. Ele está ligado?', 0)
   }
-  if (resposta.status === 404) return null
+  if (resposta.status === 204) return null
   if (!resposta.ok) {
     const dados = await resposta.json().catch(() => ({}))
-    throw new ErroApi(dados.erro || 'Não foi possível carregar a foto.', resposta.status)
+    throw new ErroApi(dados.erro || 'Não foi possível carregar o vídeo.', resposta.status)
   }
   return {
-    id: resposta.headers.get('X-Foto-Id'),
-    data: resposta.headers.get('X-Foto-Data'),
+    id: Number(resposta.headers.get('X-Quadro-Id')),
+    data: resposta.headers.get('X-Quadro-Data'),
     url: URL.createObjectURL(await resposta.blob()),
   }
 }
-
-// Pede para a ESP32-CAM tirar uma foto agora (ela atende em até 3 s)
-export const pedirFoto = () => api('/api/comando/foto', { metodo: 'POST' })

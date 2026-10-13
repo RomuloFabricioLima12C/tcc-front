@@ -27,13 +27,29 @@ function tratar(erro, res, next) {
   return next(erro)
 }
 
+// A ESP32 principal lê a lista com pouca memória (ArduinoJson, 12 KB) e mostra no
+// máximo 20 itens. Para as placas mandamos só os campos que a tela usa e só os 20
+// que vencem antes; assim a lista não estoura a memória quando a geladeira enche.
+const MAX_ITENS_PLACA = 20
+const paraPlaca = ({ id, nome, data_validade: dataValidade, dias_restantes: diasRestantes, status }) => ({
+  id,
+  nome,
+  data_validade: dataValidade,
+  dias_restantes: diasRestantes,
+  status,
+})
+
 // ---------------------------------------------------------------------
 // GET /api/alimentos  -> alimentos na geladeira, os que vencem antes primeiro
-//   ?todos=1 inclui também os já consumidos
+//   ?todos=1 inclui também os já consumidos (só para o site)
 // ---------------------------------------------------------------------
 router.get('/', async (req, res, next) => {
   try {
-    res.json(await alimentos.listar(req.usuario.id, { incluirConsumidos: req.query.todos === '1' }))
+    if (req.dispositivo) {
+      const lista = await alimentos.listar(req.usuario.id)
+      return res.json(lista.slice(0, MAX_ITENS_PLACA).map(paraPlaca))
+    }
+    return res.json(await alimentos.listar(req.usuario.id, { incluirConsumidos: req.query.todos === '1' }))
   } catch (erro) {
     tratar(erro, res, next)
   }

@@ -72,14 +72,6 @@
   margin-left: 24px;
 }
 
-.interest-row.is-monitor {
-  margin-top: 205px;
-}
-
-.game-section:has(.is-monitor) {
-  padding-bottom: 156px;
-}
-
 .interest-card {
   position: relative;
   z-index: 1;
@@ -155,14 +147,6 @@
   z-index: 2;
 }
 
-.monitor-cucumber {
-  --cw: 689px;
-  position: absolute;
-  left: 614px;
-  top: -90px;
-  z-index: 0;
-}
-
 @media (max-width: 1340px) and (min-width: 768px) {
   .game-burger {
     left: auto;
@@ -179,11 +163,48 @@
     right: 0;
     --cw: 40vw;
   }
+}
 
-  .monitor-cucumber {
-    left: auto;
-    right: -40px;
-    --cw: 45vw;
+/* Tablet: texto do card com mais espaço e personagens embaixo do card
+   (antes o hambúrguer cobria o texto e os personagens cobriam o botão JOGAR) */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .game-card-wrap {
+    margin-left: 0;
+  }
+
+  .feature-card,
+  .feature-card.is-short {
+    padding: 40px 48px 90px;
+  }
+
+  .feature-card:not(.is-short) h2 {
+    margin-right: 0;
+  }
+
+  .feature-char {
+    display: none;
+  }
+
+  .game-burger {
+    --cw: 170px;
+    right: -20px;
+    top: -80px;
+  }
+
+  .interest-row {
+    margin-left: 0;
+  }
+
+  .interest-card {
+    margin-inline: auto;
+  }
+
+  .game-characters {
+    --cw: min(420px, 70vw);
+    position: relative;
+    right: auto;
+    top: auto;
+    margin: 24px auto 0;
   }
 }
 
@@ -193,10 +214,6 @@
     padding: 0;
     width: auto;
     margin-top: 60px;
-  }
-
-  .game-section:has(.is-monitor) {
-    padding-bottom: 0;
   }
 
   .game-card-wrap {
@@ -240,8 +257,7 @@
     top: -18px;
   }
 
-  .interest-row,
-  .interest-row.is-monitor {
+  .interest-row {
     margin: 32px 0 0;
     padding-bottom: 60px;
   }
@@ -284,9 +300,4 @@
     left: auto;
     top: auto;
     margin: 16px 0 -40px auto;
-  }
-
-  .monitor-cucumber {
-    display: none;
-  }
-}
+  }}

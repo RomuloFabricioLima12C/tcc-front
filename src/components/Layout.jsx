@@ -4,11 +4,15 @@ import Header from './Header.jsx'
 import Footer from './Footer.jsx'
 import { MobileTabBar, MobileTitleBar, MobileTop } from './MobileChrome.jsx'
 
+// Ao trocar de página, volta ao topo. Com #âncora no endereço (ex.: /quem-somos#redes),
+// rola até a parte certa da página.
 function useScrollTopOnNavigate() {
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
   useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [pathname])
+    const alvo = hash && document.getElementById(decodeURIComponent(hash.slice(1)))
+    if (alvo) alvo.scrollIntoView()
+    else window.scrollTo(0, 0)
+  }, [pathname, hash])
 }
 
 // Páginas do site: cabeçalho/rodapé no desktop, topo verde + barra inferior no celular.

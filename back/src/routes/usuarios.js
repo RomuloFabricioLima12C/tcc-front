@@ -33,6 +33,9 @@ router.post('/cadastro', async (req, res, next) => {
     if (typeof nome !== 'string' || !nome.trim()) {
       return res.status(400).json({ erro: 'Informe o seu nome.' })
     }
+    if (nome.trim().length > 100) {
+      return res.status(400).json({ erro: 'O nome pode ter no máximo 100 caracteres.' })
+    }
     const erroEmail = validarEmail(email)
     if (erroEmail) return res.status(400).json({ erro: erroEmail })
     const erroSenha = validarSenha(senha)
@@ -52,13 +55,15 @@ router.post('/cadastro', async (req, res, next) => {
     const resultado = await query(
       `INSERT INTO usuarios (nome, email, senha_hash)
        VALUES ($1, $2, $3)
-       RETURNING id, nome, email, criado_em`,
+       RETURNING id, nome, email, avatar, criado_em`,
       [nome.trim(), emailNormal, senhaHash],
     )
     const usuario = resultado.rows[0]
 
     return res.status(201).json({ usuario, token: gerarToken(usuario) })
   } catch (erro) {
+    // Dois cadastros com o mesmo e-mail ao mesmo tempo: o segundo cai aqui (UNIQUE do banco)
+    if (erro.code === '23505') return res.status(409).json({ erro: 'Já existe uma conta com esse e-mail.' })
     return next(erro)
   }
 })
@@ -76,7 +81,7 @@ router.post('/login', async (req, res, next) => {
     }
 
     const resultado = await query(
-      'SELECT id, nome, email, senha_hash FROM usuarios WHERE email = $1',
+      'SELECT id, nome, email, avatar, senha_hash FROM usuarios WHERE email = $1',
       [email.trim().toLowerCase()],
     )
     const usuario = resultado.rows[0]
@@ -88,7 +93,7 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ erro: 'E-mail ou senha incorretos.' })
     }
 
-    const dados = { id: usuario.id, nome: usuario.nome, email: usuario.email }
+    const dados = { id: usuario.id, nome: usuario.nome, email: usuario.email, avatar: usuario.avatar }
     return res.json({ token: gerarToken(dados), usuario: dados })
   } catch (erro) {
     return next(erro)
@@ -101,11 +106,36 @@ router.post('/login', async (req, res, next) => {
 // ---------------------------------------------------------------------
 router.get('/eu', auth, async (req, res, next) => {
   try {
-    const resultado = await query('SELECT id, nome, email, criado_em FROM usuarios WHERE id = $1', [
+    const resultado = await query('SELECT id, nome, email, avatar, criado_em FROM usuarios WHERE id = $1', [
       req.usuario.id,
     ])
     if (resultado.rowCount === 0) return res.status(404).json({ erro: 'Usuário não encontrado.' })
     return res.json(resultado.rows[0])
+  } catch (erro) {
+    return next(erro)
+  }
+})
+
+// Frutas que o site oferece como foto de perfil (mesmos nomes de src/avatares.js no site)
+const AVATARES = ['salame', 'tomate', 'cenoura', 'mirtilo', 'abacate', 'pepino', 'cebola']
+
+// ---------------------------------------------------------------------
+// PUT /api/usuarios/avatar  (precisa de token)
+// Corpo: { "avatar": "tomate" }
+// ---------------------------------------------------------------------
+router.put('/avatar', auth, async (req, res, next) => {
+  try {
+    const { avatar } = req.body || {}
+    if (!AVATARES.includes(avatar)) {
+      return res.status(400).json({ erro: 'Escolha uma das frutas da lista.' })
+    }
+
+    const resultado = await query('UPDATE usuarios SET avatar = $1 WHERE id = $2 RETURNING avatar', [
+      avatar,
+      req.usuario.id,
+    ])
+    if (resultado.rowCount === 0) return res.status(404).json({ erro: 'Usuário não encontrado.' })
+    return res.json({ avatar: resultado.rows[0].avatar })
   } catch (erro) {
     return next(erro)
   }

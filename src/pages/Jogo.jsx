@@ -10,7 +10,7 @@ export const green = 'rgba(0, 218, 58, 0.41)'
 export const lime = 'rgba(196, 255, 0, 0.46)'
 export const white = 'rgba(255, 255, 255, 0.65)'
 
-// Card branco "Ficou interessado?" (Jogo e Câmera/Monitoramento).
+// Card branco "Ficou interessado?" (página do Jogo).
 export function InterestCard({ text, action, compact = false }) {
   return (
     <article className={`card interest-card ${compact ? 'is-compact' : ''}`}>

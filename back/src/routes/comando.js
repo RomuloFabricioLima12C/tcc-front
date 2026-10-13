@@ -12,6 +12,7 @@ const express = require('express')
 const deviceAuth = require('../middleware/deviceAuth')
 const { siteOuDispositivo } = require('../middleware/auth')
 const camera = require('../servicos/camera')
+const video = require('../servicos/video')
 
 const router = express.Router()
 
@@ -41,10 +42,11 @@ router.post(
 )
 
 // ---------------------------------------------------------------------
-// GET /api/comando  (ESP32-CAM)  -> { "foto": true } ou { "foto": false }
+// GET /api/comando  (ESP32-CAM)  -> { "foto": true/false, "video": true/false }
+//   video = alguém está vendo o vídeo ao vivo no site (veja routes/video.js)
 // ---------------------------------------------------------------------
 router.get('/comando', deviceAuth, (req, res) => {
-  res.json({ foto: camera.pegarPedido() })
+  res.json({ foto: camera.pegarPedido(), video: video.alguemAssistindo() })
 })
 
 // ---------------------------------------------------------------------

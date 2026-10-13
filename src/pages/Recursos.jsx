@@ -6,7 +6,7 @@ import '../styles/recursos.css'
 
 const recursos = [
   { to: '/', name: 'HOME', text: 'Veja as principais informações do nosso projeto' },
-  { to: '/camera', name: 'CÂMERA', text: 'Monitore sua geladeira via ESP32 CAM' },
+  { to: '/relatorio', name: 'CÂMERA', text: 'Veja sua geladeira ao vivo pela ESP32 CAM, na página Relatório' },
   { to: '/relatorio', name: 'RELATÓRIO', text: 'Monitore suas compras e veja as datas de validade' },
 ]
 

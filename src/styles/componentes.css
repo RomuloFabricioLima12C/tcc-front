@@ -183,10 +183,15 @@
     font-size: 10px;
   }
 
+  /* O nome ocupa o espaço que sobra ao lado do selo e quebra linha se precisar
+     (antes passava da borda do card em telas de 320 px) */
   .comp-head h3 {
+    flex: 1;
+    min-width: 0;
     margin-left: 6px;
     font-size: 13px;
     max-width: 80px;
+    overflow-wrap: anywhere;
   }
 
   .comp-card .comp-sparkle,

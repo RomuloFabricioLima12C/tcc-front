@@ -19,10 +19,116 @@
 }
 
 .pf-email {
+  max-width: 100%;
   font-size: 20px;
-  line-height: 42px;
-  margin-top: -18px;
+  line-height: 1.3;
+  text-align: center;
+  /* E-mails compridos quebram em vez de vazar para fora da tela */
+  overflow-wrap: anywhere;
   color: rgba(25, 26, 35, 0.5);
+}
+
+/* Foto escolhida: a fruta dentro de um círculo */
+.pf-avatar-foto {
+  display: grid;
+  place-items: center;
+  width: 118px;
+  height: 118px;
+  margin-bottom: 14px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--soft);
+}
+
+.pf-avatar-foto .crop {
+  --cw: 92%;
+}
+
+:root[data-theme='dark'] .pf-avatar-foto {
+  background: var(--deep);
+}
+
+.pf-trocar {
+  margin-top: 10px;
+  padding: 6px 16px;
+  border: 2px solid var(--teal);
+  border-radius: 999px;
+  color: var(--deep);
+  font-size: 15px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.pf-trocar:hover {
+  background: var(--teal);
+  color: #fff;
+}
+
+:root[data-theme='dark'] .pf-trocar {
+  border-color: var(--green);
+  color: var(--lime);
+}
+
+:root[data-theme='dark'] .pf-trocar:hover {
+  background: var(--green);
+  color: #000;
+}
+
+/* Opções de foto de perfil */
+.pf-escolha {
+  width: 100%;
+  margin-top: 22px;
+  text-align: center;
+}
+
+.pf-escolha-titulo {
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+
+.pf-escolha-grade {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.pf-opcao {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--soft);
+  border: 3px solid transparent;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.pf-opcao .crop {
+  --cw: 92%;
+}
+
+:root[data-theme='dark'] .pf-opcao {
+  background: var(--deep);
+}
+
+.pf-opcao:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.pf-opcao[aria-checked='true'] {
+  border-color: var(--green);
+}
+
+.pf-opcao:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.pf-erro {
+  margin-top: 10px;
+  color: #b3261e;
+  font-size: 15px;
 }
 
 :root[data-theme='dark'] .pf-email {
@@ -90,11 +196,13 @@
   height: 1px;
 }
 
-.pf-book {
-  left: 9.2px;
-  top: 14.8px;
-  width: 32.5px;
-  height: 23.3px;
+.pf-support {
+  position: absolute;
+  left: 10.5px;
+  top: 10.5px;
+  width: 32px;
+  height: 32px;
+  color: var(--green);
 }
 
 .pf-label {
@@ -108,6 +216,50 @@
   width: 16px;
   height: 10px;
   transform: rotate(-90deg) scaleX(-1);
+}
+
+.pf-name {
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.pf-email {
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+/* Botão ENTRAR (sem login) e "Sair da conta" (com login) */
+.pf-entrar,
+.pf-sair {
+  margin-top: 16px;
+  padding: 10px 26px;
+  border-radius: 10px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  transition: filter 0.15s ease;
+}
+
+.pf-entrar {
+  background: var(--btn);
+  color: #fff;
+}
+
+.pf-sair {
+  width: 100%;
+  margin-top: 24px;
+  border: 2px solid #d93025;
+  color: #d93025;
+  background: transparent;
+}
+
+:root[data-theme='dark'] .pf-sair {
+  border-color: #ff8a80;
+  color: #ff8a80;
+}
+
+.pf-entrar:hover,
+.pf-sair:hover {
+  filter: brightness(1.1);
 }
 
 .pf-logo {
@@ -125,14 +277,6 @@
   .pf-menu {
     width: calc(100% + 6px);
   }
-}
-
-.pf-camera {
-  position: absolute;
-  left: 10.5px;
-  top: 13.5px;
-  width: 32px;
-  height: 26px;
 }
 
 .pf-soon {

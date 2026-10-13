@@ -53,7 +53,8 @@ const FERRAMENTAS = [
       },
     },
     async executar(args, ctx) {
-      const dias = Number.isInteger(args.dias) ? args.dias : 3;
+      // A IA pode mandar qualquer número: fica entre 0 e 30, como diz o inputSchema
+      const dias = Number.isInteger(args.dias) ? Math.min(30, Math.max(0, args.dias)) : 3;
       const lista = await alimentos.vencendo(ctx.usuarioId, dias, { incluirVencidos: true });
       if (!lista.length) return `Nenhum alimento vence nos próximos ${dias} dias.`;
       return `Vencem até ${dias} dias: ${juntar(lista.map(frase))}.`;
@@ -117,14 +118,14 @@ const FERRAMENTAS = [
   {
     name: 'tirar_foto_geladeira',
     description: 'Geladeira Lab Cam: pede para a câmera da geladeira tirar uma foto agora. '
-      + 'A foto aparece no site, na página Câmera.',
+      + 'A foto aparece no site, na página Relatório.',
     inputSchema: { type: 'object', properties: {} },
     async executar(args, ctx) {
       const pedidoEm = new Date();
       camera.pedirFoto();
       const foto = await camera.esperarFotoNova(ctx.usuarioId, pedidoEm, 12);
       return foto
-        ? 'Foto tirada! Ela já está no site, na página Câmera.'
+        ? 'Foto tirada! Ela já está no site, na página Relatório.'
         : 'Pedi a foto para a câmera. Se ela estiver ligada, a foto aparece no site em alguns segundos.';
     },
   },
@@ -181,8 +182,22 @@ function iniciarVoz({ endpoint, usuarioId }) {
   const ctx = { usuarioId };
   let tentativas = 0;
 
+  // Caiu ou não conectou: tenta de novo em 1 s, 2 s, 4 s... até 1 min
+  function tentarDeNovo() {
+    const espera = Math.min(60000, 1000 * 2 ** tentativas++);
+    console.log(`[voz] Desconectado. Tentando de novo em ${espera / 1000} s`);
+    setTimeout(conectar, espera);
+  }
+
   function conectar() {
-    const ws = new WebSocket(endpoint);
+    let ws;
+    try {
+      ws = new WebSocket(endpoint);
+    } catch (e) {
+      // Endereço inválido no .env: sem este try, o erro derrubaria a API inteira
+      console.error(`[voz] XIAOZHI_MCP_ENDPOINT inválido (${e.message}). Assistente de voz desligado.`);
+      return;
+    }
 
     ws.addEventListener('open', () => {
       tentativas = 0;
@@ -203,12 +218,7 @@ function iniciarVoz({ endpoint, usuarioId }) {
       }
     });
 
-    ws.addEventListener('close', () => {
-      // Caiu: tenta de novo em 1 s, 2 s, 4 s... até 1 min
-      const espera = Math.min(60000, 1000 * 2 ** tentativas++);
-      console.log(`[voz] Desconectado. Tentando de novo em ${espera / 1000} s`);
-      setTimeout(conectar, espera);
-    });
+    ws.addEventListener('close', tentarDeNovo);
 
     ws.addEventListener('error', (e) => {
       console.error('[voz] Erro na conexão:', e.message || 'verifique o XIAOZHI_MCP_ENDPOINT');

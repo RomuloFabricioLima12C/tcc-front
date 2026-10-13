@@ -5,9 +5,9 @@ dos alimentos e reduzir o desperdício. **Um servidor só** atende todo mundo:
 
 | Quem | Como se identifica | O que usa |
 | ---- | ------------------ | --------- |
-| **Site** | token JWT (login) | usuários, alimentos, câmera |
-| **ESP32 principal** (tela touch, relé, sensor de porta) | `x-device-key` | `GET/POST /api/alimentos`, `POST /api/comando` |
-| **ESP32-CAM** | `x-device-key` | `GET /api/comando`, `POST /api/fotos` |
+| **Site** | token JWT (login) | usuários, alimentos, câmera, Wi-Fi das placas |
+| **ESP32 principal** (tela touch, relé, sensor de porta) | `x-device-key` | `GET/POST /api/alimentos`, `POST /api/comando`, `GET /api/redes/placa` |
+| **ESP32-CAM** | `x-device-key` | `GET /api/comando`, `POST /api/fotos`, `GET /api/redes/placa` |
 | **AI Voice (Xiaozhi)** | conexão MCP aberta pelo servidor | `src/voz.js` |
 
 ```
@@ -72,7 +72,7 @@ As tabelas são criadas (e atualizadas) sozinhas.
    ```
 2. Confira o `.env` (se não existir: `copy .env.example .env` no Windows). Troque `JWT_SECRET` e
    `DEVICE_KEY` por frases suas.
-3. Ligue:
+3. Ligue (dentro de `back`, ou na pasta principal `tcc-front-main`, que também aceita `npm start`):
    ```bash
    npm start
    ```
@@ -84,6 +84,14 @@ Duas formas de criar:
 - criar a primeira conta pela tela **Cadastro** do site.
 
 Para ver no site o que veio das placas e da voz, entre com essa conta.
+
+No Windows o banco local liga pelo `pg_ctl` (que vem junto), então funciona mesmo com o terminal como
+administrador ou com o UAC do Windows desligado. As mensagens do PostgreSQL ficam em
+`back/.banco-dados/postgres.log`.
+
+O `.env` do backend da robótica (`4_backend/.env.exemplo`) também funciona aqui: os nomes
+`DISPOSITIVO_USUARIO_ID`, `DB_SSL` e `SITE_ORIGEM` são aceitos no lugar de `DEVICE_USER_ID`,
+`DATABASE_SSL` e `CORS_ORIGIN`.
 
 **Usar outro PostgreSQL** (instalado, no servidor da equipe ou na nuvem): `BANCO_LOCAL=false` e
 preencha `DATABASE_URL` (com `DATABASE_SSL=true` se for na nuvem).
@@ -180,6 +188,10 @@ A senha precisa de 8+ caracteres, maiúscula, minúscula, número e caractere es
 { "status": "consumido" }
 ```
 
+Quando quem chama o `GET /api/alimentos` é uma **placa** (chave), a resposta vem enxuta para caber na
+memória da ESP32: só `id`, `nome`, `data_validade`, `dias_restantes` e `status`, e só os 20 que vencem
+antes (o máximo que a tela mostra). O site continua recebendo a lista completa.
+
 Validade: `data_validade` > `validade_dias` > validade média do alimento. `dias_restantes` é calculado
 pelo banco (negativo = já venceu). `origem`: `site`, `touch`, `voz` ou `camera`.
 
@@ -188,7 +200,7 @@ pelo banco (negativo = já venceu). `origem`: `site`, `touch`, `voz` ou `camera`
 | Método | Rota | Quem | Para quê |
 | ------ | ---- | ---- | -------- |
 | POST | `/api/fotos` | ESP32-CAM | envia a foto: corpo = JPEG puro, `Content-Type: image/jpeg` |
-| GET | `/api/comando` | ESP32-CAM | pergunta se tem pedido: `{ "foto": true }` ou `{ "foto": false }` |
+| GET | `/api/comando` | ESP32-CAM | pergunta o que fazer: `{ "foto": true/false, "video": true/false }` |
 | POST | `/api/comando` | ESP32 principal | porta abriu, pede foto: `{ "acao": "foto" }` |
 | POST | `/api/comando/foto` | site | botão "Ver câmera" |
 | GET | `/api/camera/ultima` | site | a foto mais recente (JPEG; hora no cabeçalho `X-Foto-Data`) |
@@ -199,6 +211,45 @@ pelo banco (negativo = já venceu). `origem`: `site`, `touch`, `voz` ou `camera`
 // resposta do POST /api/fotos
 { "ok": true, "id": 12, "tamanho": 45210, "criado_em": "2026-10-04T13:47:44.044Z" }
 ```
+
+### Vídeo ao vivo (página Relatório)
+
+| Método | Rota | Quem | Para quê |
+| ------ | ---- | ---- | -------- |
+| GET | `/api/video/quadro?depois=<id>` | site | próximo quadro JPEG (id em `X-Quadro-Id`); espera até 5 s, senão `204` |
+| POST | `/api/video/quadro` | ESP32-CAM | manda um quadro (JPEG puro) → `{ "continuar": true/false, "foto": true/false }` |
+
+Enquanto o site pede quadros, o `GET /api/comando` responde `"video": true` e a ESP32-CAM manda
+quadros seguidos. Uns 8 s depois que ninguém mais assiste (saiu da página, pausou ou trocou de aba), a
+resposta vira `"continuar": false` e a câmera volta a só tirar fotos. Os quadros ficam só na memória
+(não vão para o banco), e só a conta dona da geladeira (`DEVICE_USER_ID`) vê o vídeo.
+
+### Wi-Fi das placas (página `/wifi` do site)
+
+Troca a rede das placas sem gravar o código de novo.
+
+| Método | Rota | Quem | Para quê |
+| ------ | ---- | ---- | -------- |
+| GET | `/api/redes` | site (dono) | redes salvas (sem senhas), versão da lista e situação das placas |
+| POST | `/api/redes` | site (dono) | `{ "ssid": "Casa", "senha": "12345678" }` (senha vazia = rede aberta) |
+| PUT | `/api/redes/:id` | site (dono) | troca o nome e/ou a senha (mande só o que muda) |
+| DELETE | `/api/redes/:id` | site (dono) | remove a rede |
+| GET | `/api/redes/placa?placa=principal&rede=Casa&rssi=-60` | placas | lista em texto, com as senhas |
+
+Resposta para as placas (texto, lido sem biblioteca):
+
+```
+LABCAM-REDES 1
+versao 3019400433
+Casa<TAB>senha-da-casa
+```
+
+As placas pedem a lista ao ligar e depois de tempos em tempos (principal: 2 min, câmera: 1 min). Se a
+versão mudou, gravam as redes na memória (`Preferences`). Ao ligar, o `WiFiMulti` entra na rede salva de
+sinal mais forte; a rede escrita no código (`WIFI_SSID`) continua como reserva. Para mudar de lugar:
+cadastre a rede nova **enquanto as placas ainda estão na rede antiga**, espere a página mostrar "Lista
+recebida" e só então leve as placas. No máximo 5 redes; só a conta dona da geladeira
+(`DEVICE_USER_ID`) mexe nelas. As senhas ficam no banco como texto, porque a placa precisa delas.
 
 ### Versões enxutas (opcionais) — chave
 

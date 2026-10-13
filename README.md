@@ -6,11 +6,14 @@ com React + Vite. Tem tema claro/escuro e versão para celular.
 ## Rodar no computador
 
 ```bash
-npm install
 npm run dev
 ```
 
+Liga **a API (pasta `back/`) e o site juntos** e instala as dependências na primeira vez
+(funciona também na pasta de cima, `tcclightlab`). Ctrl+C desliga os dois. Para ligar só o site: `npm run site`.
+
 Abra http://localhost:5173 (use `?theme=dark` na URL para abrir direto no tema escuro).
+O site chama a API pelo próprio endereço (`/api`), e o Vite repassa para ela.
 
 ## Gerar a versão final
 

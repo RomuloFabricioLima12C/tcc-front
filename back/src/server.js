@@ -17,6 +17,12 @@ async function main() {
     process.env.DATABASE_URL = await iniciarBancoLocal()
   }
 
+  // Aceita também os nomes do .env do backend da robótica (4_backend/.env.exemplo)
+  const APELIDOS = { DISPOSITIVO_USUARIO_ID: 'DEVICE_USER_ID', DB_SSL: 'DATABASE_SSL', SITE_ORIGEM: 'CORS_ORIGIN' }
+  for (const [nomeRobotica, nome] of Object.entries(APELIDOS)) {
+    if (!process.env[nome] && process.env[nomeRobotica]) process.env[nome] = process.env[nomeRobotica]
+  }
+
   // Avisa logo de cara se faltar alguma configuração importante no .env
   for (const nome of ['DATABASE_URL', 'JWT_SECRET', 'DEVICE_KEY', 'DEVICE_USER_ID']) {
     if (!process.env[nome]) {
@@ -56,7 +62,7 @@ async function main() {
   app.use(
     cors({
       origin: origens.includes('*') ? true : origens,
-      exposedHeaders: ['X-Foto-Id', 'X-Foto-Data'],
+      exposedHeaders: ['X-Foto-Id', 'X-Foto-Data', 'X-Quadro-Id', 'X-Quadro-Data'],
     }),
   )
 
@@ -78,6 +84,8 @@ async function main() {
   app.use('/api/alimentos', require('./routes/alimentos'))
   app.use('/api/dispositivo', require('./routes/dispositivo'))
   app.use('/api/camera', require('./routes/camera'))
+  app.use('/api/video', require('./routes/video'))
+  app.use('/api/redes', require('./routes/redes'))
   app.use('/api', require('./routes/comando')) // /api/fotos e /api/comando (robótica)
 
   // ---- Rota que não existe ----
@@ -104,10 +112,10 @@ async function main() {
     return res.status(500).json({ erro: 'Erro interno no servidor. Tente novamente.' })
   })
 
+  // Se a porta estiver ocupada por uma API do Lab Cam antiga, ela é desligada (ver porta.js)
   const PORTA = Number(process.env.PORT) || 3000
-  app.listen(PORTA, () => {
-    console.log(`API do Lab Cam rodando em http://localhost:${PORTA}/api`)
-  })
+  await require('./porta').abrirPorta(app, PORTA)
+  console.log(`API do Lab Cam rodando em http://localhost:${PORTA}/api`)
 
   // 4) Assistente de voz (Xiaozhi). Fica desligado se XIAOZHI_MCP_ENDPOINT estiver vazio.
   require('./voz').iniciarVoz({

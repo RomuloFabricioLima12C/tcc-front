@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
   criado_em   TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
+-- Foto de perfil: o nome da fruta escolhida no site (ex.: 'tomate'). NULL = ainda não escolheu.
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS avatar VARCHAR(20);
+
 CREATE TABLE IF NOT EXISTS alimentos (
   id             SERIAL PRIMARY KEY,
   usuario_id     INTEGER      NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -55,3 +58,18 @@ CREATE TABLE IF NOT EXISTS fotos (
 );
 
 CREATE INDEX IF NOT EXISTS idx_fotos_usuario ON fotos (usuario_id, id DESC);
+
+-- Redes Wi-Fi que as placas (ESP32 principal e ESP32-CAM) podem usar.
+-- Cadastradas pelo site; as placas baixam a lista e guardam na memória delas,
+-- então dá para trocar de rede sem gravar o código de novo.
+-- A senha fica guardada como texto porque a placa precisa dela para conectar;
+-- o site nunca a devolve (só diz se a rede tem senha).
+CREATE TABLE IF NOT EXISTS redes_wifi (
+  id             SERIAL PRIMARY KEY,
+  usuario_id     INTEGER      NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  ssid           VARCHAR(32)  NOT NULL,             -- nome da rede
+  senha          VARCHAR(63)  NOT NULL DEFAULT '',  -- vazia = rede aberta
+  criado_em      TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  atualizado_em  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+  UNIQUE (usuario_id, ssid)
+);

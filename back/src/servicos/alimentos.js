@@ -43,6 +43,24 @@ function erroUsuario(mensagem) {
   return e
 }
 
+// Nome: texto de 1 a 100 caracteres (o tamanho da coluna no banco)
+function lerNome(valor) {
+  if (typeof valor !== 'string' || !valor.trim()) throw erroUsuario('Informe o nome do alimento.')
+  const nome = valor.trim()
+  if (nome.length > 100) throw erroUsuario('O nome pode ter no máximo 100 caracteres.')
+  return nome
+}
+
+// Quantidade: inteiro de 1 a 9999 (sem limite, um número enorme estouraria a coluna do banco)
+const QUANTIDADE_MAX = 9999
+function lerQuantidade(valor) {
+  const q = Number(valor)
+  if (!Number.isInteger(q) || q < 1 || q > QUANTIDADE_MAX) {
+    throw erroUsuario(`A quantidade precisa ser um número inteiro de 1 a ${QUANTIDADE_MAX}.`)
+  }
+  return q
+}
+
 // Colunas devolvidas. "dias_restantes" é calculado pelo banco (negativo = venceu).
 const COLUNAS = `id, nome, categoria, quantidade, data_validade, origem, status, criado_em,
                  (data_validade - CURRENT_DATE) AS dias_restantes`
@@ -75,14 +93,9 @@ async function vencendo(usuarioId, dias = 3, { incluirVencidos = false } = {}) {
 // A validade pode vir de 3 jeitos (nesta ordem de prioridade):
 //   data_validade "AAAA-MM-DD"  >  validade_dias / dias_para_vencer  >  validade média do alimento
 async function cadastrar(usuarioId, dados, { origemPadrao = 'site' } = {}) {
-  const nome = String(dados.nome ?? '').trim()
-  if (!nome) throw erroUsuario('Informe o nome do alimento.')
-  if (nome.length > 100) throw erroUsuario('O nome pode ter no máximo 100 caracteres.')
+  const nome = lerNome(dados.nome)
 
-  const quantidade = dados.quantidade == null || dados.quantidade === '' ? 1 : Number(dados.quantidade)
-  if (!Number.isInteger(quantidade) || quantidade < 1) {
-    throw erroUsuario('A quantidade precisa ser um número inteiro maior que zero.')
-  }
+  const quantidade = dados.quantidade == null || dados.quantidade === '' ? 1 : lerQuantidade(dados.quantidade)
 
   const categoria = dados.categoria ? String(dados.categoria).trim().slice(0, 50) : null
   const origem = ORIGENS.includes(dados.origem) ? dados.origem : origemPadrao
@@ -126,17 +139,10 @@ async function atualizar(usuarioId, id, dados) {
     sets.push(`${coluna} = $${valores.length}`)
   }
 
-  if (dados.nome !== undefined) {
-    const nome = String(dados.nome ?? '').trim()
-    if (!nome) throw erroUsuario('Informe o nome do alimento.')
-    if (nome.length > 100) throw erroUsuario('O nome pode ter no máximo 100 caracteres.')
-    add('nome', nome)
-  }
+  if (dados.nome !== undefined) add('nome', lerNome(dados.nome))
   if (dados.categoria !== undefined) add('categoria', dados.categoria ? String(dados.categoria).trim().slice(0, 50) : null)
   if (dados.quantidade !== undefined && dados.quantidade !== null && dados.quantidade !== '') {
-    const q = Number(dados.quantidade)
-    if (!Number.isInteger(q) || q < 1) throw erroUsuario('A quantidade precisa ser um número inteiro maior que zero.')
-    add('quantidade', q)
+    add('quantidade', lerQuantidade(dados.quantidade))
   }
   if (dados.data_validade !== undefined) {
     if (!dataValida(dados.data_validade)) throw erroUsuario('Informe a data de validade no formato AAAA-MM-DD.')
@@ -165,8 +171,10 @@ async function remover(usuarioId, id) {
 
 // Marca como consumido o alimento com esse nome que vence primeiro (usado pela voz)
 async function consumirPorNome(usuarioId, nome) {
-  const ativos = await listar(usuarioId)
   const alvo = normalizar(nome)
+  // Nome vazio: sem esta checagem, "".includes() acharia o primeiro alimento da lista
+  if (!alvo) return null
+  const ativos = await listar(usuarioId)
   const achado =
     ativos.find((a) => normalizar(a.nome) === alvo) ||
     ativos.find((a) => normalizar(a.nome).includes(alvo) || alvo.includes(normalizar(a.nome)))

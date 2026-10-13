@@ -204,11 +204,17 @@ img {
 
 /* ============ Cabeçalho ============ */
 .site-header {
+  /* Linha onde ficam menu, busca e botões de conta (centralizada com o logo) */
+  --hdr-row: 45px;
+  --hdr-row-h: 34px;
+  /* Ocupa a largura toda da página, de uma ponta à outra */
+  width: 100%;
+  padding-inline: clamp(16px, 2.5vw, 48px);
   display: grid;
-  grid-template-columns: 163px 1fr 214px;
+  grid-template-columns: 163px 1fr auto auto;
   align-items: start;
-  column-gap: clamp(12px, 2vw, 32px);
-  padding-top: 44px;
+  column-gap: clamp(16px, 3vw, 64px);
+  padding-block: 32px 28px;
   position: relative;
   z-index: 5;
 }
@@ -229,14 +235,36 @@ img {
 .main-nav {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
-  gap: 10px clamp(12px, 2.2vw, 40px);
-  margin-top: 47px;
+  gap: 6px clamp(10px, 2vw, 44px);
+  min-width: 0;
+  min-height: var(--hdr-row-h);
+  margin-top: var(--hdr-row);
+}
+
+/* Telas menores (tablet): logo e busca encolhem para tudo caber na mesma linha */
+@media (max-width: 1099px) {
+  .site-header {
+    grid-template-columns: 120px 1fr auto auto;
+  }
+
+  .brand {
+    width: 120px;
+  }
+
+  .brand .crop {
+    scale: 0.74;
+  }
+
+  .search button {
+    margin-right: 8px;
+  }
 }
 
 .main-nav a {
   font-family: var(--font-display);
-  font-size: clamp(16px, 1.53vw, 22px);
+  font-size: clamp(13px, 1.4vw, 22px);
   color: var(--nav);
   white-space: nowrap;
   position: relative;
@@ -259,14 +287,14 @@ img {
 }
 
 .header-tools {
-  margin-top: 47px;
+  margin-top: var(--hdr-row);
+  height: var(--hdr-row-h);
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .search {
-  width: 214px;
+  width: clamp(130px, 14vw, 214px);
   height: 31.43px;
   border-radius: 20px;
   background: var(--search-bg);
@@ -309,7 +337,6 @@ img {
 
 .theme-toggle {
   display: block;
-  margin-top: 7px;
   border-radius: 30px;
 }
 
@@ -337,9 +364,114 @@ img {
   filter: brightness(1.1);
 }
 
-.pill-login {
-  margin-top: -1px;
-  margin-right: 4px;
+/* ============ Lado direito: Relatório + conta e, abaixo, o tema ============ */
+.header-side {
+  margin-top: var(--hdr-row);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.header-conta {
+  height: var(--hdr-row-h);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 15px;
+}
+
+.hc-link,
+.hc-conta,
+.hc-entrar {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, color 0.15s ease, filter 0.15s ease;
+}
+
+/* Relatório / Cadastrar: botão discreto com contorno */
+.hc-link {
+  padding: 0 14px;
+  border: 2px solid var(--teal);
+  color: var(--deep);
+}
+
+.hc-link:hover,
+.hc-link.active {
+  background: var(--teal);
+  color: #fff;
+}
+
+:root[data-theme='dark'] .hc-link {
+  border-color: var(--green);
+  color: var(--lime);
+}
+
+:root[data-theme='dark'] .hc-link:hover,
+:root[data-theme='dark'] .hc-link.active {
+  background: var(--green);
+  color: #000;
+}
+
+.hc-icon {
+  flex-shrink: 0;
+}
+
+/* Conta: bolinha com a inicial + primeiro nome */
+.hc-conta {
+  padding: 0 14px 0 3px;
+  background: var(--soft);
+  color: var(--deep);
+}
+
+:root[data-theme='dark'] .hc-conta {
+  background: var(--deep);
+  color: #fff;
+}
+
+.hc-conta:hover,
+.hc-conta.active {
+  filter: brightness(0.95);
+}
+
+:root[data-theme='dark'] .hc-conta:hover,
+:root[data-theme='dark'] .hc-conta.active {
+  filter: brightness(1.15);
+}
+
+.hc-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.hc-nome {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Entrar (sem login): botão cheio */
+.hc-entrar {
+  padding: 0 18px;
+  background: var(--btn);
+  color: #fff;
+}
+
+.hc-entrar:hover,
+.hc-entrar.active {
+  filter: brightness(1.1);
 }
 
 /* ============ Rodapé ============ */
@@ -435,16 +567,24 @@ img {
   top: 0.8em;
 }
 
+/* O recorte escuro tem outra proporção: estes valores fazem a linha e a estrela
+   começarem, terminarem e ficarem na mesma altura que as do tema claro */
 :root[data-theme='dark'] .section-title .st-underline {
-  left: -0.5em;
-  top: 0.28em;
-  width: 9.2em;
+  left: -0.528em;
+  top: -0.04em;
+  width: 10.31em;
 }
 
 :root[data-theme='dark'] .st-lg .st-underline {
-  left: -0.52em;
-  top: 0.25em;
-  width: 10.2em;
+  left: -0.573em;
+  top: -0.236em;
+  width: 12.91em;
+}
+
+:root[data-theme='dark'] .st-sm .st-underline {
+  left: -0.468em;
+  top: 0.244em;
+  width: 8.1em;
 }
 
 .stripes {
@@ -661,6 +801,18 @@ img {
     --cw: 32px;
   }
 
+  /* Celular bem estreito (320 px): "Referências" cabia só pela metade */
+  @media (max-width: 360px) {
+    .m-tabbar {
+      grid-template-columns: 1fr 1fr 76px 1fr 1fr;
+      padding-inline: 2px;
+    }
+
+    .m-tab {
+      font-size: 10px;
+    }
+  }
+
   .home-icon {
     position: relative;
     width: 20px;
@@ -734,6 +886,16 @@ img {
     align-items: center;
   }
 
+  /* Título comprido + botão (LOGIN/RELATÓRIO): o título quebra linha, o botão fica inteiro */
+  .section-title-row .section-title {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .section-title-row .pill {
+    flex-shrink: 0;
+  }
+
   .section-title,
   .st-lg,
   .st-md,
@@ -750,10 +912,11 @@ img {
   }
 
   :root[data-theme='dark'] .section-title .st-underline,
-  :root[data-theme='dark'] .st-lg .st-underline {
-    width: 10em;
-    top: 0.1em;
-    left: -0.9em;
+  :root[data-theme='dark'] .st-lg .st-underline,
+  :root[data-theme='dark'] .st-sm .st-underline {
+    width: 10.81em;
+    top: -0.051em;
+    left: -0.601em;
   }
 
   .pill-login-m {

@@ -7,7 +7,15 @@
     (GET /api/comando). Quem pede: o site, a ESP32 principal
     quando a porta abre, ou o AI Voice ("tira uma foto da geladeira").
   - Tira uma foto automática a cada 10 min.
+  - Wi-Fi trocado pelo site (página "Wi-Fi das placas"): a cada 1 min
+    a placa baixa a lista de redes e guarda na memória. Ao ligar,
+    conecta na rede salva que estiver ao alcance. A rede escrita aqui
+    no código (WIFI_SSID) continua valendo como reserva.
   - Envia a foto para o backend (POST /api/fotos). Ela aparece no site.
+  - Vídeo ao vivo: quando alguém abre a página Relatório do site, a
+    resposta do GET /api/comando traz "video":true e a câmera manda
+    quadros seguidos (POST /api/video/quadro) até ninguém mais assistir.
+    O flash não acende no vídeo (esquentaria a placa).
 
   A fita de LED (relé) fica na ESP32 principal. Aqui só usamos o
   flash pequeno da própria placa (GPIO4), que pode ser desligado.
@@ -24,9 +32,12 @@
 
 #include "esp_camera.h"
 #include <WiFi.h>
+#include <WiFiMulti.h>
 #include <HTTPClient.h>
+#include <Preferences.h>
 
 // ================= CONFIGURE AQUI =================
+// Rede de reserva. As outras redes são cadastradas pelo site e ficam salvas na placa.
 const char* WIFI_SSID     = "NOME_DO_WIFI";
 const char* WIFI_PASSWORD = "SENHA_DO_WIFI";
 
@@ -35,6 +46,8 @@ const char* DEVICE_KEY = "sua-chave-secreta";                    // igual ao DEV
 
 const unsigned long INTERVALO_FOTO_MS    = 10UL * 60UL * 1000UL; // foto automática (10 min)
 const unsigned long INTERVALO_COMANDO_MS = 3000;                 // pergunta por pedido (3 s)
+const unsigned long INTERVALO_QUADRO_MS  = 100;                  // vídeo: no máximo 10 quadros/s
+const unsigned long INTERVALO_REDES_MS   = 60000;                // pergunta a lista de redes (1 min)
 
 #define USAR_FLASH true   // false = não acende o LED da placa na foto
 // ==================================================
@@ -60,6 +73,7 @@ const unsigned long INTERVALO_COMANDO_MS = 3000;                 // pergunta por
 
 unsigned long ultimaFoto = 0;
 unsigned long ultimoComando = 0;
+unsigned long ultimasRedes = 0;
 
 bool iniciarCamera() {
   camera_config_t config = {};
@@ -102,16 +116,96 @@ bool iniciarCamera() {
   return true;
 }
 
+// ============================================================
+//  Redes Wi-Fi (cadastradas no site, guardadas na memória da placa)
+// ============================================================
+const char* NOME_PLACA = "camera";   // aparece assim na página do site
+const int   MAX_REDES  = 5;          // igual ao MAX_REDES do backend
+
+WiFiMulti wifiMulti;    // conecta na rede conhecida com o sinal mais forte
+Preferences memRedes;   // memória que não apaga quando a placa desliga
+String versaoRedes = "";
+
+// "Casa da Vó" -> "Casa%20da%20V%C3%B3" (para mandar o nome da rede na URL)
+String codificarUrl(const String& texto) {
+  String r;
+  char hex[4];
+  for (size_t i = 0; i < texto.length(); i++) {
+    char c = texto[i];
+    if (isalnum((unsigned char)c) || c == '-' || c == '_' || c == '.' || c == '~') r += c;
+    else { snprintf(hex, sizeof(hex), "%%%02X", (unsigned char)c); r += hex; }
+  }
+  return r;
+}
+
+// Na hora de ligar: a rede do código + as redes que o site mandou da última vez
+void carregarRedes() {
+  wifiMulti.addAP(WIFI_SSID, WIFI_PASSWORD);
+  memRedes.begin("redes", true);
+  versaoRedes = memRedes.getString("versao", "");
+  int n = memRedes.getInt("n", 0);
+  for (int i = 0; i < n && i < MAX_REDES; i++) {
+    String ssid  = memRedes.getString(("s" + String(i)).c_str(), "");
+    String senha = memRedes.getString(("p" + String(i)).c_str(), "");
+    if (ssid.length()) {
+      wifiMulti.addAP(ssid.c_str(), senha.c_str());
+      Serial.println("[REDES] salva: " + ssid);
+    }
+  }
+  memRedes.end();
+}
+
+// Pergunta a lista ao backend. Só grava na memória se ela mudou.
+// Formato da resposta (texto):  LABCAM-REDES 1 / versao <v> / <rede>\t<senha> ...
+void sincronizarRedes() {
+  if (WiFi.status() != WL_CONNECTED) return;
+  HTTPClient http;
+  http.begin(String(SERVIDOR) + "/api/redes/placa?placa=" + NOME_PLACA +
+             "&rssi=" + String(WiFi.RSSI()) + "&rede=" + codificarUrl(WiFi.SSID()));
+  http.addHeader("X-Device-Key", DEVICE_KEY);
+  http.setTimeout(5000);
+  int status = http.GET();
+  String corpo = (status == 200) ? http.getString() : "";
+  http.end();
+  if (status != 200) { Serial.printf("[REDES] HTTP %d\n", status); return; }
+  if (!corpo.startsWith("LABCAM-REDES 1\n")) return;
+
+  int pos = corpo.indexOf('\n') + 1;
+  int fim = corpo.indexOf('\n', pos);
+  if (fim < 0 || !corpo.substring(pos, fim).startsWith("versao ")) return;
+  String versao = corpo.substring(pos + 7, fim);
+  if (versao == versaoRedes) return;   // nada mudou
+
+  memRedes.begin("redes", false);
+  int n = 0;
+  pos = fim + 1;
+  while (pos < (int)corpo.length() && n < MAX_REDES) {
+    fim = corpo.indexOf('\n', pos);
+    if (fim < 0) fim = corpo.length();
+    String linha = corpo.substring(pos, fim);
+    pos = fim + 1;
+    int tab = linha.indexOf('\t');
+    if (tab <= 0) continue;
+    String ssid = linha.substring(0, tab);
+    String senha = linha.substring(tab + 1);
+    memRedes.putString(("s" + String(n)).c_str(), ssid);
+    memRedes.putString(("p" + String(n)).c_str(), senha);
+    wifiMulti.addAP(ssid.c_str(), senha.c_str());   // já vale para a próxima reconexão
+    n++;
+  }
+  memRedes.putInt("n", n);
+  memRedes.putString("versao", versao);
+  memRedes.end();
+  versaoRedes = versao;
+  Serial.printf("[REDES] lista nova salva (%d redes)\n", n);
+}
+
 void conectarWiFi() {
   if (WiFi.status() == WL_CONNECTED) return;
-  Serial.print("Conectando ao Wi-Fi");
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  unsigned long inicio = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - inicio < 15000) {
-    delay(300);
-    Serial.print(".");
-  }
-  Serial.println(WiFi.status() == WL_CONNECTED ? " ok" : " falhou (tento de novo depois)");
+  Serial.println("Procurando as redes salvas...");
+  wifiMulti.run(15000);   // entra na rede salva de sinal mais forte
+  if (WiFi.status() == WL_CONNECTED) Serial.println("Wi-Fi conectado em \"" + WiFi.SSID() + "\"");
+  else Serial.println("Nenhuma rede salva respondeu (tento de novo depois)");
 }
 
 void tirarEEnviarFoto() {
@@ -138,28 +232,80 @@ void tirarEEnviarFoto() {
   http.setTimeout(15000);
   int status = http.POST(fb->buf, fb->len);
   Serial.printf("Foto enviada (%u bytes) -> HTTP %d\n", fb->len, status);
+  if (status == 401) Serial.println("HTTP 401: a DEVICE_KEY daqui está diferente da do backend");
+  else if (status < 0) Serial.println("Sem resposta: confira o SERVIDOR (IP e porta 3000) e o firewall");
   http.end();
 
   esp_camera_fb_return(fb);
 }
 
-// Pergunta ao backend se alguém pediu uma foto. Resposta: {"foto":true} ou {"foto":false}
-bool temPedidoDeFoto() {
-  if (WiFi.status() != WL_CONNECTED) return false;
+// Pergunta ao backend o que fazer. Resposta: {"foto":true/false,"video":true/false}
+//   foto  = alguém pediu uma foto
+//   video = alguém está vendo o vídeo ao vivo no site
+void perguntarComando(bool& foto, bool& video) {
+  foto = false;
+  video = false;
+  if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
   http.begin(String(SERVIDOR) + "/api/comando");
   http.addHeader("X-Device-Key", DEVICE_KEY);
   http.setTimeout(5000);
   int status = http.GET();
-  bool pedido = false;
   if (status == 200) {
     String corpo = http.getString();
-    pedido = corpo.indexOf("\"foto\":true") >= 0;
+    foto  = corpo.indexOf("\"foto\":true") >= 0;
+    video = corpo.indexOf("\"video\":true") >= 0;
   } else if (status == 401) {
     Serial.println("HTTP 401: a DEVICE_KEY daqui está diferente da do backend");
   }
   http.end();
-  return pedido;
+}
+
+// Vídeo ao vivo: manda quadros seguidos para o backend enquanto alguém assiste.
+// Cada resposta diz se é para continuar e se pediram uma foto no meio do vídeo.
+void transmitirVideo() {
+  Serial.println("Vídeo ao vivo: começou");
+  HTTPClient http;
+  http.setReuse(true);   // usa a mesma conexão para todos os quadros (mais rápido)
+  int quadros = 0;
+  unsigned long inicio = millis();
+
+  while (WiFi.status() == WL_CONNECTED) {
+    unsigned long antes = millis();
+    camera_fb_t* fb = esp_camera_fb_get();
+    if (!fb) {
+      Serial.println("Falha ao capturar o quadro");
+      break;
+    }
+
+    http.begin(String(SERVIDOR) + "/api/video/quadro");
+    http.addHeader("Content-Type", "image/jpeg");
+    http.addHeader("X-Device-Key", DEVICE_KEY);
+    http.setTimeout(5000);
+    int status = http.POST(fb->buf, fb->len);
+    esp_camera_fb_return(fb);
+    String corpo = (status == 200) ? http.getString() : "";
+    http.end();
+
+    if (status != 200) {
+      Serial.printf("Vídeo: HTTP %d, parando\n", status);
+      break;
+    }
+    quadros++;
+    if (corpo.indexOf("\"foto\":true") >= 0) {   // pediram foto durante o vídeo
+      tirarEEnviarFoto();
+      ultimaFoto = millis();
+    }
+    if (corpo.indexOf("\"continuar\":true") < 0) break;   // ninguém mais assistindo
+
+    // Respeita o limite de quadros por segundo
+    unsigned long gasto = millis() - antes;
+    if (gasto < INTERVALO_QUADRO_MS) delay(INTERVALO_QUADRO_MS - gasto);
+  }
+
+  float segundos = (millis() - inicio) / 1000.0;
+  Serial.printf("Vídeo ao vivo: parou (%d quadros em %.0f s, %.1f por segundo)\n",
+                quadros, segundos, segundos > 0 ? quadros / segundos : 0);
 }
 
 void setup() {
@@ -175,7 +321,10 @@ void setup() {
 
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
+  carregarRedes();
   conectarWiFi();
+  sincronizarRedes();
+  ultimasRedes = millis();
 
   tirarEEnviarFoto();          // foto inicial, para testar
   ultimaFoto = millis();
@@ -189,18 +338,26 @@ void loop() {
   }
 
   if (millis() - ultimoComando >= INTERVALO_COMANDO_MS) {
-    ultimoComando = millis();
-    if (temPedidoDeFoto()) {
+    bool foto, video;
+    perguntarComando(foto, video);
+    if (foto) {
       Serial.println("Pedido de foto recebido");
       delay(500);  // dá tempo da fita de LED (na principal) acender
       tirarEEnviarFoto();
       ultimaFoto = millis();
     }
+    if (video) transmitirVideo();
+    ultimoComando = millis();
   }
 
   if (millis() - ultimaFoto >= INTERVALO_FOTO_MS) {
     tirarEEnviarFoto();
     ultimaFoto = millis();
+  }
+
+  if (millis() - ultimasRedes >= INTERVALO_REDES_MS) {
+    sincronizarRedes();
+    ultimasRedes = millis();
   }
 
   delay(50);
