@@ -124,3 +124,10 @@ export async function buscarQuadro(depois, sinal) {
     url: URL.createObjectURL(await resposta.blob()),
   }
 }
+
+// O servidor grátis (Render) "dorme" depois de um tempo sem uso e leva alguns
+// segundos para acordar. Chamamos /api assim que o site abre: quando a pessoa for
+// fazer login ou ver a câmera, ele já está acordado. Erros são ignorados.
+export function acordarServidor() {
+  fetch(`${API_URL}/api`, { cache: 'no-store' }).catch(() => {})
+}

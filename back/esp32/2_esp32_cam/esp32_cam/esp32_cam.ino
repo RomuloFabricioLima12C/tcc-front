@@ -34,6 +34,7 @@
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <Preferences.h>
 
 // ================= CONFIGURE AQUI =================
@@ -41,7 +42,10 @@
 const char* WIFI_SSID     = "NOME_DO_WIFI";
 const char* WIFI_PASSWORD = "SENHA_DO_WIFI";
 
-const char* SERVIDOR   = "http://benserverplex.ddns.net:3000";  // endereço do backend
+// Endereço do backend, SEM barra no final:
+//   na internet (Render): "https://labcam-api.onrender.com"
+//   no computador da rede: "http://192.168.0.10:3000" (IP do ipconfig)
+const char* SERVIDOR   = "https://labcam-api.onrender.com";
 const char* DEVICE_KEY = "sua-chave-secreta";                    // igual ao DEVICE_KEY do .env
 
 const unsigned long INTERVALO_FOTO_MS    = 10UL * 60UL * 1000UL; // foto automática (10 min)
@@ -155,15 +159,39 @@ void carregarRedes() {
   memRedes.end();
 }
 
+// ============================================================
+//  Conexão com o servidor: HTTPS (internet) ou HTTP (rede local)
+// ============================================================
+// setInsecure(): a conexão é criptografada, mas a placa não confere o certificado do
+// servidor (não precisa atualizar o firmware quando o certificado do Render é renovado).
+// O vídeo usa uma conexão própria, para uma foto no meio do vídeo não derrubar a dele.
+WiFiClientSecure clienteSeguro, clienteVideoSeguro;
+WiFiClient clienteSimples, clienteVideoSimples;
+
+void abrirCom(HTTPClient& http, const String& url, WiFiClientSecure& seguro, WiFiClient& simples) {
+  if (url.startsWith("https://")) {
+    seguro.setInsecure();
+    http.begin(seguro, url);
+  } else {
+    http.begin(simples, url);
+  }
+  // O servidor grátis "dorme" sem uso e leva alguns segundos para acordar
+  http.setConnectTimeout(15000);
+  http.setTimeout(20000);
+}
+
+void abrir(HTTPClient& http, const String& url) {
+  abrirCom(http, url, clienteSeguro, clienteSimples);
+}
+
 // Pergunta a lista ao backend. Só grava na memória se ela mudou.
 // Formato da resposta (texto):  LABCAM-REDES 1 / versao <v> / <rede>\t<senha> ...
 void sincronizarRedes() {
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
-  http.begin(String(SERVIDOR) + "/api/redes/placa?placa=" + NOME_PLACA +
+  abrir(http, String(SERVIDOR) + "/api/redes/placa?placa=" + NOME_PLACA +
              "&rssi=" + String(WiFi.RSSI()) + "&rede=" + codificarUrl(WiFi.SSID()));
   http.addHeader("X-Device-Key", DEVICE_KEY);
-  http.setTimeout(5000);
   int status = http.GET();
   String corpo = (status == 200) ? http.getString() : "";
   http.end();
@@ -226,14 +254,13 @@ void tirarEEnviarFoto() {
   }
 
   HTTPClient http;
-  http.begin(String(SERVIDOR) + "/api/fotos");
+  abrir(http, String(SERVIDOR) + "/api/fotos");
   http.addHeader("Content-Type", "image/jpeg");
   http.addHeader("X-Device-Key", DEVICE_KEY);
-  http.setTimeout(15000);
   int status = http.POST(fb->buf, fb->len);
   Serial.printf("Foto enviada (%u bytes) -> HTTP %d\n", fb->len, status);
   if (status == 401) Serial.println("HTTP 401: a DEVICE_KEY daqui está diferente da do backend");
-  else if (status < 0) Serial.println("Sem resposta: confira o SERVIDOR (IP e porta 3000) e o firewall");
+  else if (status < 0) Serial.println("Sem resposta: confira o SERVIDOR (endereço sem barra no final) e o Wi-Fi");
   http.end();
 
   esp_camera_fb_return(fb);
@@ -247,9 +274,8 @@ void perguntarComando(bool& foto, bool& video) {
   video = false;
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
-  http.begin(String(SERVIDOR) + "/api/comando");
+  abrir(http, String(SERVIDOR) + "/api/comando");
   http.addHeader("X-Device-Key", DEVICE_KEY);
-  http.setTimeout(5000);
   int status = http.GET();
   if (status == 200) {
     String corpo = http.getString();
@@ -278,10 +304,10 @@ void transmitirVideo() {
       break;
     }
 
-    http.begin(String(SERVIDOR) + "/api/video/quadro");
+    abrirCom(http, String(SERVIDOR) + "/api/video/quadro", clienteVideoSeguro, clienteVideoSimples);
     http.addHeader("Content-Type", "image/jpeg");
     http.addHeader("X-Device-Key", DEVICE_KEY);
-    http.setTimeout(5000);
+    http.setTimeout(8000);   // servidor já acordado durante o vídeo
     int status = http.POST(fb->buf, fb->len);
     esp_camera_fb_return(fb);
     String corpo = (status == 200) ? http.getString() : "";

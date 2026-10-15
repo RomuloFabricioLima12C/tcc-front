@@ -1,0 +1,26 @@
+# Mantém a API do Lab Cam (Render, plano grátis) sempre acordada.
+# O Render desliga o servidor depois de 15 min sem uso; este "despertador"
+# acessa a API a cada 10 min, então ela nunca chega a dormir.
+# Dá para ver cada execução na aba "Actions" do GitHub.
+name: Manter API acordada
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # a cada 10 minutos (o GitHub pode atrasar alguns minutos)
+  workflow_dispatch:          # botão "Run workflow" para rodar na hora
+
+jobs:
+  acordar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Chamar a API
+        run: |
+          for tentativa in 1 2 3; do
+            resposta=$(curl -s -m 90 https://labcam-api.onrender.com/api) && echo "$resposta" && \
+              echo "$resposta" | grep -q '"banco":"conectado"' && exit 0
+            echo "Tentativa $tentativa falhou, tentando de novo em 20 s..."
+            sleep 20
+          done
+          echo "A API não respondeu com o banco conectado."
+          exit 1

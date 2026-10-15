@@ -41,6 +41,7 @@
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 #include <Preferences.h>
 #include <time.h>
@@ -61,8 +62,10 @@ struct Alimento {
 const char* WIFI_SSID     = "NOME_DO_WIFI";
 const char* WIFI_PASSWORD = "SENHA_DO_WIFI";
 
-const char* BACKEND_HOST = "benserverplex.ddns.net";
-const int   BACKEND_PORT = 3000;
+// Endereço do backend, SEM barra no final:
+//   na internet (Render): "https://labcam-api.onrender.com"
+//   no computador da rede: "http://192.168.0.10:3000" (IP do ipconfig)
+const char* SERVIDOR     = "https://labcam-api.onrender.com";
 const char* DEVICE_KEY   = "sua-chave-secreta";  // igual ao DEVICE_KEY do .env do backend
 const int   USUARIO_ID   = 1;
 
@@ -454,7 +457,25 @@ String semAcento(String s) {   // a fonte da tela não tem acentos
 }
 
 String urlBase() {
-  return String("http://") + BACKEND_HOST + ":" + BACKEND_PORT;
+  return String(SERVIDOR);
+}
+
+// Abre a conexão certa para o endereço: HTTPS (servidor na internet) ou HTTP (rede local).
+// setInsecure(): a conexão é criptografada, mas a placa não confere o certificado do
+// servidor (não precisa atualizar o firmware quando o certificado do Render é renovado).
+WiFiClientSecure clienteSeguro;
+WiFiClient clienteSimples;
+
+void abrir(HTTPClient& http, const String& url) {
+  if (url.startsWith("https://")) {
+    clienteSeguro.setInsecure();
+    http.begin(clienteSeguro, url);
+  } else {
+    http.begin(clienteSimples, url);
+  }
+  // O servidor grátis "dorme" sem uso e leva alguns segundos para acordar
+  http.setConnectTimeout(15000);
+  http.setTimeout(20000);
 }
 
 void cabecalhos(HTTPClient& http) {
@@ -465,7 +486,7 @@ void cabecalhos(HTTPClient& http) {
 bool enviarAlimento(const Alimento& a) {
   if (WiFi.status() != WL_CONNECTED) return false;
   HTTPClient http;
-  http.begin(urlBase() + "/api/alimentos");
+  abrir(http, urlBase() + "/api/alimentos");
   http.addHeader("Content-Type", "application/json");
   cabecalhos(http);
 
@@ -490,7 +511,7 @@ bool enviarAlimento(const Alimento& a) {
 bool pedirFoto() {
   if (WiFi.status() != WL_CONNECTED) return false;
   HTTPClient http;
-  http.begin(urlBase() + "/api/comando");
+  abrir(http, urlBase() + "/api/comando");
   http.addHeader("Content-Type", "application/json");
   cabecalhos(http);
   int code = http.POST("{\"acao\":\"foto\"}");
@@ -503,7 +524,7 @@ bool pedirFoto() {
 void buscarValidades() {
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
-  http.begin(urlBase() + "/api/alimentos?usuario_id=" + USUARIO_ID);
+  abrir(http, urlBase() + "/api/alimentos?usuario_id=" + USUARIO_ID);
   cabecalhos(http);
   int code = http.GET();
   Serial.printf("[GET] /api/alimentos -> %d\n", code);
@@ -590,10 +611,9 @@ void carregarRedes() {
 void sincronizarRedes() {
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
-  http.begin(urlBase() + "/api/redes/placa?placa=" + NOME_PLACA +
+  abrir(http, urlBase() + "/api/redes/placa?placa=" + NOME_PLACA +
              "&rssi=" + String(WiFi.RSSI()) + "&rede=" + codificarUrl(WiFi.SSID()));
   cabecalhos(http);
-  http.setTimeout(5000);
   int code = http.GET();
   String corpo = (code == 200) ? http.getString() : "";
   http.end();

@@ -103,18 +103,24 @@ Os códigos ficam em `esp32/` e **funcionam com esta API sem mudar a lógica del
 ele não compilava na Arduino IDE.) Os passos de cada placa
 estão nos `LEIA-ME.md` de cada pasta. Em **todos**, use:
 
-- o **mesmo `DEVICE_KEY`** do `back/.env`;
-- o **endereço do computador** onde roda o `npm start` e a **porta 3000**:
+- o **mesmo `DEVICE_KEY`** configurado no servidor (no Render: *Environment*; no computador: `back/.env`);
+- o **endereço do servidor** em `SERVIDOR`, sem barra no final.
 
 | Arquivo | O que preencher |
 | ------- | --------------- |
-| `esp32/1_esp32_principal/esp32_principal/esp32_principal.ino` | `WIFI_SSID`, `WIFI_PASSWORD`, `BACKEND_HOST` (ex.: `192.168.0.10`), `BACKEND_PORT` (3000), `DEVICE_KEY` |
-| `esp32/2_esp32_cam/esp32_cam/esp32_cam.ino` | `WIFI_SSID`, `WIFI_PASSWORD`, `SERVIDOR` (ex.: `http://192.168.0.10:3000`), `DEVICE_KEY` |
+| `esp32/1_esp32_principal/esp32_principal/esp32_principal.ino` | `WIFI_SSID`, `WIFI_PASSWORD`, `SERVIDOR`, `DEVICE_KEY` |
+| `esp32/2_esp32_cam/esp32_cam/esp32_cam.ino` | `WIFI_SSID`, `WIFI_PASSWORD`, `SERVIDOR`, `DEVICE_KEY` |
+
+`SERVIDOR` aceita os dois jeitos:
+- **Na internet (Render):** `https://labcam-api.onrender.com` (já vem assim). As placas funcionam
+  em qualquer Wi-Fi com internet. A conexão é HTTPS (criptografada); a placa não confere o
+  certificado (`setInsecure()`), assim não precisa regravar quando o Render renovar o certificado.
+- **No computador da rede:** `http://192.168.0.10:3000` (IP do `ipconfig`, linha "Endereço IPv4").
+  **Não use `localhost`**: na placa isso é a própria placa. Computador e placas na **mesma rede**,
+  e na primeira vez que rodar `npm start` libere o Node.js no firewall do Windows.
 
 Dicas:
-- O IP do computador aparece no comando `ipconfig` (linha "Endereço IPv4"). **Não use `localhost`**:
-  na placa isso é a própria placa. Computador e placas precisam estar **na mesma rede**, de 2,4 GHz.
-- Na primeira vez que rodar `npm start`, o Windows pergunta se libera o Node.js no firewall: **Permitir**.
+- Rede Wi-Fi de **2,4 GHz** (o ESP32 não conecta em 5 GHz).
 - **Não mande para o GitHub** os `.ino` com a senha do Wi-Fi preenchida.
 
 ### O que acontece quando...
@@ -122,6 +128,19 @@ Dicas:
 - **A porta abre** (com o sensor): a fita de LED acende e a ESP32-CAM tira uma foto, que aparece no site.
 - **Alguém toca em "Ver câmera"** no site: a câmera tira a foto em até 3 s.
 - **Fala "adiciona leite":** cadastra; aparece no site na hora e na tela em até 2 min.
+
+## Servidor na internet (Render)
+
+A API publicada fica em **https://labcam-api.onrender.com** (teste: `/api` deve responder
+`"banco":"conectado"`). O site da Vercel usa esse endereço pelo arquivo `.env.production` da raiz
+(`VITE_API_URL`), então não precisa configurar nada no painel da Vercel.
+
+- **Sempre acordado:** o plano grátis do Render desliga a API depois de 15 min sem uso. O
+  "despertador" em `.github/workflows/manter-api-acordada.yml` acessa `/api` a cada 10 min (dá para
+  ver na aba *Actions* do GitHub), e o site também chama `/api` assim que abre.
+- **Variáveis no Render** (*Environment*): `DATABASE_URL`, `DATABASE_SSL=true`, `BANCO_LOCAL=false`,
+  `JWT_SECRET`, `DEVICE_KEY` (a mesma das placas), `DEVICE_USER_ID=1`, `CORS_ORIGIN` (endereço do
+  site) e, para a voz, `XIAOZHI_MCP_ENDPOINT`.
 
 ## AI Voice (Xiaozhi)
 

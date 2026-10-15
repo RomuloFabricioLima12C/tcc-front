@@ -106,7 +106,7 @@ Alimentação: fonte chaveada 5 V comum, **todos os GND juntos**.
 
 ## Depuração
 
-- **Placa não fala com o servidor:** `BACKEND_HOST` não pode ser `localhost` (na placa isso é a própria placa) — use o IPv4 do computador (`ipconfig`); rede **2,4 GHz**; liberar o Node no firewall do Windows; mesma `DEVICE_KEY` no `.ino` e no `back/.env`.
+- **Placa não fala com o servidor:** confira `SERVIDOR` no `.ino` (sem barra no final). Na internet: `https://labcam-api.onrender.com` (conexão por `WiFiClientSecure` com `setInsecure()`, na função `abrir()`). Na rede local: `http://IPv4-do-computador:3000` — nunca `localhost`; liberar o Node no firewall do Windows. Rede **2,4 GHz**; mesma `DEVICE_KEY` no `.ino` e no servidor (Render → Environment, ou `back/.env`).
 - **401 "Chave do dispositivo inválida":** `DEVICE_KEY` diferente ou vazia; `500 "DEVICE_KEY não configurada"`: falta no `.env`.
 - **500 com código `23503`:** `DEVICE_USER_ID` aponta para usuário que não existe — criar a conta da casa.
 - **Touch não responde:** Monitor Serial 115200, procurar `[TOQUE] x=... y=...`; checar T_CS (21), T_DO (19) e SDO desligado; baixar `TOUCH_LIMIAR`; recalibrar digitando `c`.
