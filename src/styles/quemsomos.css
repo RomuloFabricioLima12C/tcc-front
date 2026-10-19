@@ -99,10 +99,15 @@
 }
 
 .qs-socials {
-  margin: 22px 0 0 41px;
+  /* na frente dos desenhos (taco), para nenhum botão ficar escondido */
+  position: relative;
+  z-index: 3;
+  /* centralizados embaixo do título (que tem o mesmo recuo à direita) */
+  margin: 22px 100px 0 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 20px;
+  justify-content: center;
+  gap: 12px 14px;
 }
 
 .qs-pill {
@@ -115,18 +120,23 @@
   right: 27px;
 }
 
+/* Espelho do cachorro-quente (.qs-taco-alt): mesmo tamanho e altura, passando 8 px da
+   borda esquerda do card (que começa em 29 px), virado para a direita */
 .qs-taco {
-  --cw: 212px;
-  left: 701px;
-  top: 319px;
-  z-index: 1;
+  --cw: 240px;
+  position: absolute;
+  left: 21px;
+  top: 316px; /* 30 px abaixo do original: a mão do taco não cobre o texto */
+  z-index: 2;
+  transform: scaleX(-1);
 }
 
 .qs-taco-alt {
   --cw: 240px;
   position: absolute;
-  left: 1029px;
-  top: 286px;
+  /* passa 8 px da borda direita do card (29 px + largura do card), em qualquer tela */
+  left: calc(min(1232px, 100%) - 203px);
+  top: 316px;
   z-index: 2;
 }
 
@@ -189,7 +199,7 @@
   }
 
   .qs-socials {
-    margin-left: 0;
+    margin-right: 0;
   }
 
   .qs-form {

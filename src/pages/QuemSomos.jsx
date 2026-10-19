@@ -119,9 +119,10 @@ export default function QuemSomos() {
                 ),
               )}
             </div>
-            <Crop s={img.tacoFriends} className="qs-taco desktop-only" />
             <Sparkle />
           </article>
+          {/* Taco à esquerda e cachorro-quente à direita, nos cantos de baixo do card, olhando para os botões */}
+          <Crop s={img.tacoFriends} className="qs-taco desktop-only" />
           <Crop s={img.tacoFriendsAlt} className="qs-taco-alt desktop-only" />
 
           <article className="card qs-card qs-form">
