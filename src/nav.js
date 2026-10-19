@@ -5,7 +5,7 @@ export const mainNav = [
   { to: '/componentes', label: 'Componentes', keywords: 'componentes lcd display esp32 cam camera led jumpers placa voz preço' },
   { to: '/quem-somos', label: 'Quem somos', keywords: 'quem somos equipe laura victor enzo romulo rômulo gabriel redes formulario' },
   { to: '/referencias', label: 'Referências', keywords: 'referencias referências artigos validade cadeia frio' },
-  { to: '/jogo', label: 'Nosso game', keywords: 'jogo game freezer escape rei mofão jogar' },
+  { to: '/jogo', label: 'Nosso game', keywords: 'jogo game frutas podres chorume jogar' },
 ]
 
 export const extraPages = [

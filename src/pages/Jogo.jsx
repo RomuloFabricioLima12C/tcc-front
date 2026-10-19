@@ -81,15 +81,16 @@ export default function Jogo() {
         <div className="game-card-wrap">
           <article className="card card-soft feature-card">
             <Stripes a={green} b={white} width={161} offset={-28} />
-            <h2>FREEZER ESCAPE</h2>
+            <h2>FRUTAS PODRES</h2>
             <p>
-              Após comprar uma misteriosa geladeira na loja do velho ancião Márcio Marçal, Guilherme começa
-              a ouvir sons estranhos vindos da cozinha durante a noite. Ao abrir a porta da geladeira, ele é
-              sugado para um mundo escondido entre alimentos e corredores congelados, onde descobre que o
-              terrível Rei Mofão está espalhando deterioração e desperdício por toda a geladeira. Para
-              conseguir escapar e restaurar o equilíbrio do local, Guilherme precisa atravessar diferentes
-              setores — do freezer até a gaveta de legumes — enfrentando criaturas contaminadas e desafios
-              inspirados na conservação, validade e armazenamento correto dos alimentos.
+              No Campo do Chorume, as frutas que ninguém comeu apodrecem... e ganham vida! Guilherme chega ao
+              laboratório do Professor Benones, escolhe sua primeira fruta podre e parte em uma aventura pela
+              Vila do Chorume, pela Floresta Azeda, pelo Litoral do Sal e pelo Vale do Açúcar. Ande pelo mato
+              alto para encontrar frutas selvagens, capture-as com potes de vidro, monte uma equipe de até
+              seis criaturas e enfrente os líderes dos ginásios — Seu Mané, o Rei da Xepa, o Prof. Márcio e o
+              Prof. Petermann — para conquistar as três insígnias e virar o Campeão do Chorume. Uma aventura
+              cheia de golpes divertidos que mostra, brincando, o que acontece com a comida que a gente
+              esquece e desperdiça.
             </p>
             <Crop s={img.burgerGuy} className="feature-char" />
           </article>
@@ -98,7 +99,7 @@ export default function Jogo() {
 
         <div className="interest-row">
           <InterestCard
-            text="Entre nessa aventura gelada, enfrente o terrível Rei Mofão e descubra se você consegue salvar a geladeira antes que todos os alimentos sejam perdidos!"
+            text="Escolha sua fruta podre, capture todas as criaturas do Chorume, vença os três ginásios e descubra quem te espera na Vila do Chorume, onde tudo começou!"
             action={<Button href={links.jogo}>JOGAR EM TELA CHEIA</Button>}
           />
           <Crop s={img.characters} alt="Personagens do jogo" className="game-characters" />
