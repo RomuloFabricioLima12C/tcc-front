@@ -5,7 +5,7 @@
   - Conecta no Wi-Fi.
   - A cada 3 s pergunta ao backend se alguém pediu foto
     (GET /api/comando). Quem pede: o site, a ESP32 principal
-    quando a porta abre, ou o AI Voice ("tira uma foto da geladeira").
+    quando a porta abre.
   - Tira uma foto automática a cada 10 min.
   - Wi-Fi trocado pelo site (página "Wi-Fi das placas"): a cada 1 min
     a placa baixa a lista de redes e guarda na memória. Ao ligar,
@@ -46,7 +46,7 @@ const char* WIFI_PASSWORD = "SENHA_DO_WIFI";
 //   na internet (Render): "https://labcam-api.onrender.com"
 //   no computador da rede: "http://192.168.0.10:3000" (IP do ipconfig)
 const char* SERVIDOR   = "https://labcam-api.onrender.com";
-const char* DEVICE_KEY = "sua-chave-secreta";                    // igual ao DEVICE_KEY do .env
+const char* DEVICE_KEY = "labcam-2e6cfb01cf53";                    // igual ao DEVICE_KEY do .env
 
 const unsigned long INTERVALO_FOTO_MS    = 10UL * 60UL * 1000UL; // foto automática (10 min)
 const unsigned long INTERVALO_COMANDO_MS = 3000;                 // pergunta por pedido (3 s)

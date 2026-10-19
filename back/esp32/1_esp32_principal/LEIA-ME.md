@@ -9,7 +9,7 @@
 ## Passo a passo
 1. Na Arduino IDE, instale as bibliotecas **TFT_eSPI** (Bodmer) e **ArduinoJson** (Benoit Blanchon, versão 7 ou mais nova).
 2. Copie o **`User_Setup.h`** por cima de `Documentos/Arduino/libraries/TFT_eSPI/User_Setup.h`.
-3. Abra `esp32_principal.ino` e preencha no topo: Wi-Fi, senha e `DEVICE_KEY`.
+3. Abra `esp32_principal.ino` e preencha no topo o Wi-Fi e a senha (`SERVIDOR` e `DEVICE_KEY` já vêm certos).
 4. Placa: **ESP32 Dev Module**. Grave.
 5. Na primeira vez, toque na ponta das **setas dos 4 cantos** (use a unha ou uma caneta sem tinta). A calibração fica salva.
    - Para calibrar de novo: ligue o ESP32 com o dedo apertando a tela, **ou** digite `c` no Monitor Serial (115200).

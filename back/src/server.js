@@ -24,7 +24,7 @@ async function main() {
   }
 
   // Avisa logo de cara se faltar alguma configuração importante no .env
-  for (const nome of ['DATABASE_URL', 'JWT_SECRET', 'DEVICE_KEY', 'DEVICE_USER_ID']) {
+  for (const nome of ['DATABASE_URL', 'JWT_SECRET', 'DEVICE_KEY']) {
     if (!process.env[nome]) {
       console.error(`Falta a variável ${nome} no arquivo .env (veja o .env.example).`)
       process.exit(1)
@@ -41,8 +41,8 @@ async function main() {
   await pool.query(schema)
 
   // 3) Conta da casa (opcional): se o banco não tem nenhum usuário e o .env tem
-  //    CONTA_EMAIL e CONTA_SENHA, cria essa conta. Ela vira o usuário id 1, o
-  //    "dono da geladeira" das placas e da voz.
+  //    CONTA_EMAIL e CONTA_SENHA, cria essa conta. Sem isso, a primeira conta
+  //    criada no site guarda os dados da geladeira (toda conta vê e mexe neles).
   const { rows } = await pool.query('SELECT COUNT(*)::int AS total FROM usuarios')
   if (rows[0].total === 0 && process.env.CONTA_EMAIL && process.env.CONTA_SENHA) {
     const bcrypt = require('bcryptjs')
@@ -67,6 +67,8 @@ async function main() {
   )
 
   // ---- Lê o corpo das requisições em JSON (limite pequeno: ninguém precisa mandar mais que isso) ----
+  // A foto de perfil (já reduzida pelo site) é a única exceção: até 250 KB
+  app.use('/api/usuarios/foto', express.json({ limit: '250kb' }))
   app.use(express.json({ limit: '20kb' }))
 
   // ---- Rota de saúde: serve para ver se a API e o banco estão no ar ----
@@ -118,10 +120,7 @@ async function main() {
   console.log(`API do Lab Cam rodando em http://localhost:${PORTA}/api`)
 
   // 4) Assistente de voz (Xiaozhi). Fica desligado se XIAOZHI_MCP_ENDPOINT estiver vazio.
-  require('./voz').iniciarVoz({
-    endpoint: process.env.XIAOZHI_MCP_ENDPOINT,
-    usuarioId: Number(process.env.DEVICE_USER_ID),
-  })
+  require('./voz').iniciarVoz({ endpoint: process.env.XIAOZHI_MCP_ENDPOINT })
 }
 
 main().catch((erro) => {

@@ -4,7 +4,8 @@ import { AccountLayout } from '../components/Layout.jsx'
 import ThemeCrop from '../components/ThemeImage.jsx'
 import { img, links, svg } from '../assets.js'
 import { avatares, acharAvatar } from '../avatares.js'
-import { lerSessao, sair, salvarAvatar } from '../api.js'
+import { lerSessao, removerFoto, sair, salvarAvatar, salvarFoto } from '../api.js'
+import { prepararFoto } from '../fotoPerfil.js'
 import '../styles/perfil.css'
 
 function CartIcon() {
@@ -89,18 +90,38 @@ const menu = [
   },
 ]
 
-// Grade com as frutas do site para escolher a foto de perfil
-function EscolherAvatar({ atual, salvando, onEscolher }) {
+// Foto do aparelho + grade com as frutas do site para escolher a foto de perfil
+function EscolherAvatar({ atual, temFoto, salvando, onEscolher, onArquivo, onRemoverFoto }) {
   return (
     <div className="pf-escolha">
       <p className="pf-escolha-titulo">Escolha sua foto de perfil</p>
+      {/* No celular, o "accept=image/*" oferece a galeria e a câmera; no computador, abre os arquivos */}
+      <label className={`pf-enviar${salvando ? ' is-disabled' : ''}`}>
+        <input
+          type="file"
+          accept="image/*"
+          className="visually-hidden"
+          disabled={salvando}
+          onChange={(e) => {
+            onArquivo(e.target.files?.[0])
+            e.target.value = '' // deixa escolher o mesmo arquivo de novo
+          }}
+        />
+        {salvando ? 'Enviando...' : 'Usar uma foto minha'}
+      </label>
+      {temFoto && (
+        <button type="button" className="pf-remover" disabled={salvando} onClick={onRemoverFoto}>
+          Remover minha foto
+        </button>
+      )}
+      <p className="pf-escolha-ou">ou escolha uma fruta</p>
       <div className="pf-escolha-grade" role="radiogroup" aria-label="Foto de perfil">
         {avatares.map((a) => (
           <button
             key={a.id}
             type="button"
             role="radio"
-            aria-checked={a.id === atual}
+            aria-checked={!temFoto && a.id === atual}
             className="pf-opcao"
             title={a.nome}
             disabled={salvando}
@@ -118,17 +139,19 @@ export default function Perfil() {
   const navigate = useNavigate()
   const [usuario, setUsuario] = useState(() => lerSessao()?.usuario) // quem fez login (guardado em api.js)
   const avatar = acharAvatar(usuario?.avatar)
+  const foto = usuario?.foto // foto enviada do aparelho (tem prioridade sobre a fruta)
   // Sem foto ainda: as opções já aparecem abertas
   const [escolhendo, setEscolhendo] = useState(false)
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState('')
-  const mostrarOpcoes = usuario && (escolhendo || !avatar)
+  const mostrarOpcoes = usuario && (escolhendo || (!avatar && !foto))
 
-  const escolher = async (id) => {
+  // Roda a ação (salvar fruta, enviar ou remover foto) e atualiza a tela
+  const salvar = async (acao) => {
     setSalvando(true)
     setErro('')
     try {
-      await salvarAvatar(id)
+      await acao()
       setUsuario(lerSessao()?.usuario)
       setEscolhendo(false)
     } catch (e) {
@@ -138,6 +161,10 @@ export default function Perfil() {
     }
   }
 
+  const escolher = (id) => salvar(() => salvarAvatar(id))
+  const enviarArquivo = (arquivo) => arquivo && salvar(async () => salvarFoto(await prepararFoto(arquivo)))
+  const tirarFoto = () => salvar(removerFoto)
+
   const sairDaConta = () => {
     sair()
     navigate('/login')
@@ -146,7 +173,11 @@ export default function Perfil() {
   return (
     <AccountLayout title="Perfil">
       <section className="profile">
-        {avatar ? (
+        {foto ? (
+          <span className="pf-avatar-foto">
+            <img src={foto} alt="Sua foto de perfil" className="pf-foto-propria" />
+          </span>
+        ) : avatar ? (
           <span className="pf-avatar-foto">
             <ThemeCrop light={avatar.light} dark={avatar.dark} alt={`Foto de perfil: ${avatar.nome}`} />
           </span>
@@ -157,13 +188,20 @@ export default function Perfil() {
           <>
             <h1 className="pf-name">{usuario.nome}</h1>
             <p className="pf-email">{usuario.email}</p>
-            {avatar && !escolhendo && (
+            {(avatar || foto) && !escolhendo && (
               <button type="button" className="pf-trocar" onClick={() => setEscolhendo(true)}>
                 Trocar foto
               </button>
             )}
             {mostrarOpcoes && (
-              <EscolherAvatar atual={usuario.avatar} salvando={salvando} onEscolher={escolher} />
+              <EscolherAvatar
+                atual={usuario.avatar}
+                temFoto={Boolean(foto)}
+                salvando={salvando}
+                onEscolher={escolher}
+                onArquivo={enviarArquivo}
+                onRemoverFoto={tirarFoto}
+              />
             )}
             {erro && (
               <p className="pf-erro" role="alert">

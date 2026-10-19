@@ -20,10 +20,7 @@ const router = express.Router()
 // ---------------------------------------------------------------------
 router.get('/quadro', auth, async (req, res, next) => {
   try {
-    // A câmera é da geladeira, que pertence ao DEVICE_USER_ID
-    if (req.usuario.id !== Number(process.env.DEVICE_USER_ID)) {
-      return res.status(404).json({ erro: 'Sua conta não tem uma câmera ligada.' })
-    }
+    // Toda conta é dona da geladeira, então qualquer conta com login vê a câmera
     const depois = Number(req.query.depois) || 0
     const quadro = await video.esperarQuadro(depois)
     if (!quadro) return res.status(204).end()

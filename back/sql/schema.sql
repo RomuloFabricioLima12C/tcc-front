@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS usuarios (
 -- Foto de perfil: o nome da fruta escolhida no site (ex.: 'tomate'). NULL = ainda não escolheu.
 ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS avatar VARCHAR(20);
 
+-- Foto de perfil enviada pela pessoa (do celular ou do computador). O site já manda
+-- a imagem pequena (256x256, JPEG) no formato "data:image/jpeg;base64,...".
+-- Quando existe, aparece no lugar da fruta.
+ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS foto TEXT;
+
 CREATE TABLE IF NOT EXISTS alimentos (
   id             SERIAL PRIMARY KEY,
   usuario_id     INTEGER      NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -58,6 +63,16 @@ CREATE TABLE IF NOT EXISTS fotos (
 );
 
 CREATE INDEX IF NOT EXISTS idx_fotos_usuario ON fotos (usuario_id, id DESC);
+
+-- Códigos de "Esqueceu a senha?": um por usuário (pedir de novo troca o anterior).
+-- Só o hash do código é guardado, igual à senha. Vale 15 minutos e aceita 5 tentativas.
+CREATE TABLE IF NOT EXISTS codigos_senha (
+  usuario_id   INTEGER      PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
+  codigo_hash  VARCHAR(100) NOT NULL,
+  expira_em    TIMESTAMPTZ  NOT NULL,
+  tentativas   INTEGER      NOT NULL DEFAULT 0,
+  criado_em    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
 
 -- Redes Wi-Fi que as placas (ESP32 principal e ESP32-CAM) podem usar.
 -- Cadastradas pelo site; as placas baixam a lista e guardam na memória delas,

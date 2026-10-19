@@ -4,10 +4,11 @@
 // O ESP32 não faz login com e-mail e senha. Ele manda uma chave fixa,
 // combinada no .env, em todo pedido:
 //   x-device-key: <DEVICE_KEY>
-// Se a chave estiver certa, os alimentos ficam com o dono da geladeira,
-// definido em DEVICE_USER_ID no .env.
+// Se a chave estiver certa, os dados vão para a geladeira, que é de todas as
+// contas do site (veja servicos/geladeira.js).
 // =====================================================================
 const crypto = require('crypto')
+const { idDaGeladeira } = require('../servicos/geladeira')
 
 // Compara as chaves em "tempo constante" (não dá pistas de quantas letras acertou)
 function chavesIguais(a, b) {
@@ -33,8 +34,15 @@ function deviceAuth(req, res, next) {
   }
 
   req.dispositivo = true
-  req.usuario = { id: Number(process.env.DEVICE_USER_ID) }
-  return next()
+  return idDaGeladeira()
+    .then((id) => {
+      if (!id) {
+        return res.status(409).json({ erro: 'Nenhuma conta cadastrada ainda. Crie uma conta no site.' })
+      }
+      req.usuario = { id }
+      return next()
+    })
+    .catch(next)
 }
 
 module.exports = deviceAuth

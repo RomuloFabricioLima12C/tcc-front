@@ -78,12 +78,11 @@ As tabelas são criadas (e atualizadas) sozinhas.
    ```
    Deve aparecer `API do Lab Cam rodando em http://localhost:3000/api`. Para desligar: **Ctrl+C**.
 
-**Dono da geladeira (usuário id 1):** é para ele que vão os alimentos da tela e da voz e as fotos.
-Duas formas de criar:
-- preencher `CONTA_EMAIL` e `CONTA_SENHA` no `.env` antes do primeiro `npm start` (a "conta da casa"); ou
-- criar a primeira conta pela tela **Cadastro** do site.
-
-Para ver no site o que veio das placas e da voz, entre com essa conta.
+**Toda conta é dona da geladeira.** Quem faz o **Cadastro** no site já vê e mexe em tudo o que vem
+das placas e da voz (alimentos, fotos, vídeo e Wi-Fi das placas), sem configurar nada. No banco, esses
+dados ficam guardados em nome da conta `DEVICE_USER_ID` (padrão 1) ou, se ela não existir, da conta
+mais antiga (`src/servicos/geladeira.js`). Opcional: `CONTA_EMAIL` e `CONTA_SENHA` no `.env` criam uma
+"conta da casa" no primeiro `npm start`.
 
 No Windows o banco local liga pelo `pg_ctl` (que vem junto), então funciona mesmo com o terminal como
 administrador ou com o UAC do Windows desligado. As mensagens do PostgreSQL ficam em
@@ -103,13 +102,13 @@ Os códigos ficam em `esp32/` e **funcionam com esta API sem mudar a lógica del
 ele não compilava na Arduino IDE.) Os passos de cada placa
 estão nos `LEIA-ME.md` de cada pasta. Em **todos**, use:
 
-- o **mesmo `DEVICE_KEY`** configurado no servidor (no Render: *Environment*; no computador: `back/.env`);
+- o **mesmo `DEVICE_KEY`** configurado no servidor (no Render: *Environment*; no computador: `back/.env`). Os `.ino` já vêm com a chave do projeto, `labcam-2e6cfb01cf53`;
 - o **endereço do servidor** em `SERVIDOR`, sem barra no final.
 
 | Arquivo | O que preencher |
 | ------- | --------------- |
-| `esp32/1_esp32_principal/esp32_principal/esp32_principal.ino` | `WIFI_SSID`, `WIFI_PASSWORD`, `SERVIDOR`, `DEVICE_KEY` |
-| `esp32/2_esp32_cam/esp32_cam/esp32_cam.ino` | `WIFI_SSID`, `WIFI_PASSWORD`, `SERVIDOR`, `DEVICE_KEY` |
+| `esp32/1_esp32_principal/esp32_principal/esp32_principal.ino` | `WIFI_SSID`, `WIFI_PASSWORD` (`SERVIDOR` e `DEVICE_KEY` já vêm certos) |
+| `esp32/2_esp32_cam/esp32_cam/esp32_cam.ino` | `WIFI_SSID`, `WIFI_PASSWORD` (`SERVIDOR` e `DEVICE_KEY` já vêm certos) |
 
 `SERVIDOR` aceita os dois jeitos:
 - **Na internet (Render):** `https://labcam-api.onrender.com` (já vem assim). As placas funcionam
@@ -139,7 +138,7 @@ A API publicada fica em **https://labcam-api.onrender.com** (teste: `/api` deve 
   "despertador" em `.github/workflows/manter-api-acordada.yml` acessa `/api` a cada 10 min (dá para
   ver na aba *Actions* do GitHub), e o site também chama `/api` assim que abre.
 - **Variáveis no Render** (*Environment*): `DATABASE_URL`, `DATABASE_SSL=true`, `BANCO_LOCAL=false`,
-  `JWT_SECRET`, `DEVICE_KEY` (a mesma das placas), `DEVICE_USER_ID=1`, `CORS_ORIGIN` (endereço do
+  `JWT_SECRET`, `DEVICE_KEY=labcam-2e6cfb01cf53` (a mesma das placas), `CORS_ORIGIN` (endereço do
   site) e, para a voz, `XIAOZHI_MCP_ENDPOINT`.
 
 ## AI Voice (Xiaozhi)
@@ -154,7 +153,6 @@ do painel xiaozhi.me em `XIAOZHI_MCP_ENDPOINT` no `.env` e reinicie: deve aparec
 | "O que tem na geladeira?" | `listar_alimentos` |
 | "Adiciona leite" / "Coloquei 6 ovos" / "Guardei frango que vence dia 10" | `cadastrar_alimento` (sem data, usa a validade média) |
 | "Acabou o leite" / "Joguei o frango fora" | `marcar_consumido` |
-| "Tira uma foto da geladeira" | `tirar_foto_geladeira` |
 
 A tabela de validade média fica em `src/servicos/alimentos.js` (fácil de editar).
 
@@ -170,8 +168,18 @@ O **site** manda `Authorization: Bearer <token>`; as **placas** mandam `x-device
 | POST | `/api/usuarios/cadastro` | `{nome, email, senha}` → `201 {usuario, token}` |
 | POST | `/api/usuarios/login` | `{email, senha}` → `{usuario, token}` |
 | GET | `/api/usuarios/eu` | dados de quem está logado |
+| PUT | `/api/usuarios/avatar` | `{avatar}` (uma das frutas) → tira a foto enviada, se tiver |
+| PUT | `/api/usuarios/foto` | `{foto: "data:image/jpeg;base64,..."}` — foto do aparelho (o site reduz para 256x256; máx. 150 KB) |
+| DELETE | `/api/usuarios/foto` | tira a foto enviada (volta a fruta) |
+| POST | `/api/usuarios/esqueci-senha` | `{email}` → manda um código de 6 dígitos por e-mail (resposta igual exista a conta ou não) |
+| POST | `/api/usuarios/redefinir-senha` | `{email, codigo, senha}` → troca a senha |
 
 A senha precisa de 8+ caracteres, maiúscula, minúscula, número e caractere especial, sem espaços.
+
+**Esqueceu a senha?** O código vale 15 minutos, aceita 5 tentativas e só um pode ser pedido por minuto;
+no banco fica só o hash dele (tabela `codigos_senha`). O e-mail sai pelo **Brevo** (grátis, 300 por dia),
+pela API HTTPS, porque o Render grátis bloqueia SMTP. Preencha `BREVO_API_KEY` e `EMAIL_REMETENTE`
+(um e-mail confirmado em Brevo > Senders). Sem a chave, o código aparece só no terminal/log da API.
 
 ```json
 // POST /api/usuarios/login
@@ -241,7 +249,7 @@ pelo banco (negativo = já venceu). `origem`: `site`, `touch`, `voz` ou `camera`
 Enquanto o site pede quadros, o `GET /api/comando` responde `"video": true` e a ESP32-CAM manda
 quadros seguidos. Uns 8 s depois que ninguém mais assiste (saiu da página, pausou ou trocou de aba), a
 resposta vira `"continuar": false` e a câmera volta a só tirar fotos. Os quadros ficam só na memória
-(não vão para o banco), e só a conta dona da geladeira (`DEVICE_USER_ID`) vê o vídeo.
+(não vão para o banco), e qualquer conta com login vê o vídeo.
 
 ### Wi-Fi das placas (página `/wifi` do site)
 
@@ -249,10 +257,10 @@ Troca a rede das placas sem gravar o código de novo.
 
 | Método | Rota | Quem | Para quê |
 | ------ | ---- | ---- | -------- |
-| GET | `/api/redes` | site (dono) | redes salvas (sem senhas), versão da lista e situação das placas |
-| POST | `/api/redes` | site (dono) | `{ "ssid": "Casa", "senha": "12345678" }` (senha vazia = rede aberta) |
-| PUT | `/api/redes/:id` | site (dono) | troca o nome e/ou a senha (mande só o que muda) |
-| DELETE | `/api/redes/:id` | site (dono) | remove a rede |
+| GET | `/api/redes` | site (login) | redes salvas (sem senhas), versão da lista e situação das placas |
+| POST | `/api/redes` | site (login) | `{ "ssid": "Casa", "senha": "12345678" }` (senha vazia = rede aberta) |
+| PUT | `/api/redes/:id` | site (login) | troca o nome e/ou a senha (mande só o que muda) |
+| DELETE | `/api/redes/:id` | site (login) | remove a rede |
 | GET | `/api/redes/placa?placa=principal&rede=Casa&rssi=-60` | placas | lista em texto, com as senhas |
 
 Resposta para as placas (texto, lido sem biblioteca):
@@ -267,8 +275,8 @@ As placas pedem a lista ao ligar e depois de tempos em tempos (principal: 2 min,
 versão mudou, gravam as redes na memória (`Preferences`). Ao ligar, o `WiFiMulti` entra na rede salva de
 sinal mais forte; a rede escrita no código (`WIFI_SSID`) continua como reserva. Para mudar de lugar:
 cadastre a rede nova **enquanto as placas ainda estão na rede antiga**, espere a página mostrar "Lista
-recebida" e só então leve as placas. No máximo 5 redes; só a conta dona da geladeira
-(`DEVICE_USER_ID`) mexe nelas. As senhas ficam no banco como texto, porque a placa precisa delas.
+recebida" e só então leve as placas. No máximo 5 redes; qualquer conta com login
+ mexe nelas. As senhas ficam no banco como texto, porque a placa precisa delas.
 
 ### Versões enxutas (opcionais) — chave
 

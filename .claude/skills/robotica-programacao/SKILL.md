@@ -49,7 +49,7 @@ tela TFT não tem acento: texto desenhado na tela vai sem acento; o que vai para
 - CommonJS (`require`), Express, SQL **sempre parametrizado** (`$1, $2`), sem ORM.
 - Regras de negócio em `src/servicos/` (site, placas e voz usam as mesmas funções); rotas em `src/routes/`.
 - Placas se autenticam com o cabeçalho `x-device-key` (também aceita `x-api-key`) via
-  `src/middleware/deviceAuth.js`; os dados ficam com `DEVICE_USER_ID`. Site usa JWT.
+  `src/middleware/deviceAuth.js`; os dados ficam com a geladeira (`src/servicos/geladeira.js`: conta `DEVICE_USER_ID` ou a mais antiga), e toda conta do site é dona dela. Site usa JWT.
 - Tabelas em `sql/schema.sql` (roda sozinho ao ligar; alterações precisam ser idempotentes,
   ex.: `ADD COLUMN IF NOT EXISTS`).
 - `origem` de um alimento: `site`, `touch`, `voz` ou `camera`.
@@ -65,7 +65,7 @@ tela TFT não tem acento: texto desenhado na tela vai sem acento; o que vai para
 | ESP32-CAM | `POST /api/fotos` | JPEG puro, `Content-Type: image/jpeg` (até 3 MB) |
 | ESP32-CAM | `POST /api/video/quadro` (vídeo ao vivo) | JPEG puro → `{continuar, foto}`; site lê em `GET /api/video/quadro?depois=<id>` |
 | Placas com pouca RAM | `/api/dispositivo/*` | respostas enxutas (`id, nome, data_validade, dias_restantes`) |
-| Voz | ferramentas MCP em `src/voz.js` | `alimentos_vencendo`, `listar_alimentos`, `cadastrar_alimento`, `marcar_consumido`, `tirar_foto_geladeira` |
+| Voz | ferramentas MCP em `src/voz.js` | `alimentos_vencendo`, `listar_alimentos`, `cadastrar_alimento`, `marcar_consumido` (a voz não pede foto) |
 
 Ao mudar um lado do contrato, **mude o outro na mesma tarefa** e atualize o `back/README.md`.
 Prefira mudanças compatíveis (campo novo opcional) — placas já gravadas não se atualizam sozinhas.
@@ -108,7 +108,7 @@ Alimentação: fonte chaveada 5 V comum, **todos os GND juntos**.
 
 - **Placa não fala com o servidor:** confira `SERVIDOR` no `.ino` (sem barra no final). Na internet: `https://labcam-api.onrender.com` (conexão por `WiFiClientSecure` com `setInsecure()`, na função `abrir()`). Na rede local: `http://IPv4-do-computador:3000` — nunca `localhost`; liberar o Node no firewall do Windows. Rede **2,4 GHz**; mesma `DEVICE_KEY` no `.ino` e no servidor (Render → Environment, ou `back/.env`).
 - **401 "Chave do dispositivo inválida":** `DEVICE_KEY` diferente ou vazia; `500 "DEVICE_KEY não configurada"`: falta no `.env`.
-- **500 com código `23503`:** `DEVICE_USER_ID` aponta para usuário que não existe — criar a conta da casa.
+- **409 "Nenhuma conta cadastrada ainda":** o banco está vazio — criar uma conta pelo Cadastro do site.
 - **Touch não responde:** Monitor Serial 115200, procurar `[TOQUE] x=... y=...`; checar T_CS (21), T_DO (19) e SDO desligado; baixar `TOUCH_LIMIAR`; recalibrar digitando `c`.
 - **Reinicia sozinha / brownout:** fonte fraca ou GND não comum.
 - **Testar a API sem placa:** simule com curl:
@@ -121,6 +121,6 @@ Alimentação: fonte chaveada 5 V comum, **todos os GND juntos**.
 
 ## Segurança
 
-- Nunca deixar senha de Wi-Fi ou `DEVICE_KEY` reais em `.ino` que vá para o GitHub; use os valores de exemplo (`NOME_DO_WIFI`, `sua-chave-secreta`).
+- Os `.ino` já trazem a `DEVICE_KEY` do projeto (`labcam-2e6cfb01cf53`, a mesma do Render). Nunca deixar a senha do Wi-Fi real em `.ino` que vá para o GitHub; use `NOME_DO_WIFI` / `SENHA_DO_WIFI`.
 - O `.env` e `back/.banco-dados` não vão para o repositório.
 - Ao trabalhar com tensão da rede (127/220 V) em relé, avise o usuário sobre isolamento e peça supervisão de um professor.

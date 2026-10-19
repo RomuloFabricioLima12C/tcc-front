@@ -66,7 +66,7 @@ const char* WIFI_PASSWORD = "SENHA_DO_WIFI";
 //   na internet (Render): "https://labcam-api.onrender.com"
 //   no computador da rede: "http://192.168.0.10:3000" (IP do ipconfig)
 const char* SERVIDOR     = "https://labcam-api.onrender.com";
-const char* DEVICE_KEY   = "sua-chave-secreta";  // igual ao DEVICE_KEY do .env do backend
+const char* DEVICE_KEY   = "labcam-2e6cfb01cf53";  // igual ao DEVICE_KEY do .env do backend
 const int   USUARIO_ID   = 1;
 
 // Relé da fita de LED

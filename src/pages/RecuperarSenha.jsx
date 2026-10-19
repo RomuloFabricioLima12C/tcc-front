@@ -4,58 +4,63 @@ import { AccountLayout } from '../components/Layout.jsx'
 import ThemeCrop from '../components/ThemeImage.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import { SpacePanel } from './Auth.jsx'
-import { img, links } from '../assets.js'
+import { img } from '../assets.js'
+import { pedirCodigoSenha, redefinirSenha } from '../api.js'
+import { PasswordInput, RegrasSenha } from '../components/Senha.jsx'
+import { senhaValida } from '../senha.js'
 import '../styles/auth.css'
 
-// Regras da nova senha — cada uma aparece na lista e fica verde quando é cumprida.
-const passwordRules = [
-  { id: 'len', label: 'Pelo menos 8 caracteres', test: (s) => s.length >= 8 },
-  { id: 'upper', label: 'Uma letra maiúscula (A-Z)', test: (s) => /[A-Z]/.test(s) },
-  { id: 'lower', label: 'Uma letra minúscula (a-z)', test: (s) => /[a-z]/.test(s) },
-  { id: 'number', label: 'Um número (0-9)', test: (s) => /\d/.test(s) },
-  { id: 'special', label: 'Um caractere especial (!@#$%&*...)', test: (s) => /[^A-Za-z0-9\s]/.test(s) },
-  { id: 'space', label: 'Sem espaços', test: (s) => s.length > 0 && !/\s/.test(s) },
-]
-
-function PasswordInput({ id, value, onChange, show, onToggle, describedBy }) {
-  return (
-    <span className="auth-pass">
-      <input
-        id={id}
-        type={show ? 'text' : 'password'}
-        required
-        autoComplete="new-password"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        aria-describedby={describedBy}
-      />
-      <button type="button" className="auth-eye" onClick={onToggle} aria-pressed={show}>
-        {show ? 'Ocultar' : 'Mostrar'}
-      </button>
-    </span>
-  )
-}
-
-// A API ainda não troca a senha (para isso ela precisaria mandar um e-mail confirmando
-// que a conta é de quem pediu). A página valida as regras e, no fim, explica isso e
-// manda para o Suporte, em vez de dizer que a senha foi trocada.
+// Duas etapas: 1) a pessoa informa o e-mail e a API manda um código de 6 dígitos;
+// 2) ela digita o código e a nova senha, e a API troca a senha.
+// O código prova que a conta é de quem pediu.
 export default function RecuperarSenha() {
+  const [etapa, setEtapa] = useState('email') // 'email' -> 'codigo' -> 'pronto'
   const [email, setEmail] = useState('')
+  const [codigo, setCodigo] = useState('')
   const [senha, setSenha] = useState('')
   const [confirma, setConfirma] = useState('')
   const [show, setShow] = useState(false)
   const [tentou, setTentou] = useState(false)
-  const [pronto, setPronto] = useState(false)
+  const [erro, setErro] = useState('')
+  const [aviso, setAviso] = useState('')
+  const [enviando, setEnviando] = useState(false)
 
-  const results = passwordRules.map((r) => ({ ...r, ok: r.test(senha) }))
-  const regrasOk = results.every((r) => r.ok)
+  const regrasOk = senhaValida(senha)
   const iguais = confirma.length > 0 && confirma === senha
-  const valido = regrasOk && iguais
+  const codigoOk = /^\d{6}$/.test(codigo)
+  const valido = regrasOk && iguais && codigoOk
 
-  const onSubmit = (e) => {
+  // Etapa 1 (e o botão "Reenviar código")
+  const pedirCodigo = async (e) => {
+    e?.preventDefault()
+    setErro('')
+    setEnviando(true)
+    try {
+      const { mensagem } = await pedirCodigoSenha(email)
+      setAviso(mensagem)
+      setEtapa('codigo')
+    } catch (falha) {
+      setErro(falha.message)
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  // Etapa 2
+  const onSubmit = async (e) => {
     e.preventDefault()
     setTentou(true)
-    if (valido) setPronto(true)
+    setErro('')
+    if (!valido) return
+    setEnviando(true)
+    try {
+      await redefinirSenha(email, codigo, senha)
+      setEtapa('pronto')
+    } catch (falha) {
+      setErro(falha.message)
+    } finally {
+      setEnviando(false)
+    }
   }
 
   return (
@@ -70,25 +75,20 @@ export default function RecuperarSenha() {
             <ThemeToggle className="auth-toggle" />
           </div>
 
-          {pronto ? (
+          {etapa === 'pronto' ? (
             <div className="auth-form reset-done" role="status">
-              <h1>Quase lá!</h1>
-              <p className="auth-sub">
-                A troca de senha pelo site ainda não está disponível, então a senha de{' '}
-                <strong>{email}</strong> <strong>não foi alterada</strong>. Peça a troca pelo{' '}
-                <a href={links.faq} target="_blank" rel="noreferrer">
-                  Suporte
-                </a>{' '}
-                e continue entrando com a senha antiga até lá.
+              <h1>Senha alterada!</h1>
+              <p className="auth-sub reset-info">
+                A senha de <strong>{email}</strong> foi trocada. Entre com a senha nova.
               </p>
               <Link to="/login" className="auth-submit reset-back">
-                VOLTAR AO LOGIN
+                IR PARA O LOGIN
               </Link>
             </div>
-          ) : (
-            <form className="auth-form" onSubmit={onSubmit}>
+          ) : etapa === 'email' ? (
+            <form className="auth-form" onSubmit={pedirCodigo}>
               <h1>Esqueceu a senha?</h1>
-              <p className="auth-sub">Crie uma nova senha para a sua conta</p>
+              <p className="auth-sub reset-info">Informe o e-mail da conta. Vamos mandar um código para ele.</p>
 
               <label className="auth-field">
                 <span>E-mail</span>
@@ -98,6 +98,42 @@ export default function RecuperarSenha() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                />
+              </label>
+
+              {erro && (
+                <p className="auth-error" role="alert">
+                  {erro}
+                </p>
+              )}
+
+              <button type="submit" className="auth-submit reset-submit" disabled={enviando}>
+                {enviando ? 'ENVIANDO...' : 'ENVIAR CÓDIGO'}
+              </button>
+              <p className="auth-switch">
+                Lembrou a senha? <Link to="/login">Login</Link>
+              </p>
+            </form>
+          ) : (
+            <form className="auth-form" onSubmit={onSubmit}>
+              <h1>Crie a nova senha</h1>
+              <p className="auth-sub reset-info" role="status">
+                {aviso} Confira também a caixa de spam. Não chegou?{' '}
+                <button type="button" className="auth-link" onClick={pedirCodigo} disabled={enviando}>
+                  Reenviar código
+                </button>
+              </p>
+
+              <label className="auth-field">
+                <span>Código de 6 números</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  required
+                  maxLength={6}
+                  value={codigo}
+                  onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
                 />
               </label>
 
@@ -115,17 +151,7 @@ export default function RecuperarSenha() {
                 />
               </div>
 
-              <ul className="pass-rules" id="regras-senha" aria-label="Regras da senha">
-                {results.map((r) => (
-                  <li key={r.id} className={r.ok ? 'is-ok' : tentou ? 'is-bad' : ''}>
-                    <span className="pass-mark" aria-hidden="true">
-                      {r.ok ? '✓' : '•'}
-                    </span>
-                    {r.label}
-                    <span className="visually-hidden">{r.ok ? ' — cumprida' : ' — pendente'}</span>
-                  </li>
-                ))}
-              </ul>
+              <RegrasSenha id="regras-senha" senha={senha} tentou={tentou} />
 
               <div className="auth-field">
                 <label htmlFor="confirma-senha">
@@ -150,15 +176,23 @@ export default function RecuperarSenha() {
 
               {tentou && !valido && (
                 <p className="pass-error" role="alert">
-                  Confira as regras da senha antes de continuar.
+                  {codigoOk ? 'Confira as regras da senha antes de continuar.' : 'Digite o código de 6 números.'}
+                </p>
+              )}
+              {erro && (
+                <p className="auth-error" role="alert">
+                  {erro}
                 </p>
               )}
 
-              <button type="submit" className="auth-submit reset-submit">
-                REDEFINIR
+              <button type="submit" className="auth-submit reset-submit" disabled={enviando}>
+                {enviando ? 'SALVANDO...' : 'REDEFINIR'}
               </button>
               <p className="auth-switch">
-                Lembrou a senha? <Link to="/login">Login</Link>
+                E-mail errado?{' '}
+                <button type="button" className="auth-link" onClick={() => setEtapa('email')}>
+                  Trocar e-mail
+                </button>
               </p>
             </form>
           )}

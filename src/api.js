@@ -79,11 +79,30 @@ export const entrar = (email, senha) => api('/api/usuarios/login', { metodo: 'PO
 export const cadastrar = (nome, email, senha) =>
   api('/api/usuarios/cadastro', { metodo: 'POST', corpo: { nome, email, senha } })
 
+// "Esqueceu a senha?": 1) manda o código por e-mail; 2) troca a senha com o código
+export const pedirCodigoSenha = (email) => api('/api/usuarios/esqueci-senha', { metodo: 'POST', corpo: { email } })
+export const redefinirSenha = (email, codigo, senha) =>
+  api('/api/usuarios/redefinir-senha', { metodo: 'POST', corpo: { email, codigo, senha } })
+
 // Salva a fruta escolhida como foto de perfil e atualiza o usuário guardado no navegador
 export async function salvarAvatar(avatar) {
   await api('/api/usuarios/avatar', { metodo: 'PUT', corpo: { avatar } })
   const sessao = lerSessao()
-  if (sessao) salvarSessao(sessao.token, { ...sessao.usuario, avatar })
+  // Escolher uma fruta tira a foto enviada (a API faz o mesmo)
+  if (sessao) salvarSessao(sessao.token, { ...sessao.usuario, avatar, foto: null })
+}
+
+// Foto do próprio aparelho (já reduzida por fotoPerfil.js), no formato "data:image/jpeg;base64,..."
+export async function salvarFoto(foto) {
+  await api('/api/usuarios/foto', { metodo: 'PUT', corpo: { foto } })
+  const sessao = lerSessao()
+  if (sessao) salvarSessao(sessao.token, { ...sessao.usuario, foto })
+}
+
+export async function removerFoto() {
+  await api('/api/usuarios/foto', { metodo: 'DELETE' })
+  const sessao = lerSessao()
+  if (sessao) salvarSessao(sessao.token, { ...sessao.usuario, foto: null })
 }
 export const listarAlimentos = () => api('/api/alimentos')
 export const listarVencendo = (dias = 3) => api(`/api/alimentos/vencendo?dias=${dias}`)

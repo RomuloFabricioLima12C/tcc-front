@@ -324,7 +324,7 @@
   margin-top: clamp(20px, 4vh, 36px);
 }
 
-.auth-reset .auth-field label {
+.auth-field label {
   display: block;
 }
 
@@ -532,6 +532,32 @@
 .auth-submit:disabled {
   cursor: wait;
   filter: saturate(0.6);
+}
+
+/* ============ Esqueceu a senha: textos longos e botões com cara de link ============ */
+.auth-reset .auth-form > .auth-sub.reset-info {
+  white-space: normal;
+}
+
+.auth-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-family: var(--font-display);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.auth-link:hover {
+  color: var(--green);
+}
+
+.auth-link:disabled {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 @media (max-width: 767px) {

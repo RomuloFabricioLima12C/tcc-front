@@ -1,12 +1,14 @@
 // =====================================================================
-// Rotas de usuários: cadastro, login e "quem sou eu".
+// Rotas de usuários: cadastro, login, "esqueci a senha" e "quem sou eu".
 // =====================================================================
+const crypto = require('crypto')
 const express = require('express')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { query } = require('../db')
 const auth = require('../middleware/auth')
 const { validarSenha, validarEmail } = require('../validacao')
+const { enviarEmail } = require('../servicos/email')
 
 const router = express.Router()
 
@@ -55,7 +57,7 @@ router.post('/cadastro', async (req, res, next) => {
     const resultado = await query(
       `INSERT INTO usuarios (nome, email, senha_hash)
        VALUES ($1, $2, $3)
-       RETURNING id, nome, email, avatar, criado_em`,
+       RETURNING id, nome, email, avatar, foto, criado_em`,
       [nome.trim(), emailNormal, senhaHash],
     )
     const usuario = resultado.rows[0]
@@ -81,7 +83,7 @@ router.post('/login', async (req, res, next) => {
     }
 
     const resultado = await query(
-      'SELECT id, nome, email, avatar, senha_hash FROM usuarios WHERE email = $1',
+      'SELECT id, nome, email, avatar, foto, senha_hash FROM usuarios WHERE email = $1',
       [email.trim().toLowerCase()],
     )
     const usuario = resultado.rows[0]
@@ -93,8 +95,116 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ erro: 'E-mail ou senha incorretos.' })
     }
 
-    const dados = { id: usuario.id, nome: usuario.nome, email: usuario.email, avatar: usuario.avatar }
+    const dados = { id: usuario.id, nome: usuario.nome, email: usuario.email, avatar: usuario.avatar, foto: usuario.foto }
     return res.json({ token: gerarToken(dados), usuario: dados })
+  } catch (erro) {
+    return next(erro)
+  }
+})
+
+// ---------------------------------------------------------------------
+// "Esqueceu a senha?" em dois passos:
+//   1) POST /api/usuarios/esqueci-senha    { email }  -> manda um código de 6 dígitos por e-mail
+//   2) POST /api/usuarios/redefinir-senha  { email, codigo, senha } -> troca a senha
+// O código vale 15 minutos e aceita 5 tentativas; só o hash dele fica no banco.
+// ---------------------------------------------------------------------
+const MINUTOS_CODIGO = 15
+const TENTATIVAS_CODIGO = 5
+
+router.post('/esqueci-senha', async (req, res, next) => {
+  try {
+    const { email } = req.body || {}
+    const erroEmail = validarEmail(email)
+    if (erroEmail) return res.status(400).json({ erro: erroEmail })
+
+    // Mesma resposta exista a conta ou não: assim ninguém descobre quais e-mails estão cadastrados
+    const resposta = { ok: true, mensagem: 'Se existir uma conta com esse e-mail, enviamos um código para ele.' }
+
+    const emailNormal = email.trim().toLowerCase()
+    const { rows } = await query('SELECT id FROM usuarios WHERE email = $1', [emailNormal])
+    const usuario = rows[0]
+    if (!usuario) return res.json(resposta)
+
+    // No máximo um código por minuto para cada conta (evita encher a caixa de e-mail de alguém)
+    const recente = await query(
+      "SELECT 1 FROM codigos_senha WHERE usuario_id = $1 AND criado_em > NOW() - INTERVAL '1 minute'",
+      [usuario.id],
+    )
+    if (recente.rowCount > 0) return res.json(resposta)
+
+    const codigo = crypto.randomInt(0, 1000000).toString().padStart(6, '0')
+    await query(
+      `INSERT INTO codigos_senha (usuario_id, codigo_hash, expira_em)
+       VALUES ($1, $2, NOW() + make_interval(mins => $3))
+       ON CONFLICT (usuario_id) DO UPDATE
+         SET codigo_hash = EXCLUDED.codigo_hash, expira_em = EXCLUDED.expira_em, tentativas = 0, criado_em = NOW()`,
+      [usuario.id, await bcrypt.hash(codigo, RODADAS_BCRYPT), MINUTOS_CODIGO],
+    )
+
+    try {
+      await enviarEmail({
+        para: emailNormal,
+        assunto: `Seu código LightLab: ${codigo}`,
+        texto:
+          `Seu código para criar uma nova senha no LightLab é ${codigo}.\n` +
+          `Ele vale ${MINUTOS_CODIGO} minutos. Se não foi você que pediu, ignore este e-mail.`,
+        html:
+          `<p>Seu código para criar uma nova senha no LightLab é:</p>` +
+          `<p style="font-size:28px;font-weight:bold;letter-spacing:6px">${codigo}</p>` +
+          `<p>Ele vale ${MINUTOS_CODIGO} minutos. Se não foi você que pediu, ignore este e-mail.</p>`,
+      })
+    } catch (falha) {
+      console.error('[email] Não foi possível enviar o código:', falha.message)
+      await query('DELETE FROM codigos_senha WHERE usuario_id = $1', [usuario.id])
+      return res.status(503).json({ erro: 'Não foi possível enviar o e-mail agora. Tente de novo em alguns minutos.' })
+    }
+
+    return res.json(resposta)
+  } catch (erro) {
+    return next(erro)
+  }
+})
+
+router.post('/redefinir-senha', async (req, res, next) => {
+  try {
+    const { email, codigo, senha } = req.body || {}
+    const erroEmail = validarEmail(email)
+    if (erroEmail) return res.status(400).json({ erro: erroEmail })
+    if (typeof codigo !== 'string' || !/^\d{6}$/.test(codigo.trim())) {
+      return res.status(400).json({ erro: 'O código tem 6 números.' })
+    }
+    const erroSenha = validarSenha(senha)
+    if (erroSenha) return res.status(400).json({ erro: erroSenha })
+
+    // Gasta uma tentativa antes de conferir (de uma vez só, então dois pedidos juntos não furam o limite)
+    const { rows } = await query(
+      `UPDATE codigos_senha c
+          SET tentativas = c.tentativas + 1
+         FROM usuarios u
+        WHERE u.id = c.usuario_id AND u.email = $1
+          AND c.expira_em > NOW() AND c.tentativas < $2
+       RETURNING c.usuario_id, c.codigo_hash, c.tentativas`,
+      [email.trim().toLowerCase(), TENTATIVAS_CODIGO],
+    )
+    const pedido = rows[0]
+    if (!pedido) {
+      return res.status(400).json({ erro: 'Código vencido ou inválido. Peça um código novo.' })
+    }
+
+    if (!(await bcrypt.compare(codigo.trim(), pedido.codigo_hash))) {
+      const restam = TENTATIVAS_CODIGO - pedido.tentativas
+      return res.status(400).json({
+        erro: restam > 0 ? `Código incorreto. Restam ${restam} tentativa(s).` : 'Código incorreto. Peça um código novo.',
+      })
+    }
+
+    await query('UPDATE usuarios SET senha_hash = $1 WHERE id = $2', [
+      await bcrypt.hash(senha, RODADAS_BCRYPT),
+      pedido.usuario_id,
+    ])
+    await query('DELETE FROM codigos_senha WHERE usuario_id = $1', [pedido.usuario_id])
+
+    return res.json({ ok: true, mensagem: 'Senha alterada. Entre com a senha nova.' })
   } catch (erro) {
     return next(erro)
   }
@@ -106,8 +216,8 @@ router.post('/login', async (req, res, next) => {
 // ---------------------------------------------------------------------
 router.get('/eu', auth, async (req, res, next) => {
   try {
-    const resultado = await query('SELECT id, nome, email, avatar, criado_em FROM usuarios WHERE id = $1', [
-      req.usuario.id,
+    const resultado = await query('SELECT id, nome, email, avatar, foto, criado_em FROM usuarios WHERE id = $1', [
+      req.conta.id,
     ])
     if (resultado.rowCount === 0) return res.status(404).json({ erro: 'Usuário não encontrado.' })
     return res.json(resultado.rows[0])
@@ -130,12 +240,55 @@ router.put('/avatar', auth, async (req, res, next) => {
       return res.status(400).json({ erro: 'Escolha uma das frutas da lista.' })
     }
 
-    const resultado = await query('UPDATE usuarios SET avatar = $1 WHERE id = $2 RETURNING avatar', [
+    const resultado = await query('UPDATE usuarios SET avatar = $1, foto = NULL WHERE id = $2 RETURNING avatar', [
       avatar,
-      req.usuario.id,
+      req.conta.id,
     ])
     if (resultado.rowCount === 0) return res.status(404).json({ erro: 'Usuário não encontrado.' })
     return res.json({ avatar: resultado.rows[0].avatar })
+  } catch (erro) {
+    return next(erro)
+  }
+})
+
+// ---------------------------------------------------------------------
+// PUT /api/usuarios/foto  (precisa de token)
+// Corpo: { "foto": "data:image/jpeg;base64,..." } — o site já reduz a foto para 256x256.
+// DELETE /api/usuarios/foto tira a foto (volta a aparecer a fruta).
+// ---------------------------------------------------------------------
+const FOTO_MAX_BYTES = 150 * 1024
+const FOTO_REGEX = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/]+={0,2})$/
+
+// Confere os primeiros bytes: precisa ser mesmo uma imagem JPEG, PNG ou WebP
+function ehImagem(bytes) {
+  const jpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff
+  const png = bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+  const webp = bytes.subarray(0, 4).toString('ascii') === 'RIFF' && bytes.subarray(8, 12).toString('ascii') === 'WEBP'
+  return jpeg || png || webp
+}
+
+router.put('/foto', auth, async (req, res, next) => {
+  try {
+    const { foto } = req.body || {}
+    const partes = typeof foto === 'string' ? FOTO_REGEX.exec(foto) : null
+    if (!partes) return res.status(400).json({ erro: 'Envie uma imagem JPEG, PNG ou WebP.' })
+
+    const bytes = Buffer.from(partes[2], 'base64')
+    if (bytes.length > FOTO_MAX_BYTES) return res.status(413).json({ erro: 'A foto é grande demais.' })
+    if (!ehImagem(bytes)) return res.status(400).json({ erro: 'O arquivo enviado não é uma imagem.' })
+
+    const resultado = await query('UPDATE usuarios SET foto = $1 WHERE id = $2 RETURNING foto', [foto, req.conta.id])
+    if (resultado.rowCount === 0) return res.status(404).json({ erro: 'Usuário não encontrado.' })
+    return res.json({ foto: resultado.rows[0].foto })
+  } catch (erro) {
+    return next(erro)
+  }
+})
+
+router.delete('/foto', auth, async (req, res, next) => {
+  try {
+    await query('UPDATE usuarios SET foto = NULL WHERE id = $1', [req.conta.id])
+    return res.json({ foto: null })
   } catch (erro) {
     return next(erro)
   }

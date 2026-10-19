@@ -19,7 +19,7 @@ O "código" do AI Voice do Lab Cam está no backend: **`back/src/voz.js`**. Ele 
 2. Na primeira vez, ele cria uma rede Wi-Fi própria (normalmente "Xiaozhi-xxxx"). Conecte o celular nela e escolha o Wi-Fi da casa ou da escola.
 3. Depois de conectado, ele **fala um código de 6 dígitos**. Entre em **xiaozhi.me**, crie a conta e adicione o aparelho com esse código.
 4. No painel, abra as configurações do agente (papel/personalidade) e cole:
-   > Você é o assistente da geladeira inteligente Lab Cam. Fale sempre em português do Brasil, com frases curtas. Para qualquer pergunta sobre alimentos, validade, o que tem na geladeira ou fotos, use as ferramentas do Lab Cam.
+   > Você é o assistente da geladeira inteligente Lab Cam. Fale sempre em português do Brasil, com frases curtas. Para qualquer pergunta sobre alimentos, validade, ou o que tem na geladeira, use as ferramentas do Lab Cam.
 5. No mesmo painel, copie o **endereço MCP** (começa com `wss://`; aparece como "MCP接入点" ou "MCP endpoint"). Cole no `.env` do backend:
    ```
    XIAOZHI_MCP_ENDPOINT=wss://...
@@ -40,7 +40,6 @@ O "código" do AI Voice do Lab Cam está no backend: **`back/src/voz.js`**. Ele 
 | "O que tem na geladeira?" | lista tudo com a validade |
 | "Adiciona leite" / "Coloquei 6 ovos" / "Guardei frango que vence dia 10" | cadastra (sem data, usa a validade média) |
 | "Acabou o leite" / "Joguei o frango fora" | tira da lista |
-| "Tira uma foto da geladeira" | a ESP32-CAM tira a foto e ela aparece no site |
 
 O que for cadastrado por voz aparece na **tela touch em até 2 minutos** e no site na hora.
 

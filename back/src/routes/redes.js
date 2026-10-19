@@ -33,14 +33,9 @@ router.get('/placa', deviceAuth, async (req, res, next) => {
   }
 })
 
-// Daqui para baixo: site. As placas pertencem ao dono da geladeira (DEVICE_USER_ID),
-// então só essa conta pode ver e trocar o Wi-Fi delas.
-router.use(auth, (req, res, next) => {
-  if (req.usuario.id !== Number(process.env.DEVICE_USER_ID)) {
-    return res.status(403).json({ erro: 'Só a conta dona da geladeira pode mudar o Wi-Fi das placas.' })
-  }
-  return next()
-})
+// Daqui para baixo: site. Toda conta é dona da geladeira, então qualquer conta
+// com login pode ver e trocar o Wi-Fi das placas.
+router.use(auth)
 
 function lerId(req, res) {
   const id = Number(req.params.id)

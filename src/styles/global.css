@@ -454,6 +454,13 @@ img {
   color: #fff;
   font-size: 15px;
   line-height: 1;
+  overflow: hidden;
+}
+
+.hc-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .hc-nome {

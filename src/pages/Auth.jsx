@@ -6,6 +6,8 @@ import ThemeCrop from '../components/ThemeImage.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import { img } from '../assets.js'
 import { cadastrar, entrar, salvarSessao } from '../api.js'
+import { PasswordInput, RegrasSenha } from '../components/Senha.jsx'
+import { senhaValida } from '../senha.js'
 import '../styles/auth.css'
 
 const copy = {
@@ -52,10 +54,19 @@ export default function Auth({ mode }) {
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
   const [enviando, setEnviando] = useState(false)
+  const [mostrar, setMostrar] = useState(false)
+  const [tentou, setTentou] = useState(false)
 
   const onSubmit = async (e) => {
     e.preventDefault()
     setErro('')
+    if (mode === 'cadastro') {
+      setTentou(true)
+      if (!senhaValida(senha)) {
+        setErro('A senha ainda não cumpre todas as regras da lista.')
+        return
+      }
+    }
     setEnviando(true)
     try {
       // Login entra na conta; Cadastro cria a conta (o nome vem do começo do e-mail)
@@ -96,16 +107,22 @@ export default function Auth({ mode }) {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </label>
-            <label className="auth-field">
-              <span>Senha</span>
-              <input
-                type="password"
-                required
-                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+            <div className="auth-field">
+              <label htmlFor="senha">
+                <span>Senha</span>
+              </label>
+              <PasswordInput
+                id="senha"
                 value={senha}
-                onChange={(e) => setSenha(e.target.value)}
+                onChange={setSenha}
+                show={mostrar}
+                onToggle={() => setMostrar((v) => !v)}
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                describedBy={mode === 'cadastro' ? 'regras-senha' : undefined}
               />
-            </label>
+            </div>
+            {/* No cadastro, as regras aparecem e ficam verdes enquanto a pessoa digita */}
+            {mode === 'cadastro' && <RegrasSenha id="regras-senha" senha={senha} tentou={tentou} />}
             {mode === 'login' && (
               <p className="auth-forgot">
                 <Link to="/esqueci-senha">Esqueceu a senha?</Link>

@@ -19,7 +19,7 @@
 //  (código da equipe de robótica, ligado aos módulos deste backend)
 // ============================================================
 const alimentos = require('./servicos/alimentos');
-const camera = require('./servicos/camera');
+const { idDaGeladeira } = require('./servicos/geladeira');
 
 // ---------------- Ajudas para montar frases ----------------
 function quandoVence(dias) {
@@ -115,20 +115,6 @@ const FERRAMENTAS = [
       return `Pronto, ${item.nome} saiu da lista.`;
     },
   },
-  {
-    name: 'tirar_foto_geladeira',
-    description: 'Geladeira Lab Cam: pede para a câmera da geladeira tirar uma foto agora. '
-      + 'A foto aparece no site, na página Relatório.',
-    inputSchema: { type: 'object', properties: {} },
-    async executar(args, ctx) {
-      const pedidoEm = new Date();
-      camera.pedirFoto();
-      const foto = await camera.esperarFotoNova(ctx.usuarioId, pedidoEm, 12);
-      return foto
-        ? 'Foto tirada! Ela já está no site, na página Relatório.'
-        : 'Pedi a foto para a câmera. Se ela estiver ligada, a foto aparece no site em alguns segundos.';
-    },
-  },
 ];
 
 // ---------------- Protocolo MCP (JSON-RPC) ----------------
@@ -159,7 +145,10 @@ async function responder(msg, ctx) {
       const ferramenta = FERRAMENTAS.find((f) => f.name === nome);
       if (!ferramenta) return erro(-32602, `Ferramenta desconhecida: ${nome}`);
       try {
-        const texto = await ferramenta.executar(msg.params?.arguments || {}, ctx);
+        // A voz mexe na mesma geladeira do site e das placas
+        const usuarioId = ctx?.usuarioId ?? await idDaGeladeira();
+        if (!usuarioId) return ok({ content: [{ type: 'text', text: 'Ainda não tem nenhuma conta criada no site do Lab Cam.' }] });
+        const texto = await ferramenta.executar(msg.params?.arguments || {}, { ...ctx, usuarioId });
         console.log(`[voz] ${nome}(${JSON.stringify(msg.params?.arguments || {})}) -> ${texto}`);
         return ok({ content: [{ type: 'text', text: texto }] });
       } catch (e) {
@@ -174,12 +163,12 @@ async function responder(msg, ctx) {
 }
 
 // ---------------- Conexão com o Xiaozhi ----------------
-function iniciarVoz({ endpoint, usuarioId }) {
+function iniciarVoz({ endpoint }) {
   if (!endpoint) {
     console.log('[voz] XIAOZHI_MCP_ENDPOINT vazio: assistente de voz desligado');
     return;
   }
-  const ctx = { usuarioId };
+  const ctx = {};
   let tentativas = 0;
 
   // Caiu ou não conectou: tenta de novo em 1 s, 2 s, 4 s... até 1 min

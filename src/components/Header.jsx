@@ -87,7 +87,8 @@ export default function Header() {
               </NavLink>
               <NavLink to="/perfil" className="hc-conta" title={`Logado como ${nome}`}>
                 <span className="hc-avatar" aria-hidden="true">
-                  {nome.charAt(0).toUpperCase()}
+                  {/* Foto enviada pela pessoa; sem foto, a primeira letra do nome */}
+                  {sessao.usuario?.foto ? <img src={sessao.usuario.foto} alt="" /> : nome.charAt(0).toUpperCase()}
                 </span>
                 <span className="hc-nome">{nome.split(/[\s@]/)[0]}</span>
               </NavLink>
