@@ -1,6 +1,7 @@
 import { SiteLayout } from '../components/Layout.jsx'
 import Crop from '../components/Crop.jsx'
-import { Button, SectionTitle, Sparkle, Stripes, VideoCard } from '../components/Bits.jsx'
+import { useEffect, useRef, useState } from 'react'
+import { Button, SectionTitle, Sparkle, Stripes } from '../components/Bits.jsx'
 import { VideoDecor } from './Projeto.jsx'
 import { img, links } from '../assets.js'
 import '../styles/projeto.css'
@@ -24,6 +25,45 @@ export function InterestCard({ text, action, compact = false }) {
   )
 }
 
+// O jogo "Frutas Podres" é um HTML separado (public/jogos/frutas-podres.html).
+// Ele roda dentro de um iframe, e a altura acompanha o tamanho do jogo
+// (no celular os botões ficam embaixo da tela e ele fica mais alto).
+function GameFrame() {
+  const frame = useRef(null)
+  const [altura, setAltura] = useState(640)
+
+  useEffect(() => {
+    const el = frame.current
+    let observador
+    const medir = () => {
+      const doc = el?.contentDocument
+      if (doc?.body) setAltura(doc.body.scrollHeight)
+    }
+    const aoCarregar = () => {
+      medir()
+      observador = new ResizeObserver(medir)
+      observador.observe(el.contentDocument.body)
+    }
+    el.addEventListener('load', aoCarregar)
+    if (el.contentDocument?.readyState === 'complete') aoCarregar()
+    return () => {
+      el.removeEventListener('load', aoCarregar)
+      observador?.disconnect()
+    }
+  }, [])
+
+  return (
+    <iframe
+      ref={frame}
+      src={links.jogo}
+      title="Jogo Frutas Podres"
+      className="game-frame"
+      style={{ height: altura }}
+      allow="autoplay; fullscreen"
+    />
+  )
+}
+
 export default function Jogo() {
   return (
     <SiteLayout title="Nosso game">
@@ -33,7 +73,7 @@ export default function Jogo() {
         </SectionTitle>
         <div className="video-wrap">
           <VideoDecor plainBurst />
-          <VideoCard title="trailer do Freezer Escape" />
+          <GameFrame />
         </div>
       </section>
 
@@ -59,7 +99,7 @@ export default function Jogo() {
         <div className="interest-row">
           <InterestCard
             text="Entre nessa aventura gelada, enfrente o terrível Rei Mofão e descubra se você consegue salvar a geladeira antes que todos os alimentos sejam perdidos!"
-            action={<Button href={links.jogo}>JOGAR</Button>}
+            action={<Button href={links.jogo}>JOGAR EM TELA CHEIA</Button>}
           />
           <Crop s={img.characters} alt="Personagens do jogo" className="game-characters" />
         </div>

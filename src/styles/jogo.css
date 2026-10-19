@@ -301,3 +301,15 @@
     top: auto;
     margin: 16px 0 -40px auto;
   }}
+
+/* Jogo Frutas Podres dentro da página (iframe) */
+.game-frame {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius-card);
+  background: #1b1711; /* mesma cor de fundo do jogo */
+  filter: drop-shadow(0 4px 2px rgba(0, 0, 0, 0.69));
+}

@@ -148,7 +148,7 @@ export const links = {
   contato:
     'https://docs.google.com/forms/d/e/1FAIpQLSdY4md4Ae555KJaiwJridBaJFBsjwxvO7ZzLC86b0eL7r5lFQ/viewform?usp=publish-editor',
   faq: 'https://docs.google.com/forms/d/e/1FAIpQLSfwXNpS_fgRojmjS0fnF0WOaI9_c9e_ejyEnvuW59xaopeNsQ/viewform?usp=publish-editor',
-  jogo: 'https://gd.games/games/65541e20-0dd7-4d96-b6e8-9c42480f8411',
+  jogo: '/jogos/frutas-podres.html', // o jogo fica em public/jogos
   instagram: {
     laura: 'https://www.instagram.com/laurarodrigues_araujo/',
     victor: 'https://www.instagram.com/oli.fustte/',
