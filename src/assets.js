@@ -6,6 +6,10 @@ const f = (name) => `/figma/${name}`
 
 const crop = (file, w, h, iw, ih, l, t, extra = {}) => ({ src: f(file), w, h, iw, ih, l, t, ...extra })
 
+// Fotos de componentes que não vieram do Figma (public/componentes/, já sem fundo):
+// a imagem inteira ocupa o quadro, então funcionam com o mesmo <Crop>.
+const foto = (file, w, h) => ({ src: `/componentes/${file}`, w, h, iw: 100, ih: 100, l: 0, t: 0 })
+
 export const img = {
   // Marca
   logo: crop('eef0f.png', 163, 124, 625.06, 1155.88, -37.46, -113.96),
@@ -69,8 +73,12 @@ export const img = {
   lcd: crop('aebc9.png', 312, 196, 169.91, 152.11, -34.16, -24.51),
   esp32: crop('3c790.png', 209, 224, 234.15, 122.87, -62.07, -8.08),
   esp32cam: crop('87456.png', 228, 195, 217.69, 143.05, -58.84, -16.56),
-  leds: crop('9ed60.png', 343, 204, 140.66, 133.33, -19.93, -10.37),
-  aiVoice: crop('bfef8.png', 205, 233, 276.66, 136.71, -90.49, -15.57),
+  // Tamanhos (w × h) na proporção de cada foto, com a largura que ela ocupa no card
+  fitaLed: foto('fita-led.webp', 230, 259),
+  rele: foto('rele.webp', 270, 234),
+  fonte: foto('fonte.webp', 270, 248),
+  aiVoice: foto('ai-voice.webp', 300, 180),
+  expansaoEsp32: foto('expansao-esp32.webp', 260, 196),
 
   // Relatório
   chart: crop('f45da.png', 995, 428, 100, 155, 0, -33.75),

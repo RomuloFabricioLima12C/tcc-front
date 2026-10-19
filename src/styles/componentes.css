@@ -119,16 +119,6 @@
   max-width: 70%;
 }
 
-.tilt-leds {
-  margin: 0 -34px;
-}
-
-.tilt-leds .crop {
-  rotate: -7.3deg;
-  border-radius: 21px;
-  --cw: 343px;
-}
-
 .comp-card p {
   font-size: clamp(18px, 1.67vw, 24px);
 }
@@ -206,10 +196,6 @@
   .comp-media {
     min-height: 90px;
     padding: 8px 0;
-  }
-
-  .tilt-leds {
-    margin: 0 -10px;
   }
 
   .comp-card p {
