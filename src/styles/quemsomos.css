@@ -6,12 +6,12 @@
 /* ============ Equipe ============ */
 /* Cada foto fica numa caixa quadrada (--box) com o círculo do mesmo tamanho e centro. */
 .team {
-  --box: clamp(150px, 16.7vw, 240px);
+  --box: clamp(110px, 14vw, 210px);
   list-style: none;
   padding: 0;
   margin: 70px 0 0;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -42,7 +42,7 @@
 }
 
 .team-text h2 {
-  font-size: clamp(24px, 2.5vw, 36px);
+  font-size: clamp(20px, 2.5vw, 36px); /* 20px no tablet: "Laura e Victor" cabe nas 5 colunas */
   color: var(--text);
   white-space: nowrap;
 }
@@ -210,15 +210,18 @@
     width: auto;
   }
 
+  /* 3 em cima e 2 centralizados embaixo */
   .team {
     --box: 84px;
     margin: 30px 0 0;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 30px 4px;
   }
 
-  .team-member:last-child {
-    grid-column: 1 / -1;
+  .team-member {
+    width: calc((100% - 8px) / 3);
   }
 
   .team-text {

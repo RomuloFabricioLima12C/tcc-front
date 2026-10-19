@@ -6,9 +6,9 @@ const f = (name) => `/figma/${name}`
 
 const crop = (file, w, h, iw, ih, l, t, extra = {}) => ({ src: f(file), w, h, iw, ih, l, t, ...extra })
 
-// Fotos de componentes que não vieram do Figma (public/componentes/, já sem fundo):
+// Imagens que não vieram do Figma (public/componentes/ e public/equipe/, já sem fundo):
 // a imagem inteira ocupa o quadro, então funcionam com o mesmo <Crop>.
-const foto = (file, w, h) => ({ src: `/componentes/${file}`, w, h, iw: 100, ih: 100, l: 0, t: 0 })
+const foto = (file, w, h, pasta = 'componentes') => ({ src: `/${pasta}/${file}`, w, h, iw: 100, ih: 100, l: 0, t: 0 })
 
 export const img = {
   // Marca
@@ -68,6 +68,9 @@ export const img = {
   teamEnzoDark: crop('6bd48-escuro.png', 324, 286, 156.99, 100, -28.86, 0),
   teamRomuloDark: crop('df046-escuro.png', 343, 307, 159.47, 100, -27.91, 0),
   teamGabrielDark: crop('c6b01-escuro.png', 301, 286, 178.77, 105.68, -40.78, 0),
+  // Lucca: montada fora do Figma (public/equipe/), no mesmo estilo das outras
+  teamLucca: foto('lucca.webp', 1000, 900, 'equipe'),
+  teamLuccaDark: foto('lucca-escuro.webp', 1000, 900, 'equipe'),
 
   // Componentes
   lcd: crop('aebc9.png', 312, 196, 169.91, 152.11, -34.16, -24.51),
@@ -163,5 +166,6 @@ export const links = {
     enzo: 'https://www.instagram.com/_enzxy_?stkn=MWNhcnRndXNid2gzdQ==',
     gabriel: 'https://www.instagram.com/gfelix270109?stkn=YWlhbGN3bWt3MmJs',
     romulo: 'https://www.instagram.com/rml.og/',
+    lucca: 'https://www.instagram.com/luccachgs_/',
   },
 }

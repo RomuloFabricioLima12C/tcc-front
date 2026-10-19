@@ -37,6 +37,13 @@ const team = [
     photoDark: img.teamGabrielDark,
     fit: { w: 1.2438, x: -0.1902, y: -0.0851 },
   },
+  {
+    name: 'Lucca',
+    role: 'Design e finanças',
+    photo: img.teamLucca,
+    photoDark: img.teamLuccaDark,
+    fit: { w: 1.722, x: -0.309, y: -0.309 },
+  },
 ]
 
 const socials = [
@@ -45,6 +52,7 @@ const socials = [
   { label: 'ENZO', href: links.instagram.enzo },
   { label: 'RÔMULO', href: links.instagram.romulo },
   { label: 'GABRIEL', href: links.instagram.gabriel },
+  { label: 'LUCCA', href: links.instagram.lucca },
 ]
 
 const green = 'rgba(0, 218, 58, 0.41)'
