@@ -1,7 +1,7 @@
 # Lab Cam — código final do ESP32 principal (tela 2,4")
 
 ## Arquivos
-- `esp32_principal/esp32_principal.ino` → código final da placa principal (tela com as abas Cadastrar e Validades, touch, relé e sensor de porta)
+- `esp32_principal/esp32_principal.ino` → código final da placa principal (tela com as abas Cadastrar e Validades e touch)
 - `esp32_principal/imagens.h` → frutinhas do site convertidas para a tela (deixe na mesma pasta do .ino)
 - `User_Setup.h` → configuração da tela para a biblioteca TFT_eSPI
 - `previa_telas_2_4.png` → como as telas ficam
@@ -41,12 +41,8 @@
 
 | Peça | Pino | ESP32 |
 |---|---|---|
-| Relé (fita de LED) | IN | GPIO26 |
-| Relé | VCC / GND | 5V da fonte / GND |
-| Sensor de porta (reed switch), opcional | um fio | GPIO32 |
-| Sensor de porta | outro fio | GND |
 
-Se o relé estiver ligado na ESP32-CAM e não aqui, mude `USAR_RELE` para `false` no topo do código.
+O relé da fita de LED agora fica na **ESP32-CAM (GPIO13)**, por isso aqui `USAR_RELE` está `false`. Se um dia ele voltar para esta placa (IN no GPIO26), mude para `true`.
 
 ## Se o touch não responder
 1. Abra o Monitor Serial (115200). Ao ligar, aparece `Touch: pressao no boot = ...`. Ao tocar, deve aparecer `[TOQUE] x=... y=...`.
@@ -57,5 +53,4 @@ Se o relé estiver ligado na ESP32-CAM e não aqui, mude `USAR_RELE` para `false
 ## O que a tela faz
 - **CADASTRAR:** 6 alimentos. Toque → confirmação → envia para `POST /api/alimentos` (manda `nome`, `quantidade`, `validade_dias`, `data_validade` e `origem: "touch"`).
 - **VALIDADES:** lista do backend (`GET /api/alimentos`), aceita `dias_restantes` ou `data_validade`. Selo vermelho, laranja ou verde. A bolinha vermelha na aba mostra quantos vencem em até 2 dias. Atualiza sozinha a cada 2 minutos (pega o que foi cadastrado pela voz ou pelo site).
-- **Porta abriu** (se tiver o sensor): acende a fita de LED por 15 s e pede uma foto à ESP32-CAM (`POST /api/comando {acao:"foto"}`). Isso acontece por trás, sem aparecer na tela.
 - O AI Voice (Xiaozhi) é outra placa e não liga fio aqui. Ele conversa com o backend (`back/src/voz.js`).

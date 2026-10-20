@@ -1,8 +1,8 @@
 // =====================================================================
 // Fotos da ESP32-CAM e o "pedido de foto".
 //
-// Quem PEDE uma foto: o site (botão "Ver câmera"), a ESP32 principal
-// (quando a porta da geladeira abre) ou o assistente de voz.
+// Quem PEDE uma foto: o site (botão "Ver câmera")
+// ou outra placa (POST /api/comando).
 // Quem ATENDE: a ESP32-CAM, que pergunta a cada 3 s em GET /api/comando.
 // (baseado no backend da equipe de robótica; aqui a foto fica no banco)
 // =====================================================================

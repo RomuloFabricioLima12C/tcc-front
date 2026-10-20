@@ -4,8 +4,7 @@
   ============================================================
   - Conecta no Wi-Fi.
   - A cada 3 s pergunta ao backend se alguém pediu foto
-    (GET /api/comando). Quem pede: o site, a ESP32 principal
-    quando a porta abre.
+    (GET /api/comando). Quem pede: o botão "Ver câmera" do site.
   - Tira uma foto automática a cada 10 min.
   - Wi-Fi trocado pelo site (página "Wi-Fi das placas"): a cada 1 min
     a placa baixa a lista de redes e guarda na memória. Ao ligar,
@@ -16,9 +15,10 @@
     resposta do GET /api/comando traz "video":true e a câmera manda
     quadros seguidos (POST /api/video/quadro) até ninguém mais assistir.
     O flash não acende no vídeo (esquentaria a placa).
-
-  A fita de LED (relé) fica na ESP32 principal. Aqui só usamos o
-  flash pequeno da própria placa (GPIO4), que pode ser desligado.
+  - Fita de LED (módulo relé no GPIO13): acende SÓ enquanto alguém
+    assiste o vídeo da câmera no site e apaga uns segundos depois que
+    a pessoa sai da página. Fotos (botão do site, automática) não acendem
+    a fita; nelas só o flash pequeno da placa (GPIO4), que pode ser desligado.
 
   Arduino IDE:
     Placa: "AI Thinker ESP32-CAM"
@@ -54,6 +54,11 @@ const unsigned long INTERVALO_QUADRO_MS  = 100;                  // vídeo: no m
 const unsigned long INTERVALO_REDES_MS   = 60000;                // pergunta a lista de redes (1 min)
 
 #define USAR_FLASH true   // false = não acende o LED da placa na foto
+
+// Relé da fita de LED (fio IN do módulo no GPIO13). Liga só com o vídeo ao vivo aberto no site.
+#define USAR_RELE          true
+#define PINO_RELE          13
+#define RELE_ATIVO_EM_LOW  true    // a maioria dos módulos liga com LOW; se a fita acender ao contrário, troque para false
 // ==================================================
 
 // Pinos da câmera na placa AI Thinker (já ligados de fábrica, não mexer)
@@ -287,10 +292,22 @@ void perguntarComando(bool& foto, bool& video) {
   http.end();
 }
 
+// Liga/desliga a fita de LED pelo relé
+bool releLigado = false;
+void rele(bool ligar) {
+#if USAR_RELE
+  if (ligar == releLigado) return;
+  digitalWrite(PINO_RELE, (ligar == RELE_ATIVO_EM_LOW) ? LOW : HIGH);
+  releLigado = ligar;
+  Serial.println(ligar ? "Fita de LED: ligada" : "Fita de LED: desligada");
+#endif
+}
+
 // Vídeo ao vivo: manda quadros seguidos para o backend enquanto alguém assiste.
 // Cada resposta diz se é para continuar e se pediram uma foto no meio do vídeo.
 void transmitirVideo() {
   Serial.println("Vídeo ao vivo: começou");
+  rele(true);   // fita acesa enquanto alguém assiste (apaga no loop, quando ninguém mais assiste)
   HTTPClient http;
   http.setReuse(true);   // usa a mesma conexão para todos os quadros (mais rápido)
   int quadros = 0;
@@ -338,6 +355,12 @@ void setup() {
   Serial.begin(115200);
   pinMode(FLASH_LED_PIN, OUTPUT);
   digitalWrite(FLASH_LED_PIN, LOW);
+#if USAR_RELE
+  // começa com a fita apagada (o primeiro rele(false) precisa escrever no pino)
+  pinMode(PINO_RELE, OUTPUT);
+  releLigado = true;
+  rele(false);
+#endif
 
   if (!iniciarCamera()) {
     Serial.println("Confira o cabo da camera e a fonte 5V. Reiniciando em 5 s...");
@@ -358,6 +381,7 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
+    rele(false);   // sem Wi-Fi ninguém consegue assistir: apaga a fita
     conectarWiFi();
     delay(2000);
     return;
@@ -368,11 +392,11 @@ void loop() {
     perguntarComando(foto, video);
     if (foto) {
       Serial.println("Pedido de foto recebido");
-      delay(500);  // dá tempo da fita de LED (na principal) acender
       tirarEEnviarFoto();
       ultimaFoto = millis();
     }
     if (video) transmitirVideo();
+    else rele(false);   // ninguém assistindo o vídeo: apaga a fita
     ultimoComando = millis();
   }
 

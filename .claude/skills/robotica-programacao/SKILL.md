@@ -1,6 +1,6 @@
 ---
 name: robotica-programacao
-description: Robótica e programação do Lab Cam — firmware das placas (ESP32 WROOM com tela touch ILI9341, relé e reed switch; ESP32-CAM AI Thinker; módulo de voz Xiaozhi), ligações elétricas e pinagem, e a integração das placas com o backend Node/Express + PostgreSQL. Use sempre que a tarefa envolver arquivos .ino/.h, Arduino IDE, ESP32, sensores, atuadores, GPIO, fiação, Wi-Fi das placas, x-device-key, rotas /api/comando, /api/fotos, /api/dispositivo, src/voz.js (MCP do Xiaozhi), ou quando alguém pedir para criar/depurar um recurso novo de hardware ou explicar como o dispositivo funciona.
+description: Robótica e programação do Lab Cam — firmware das placas (ESP32 WROOM com tela touch ILI9341; relé da fita de LED na ESP32-CAM; ESP32-CAM AI Thinker; módulo de voz Xiaozhi), ligações elétricas e pinagem, e a integração das placas com o backend Node/Express + PostgreSQL. Use sempre que a tarefa envolver arquivos .ino/.h, Arduino IDE, ESP32, sensores, atuadores, GPIO, fiação, Wi-Fi das placas, x-device-key, rotas /api/comando, /api/fotos, /api/dispositivo, src/voz.js (MCP do Xiaozhi), ou quando alguém pedir para criar/depurar um recurso novo de hardware ou explicar como o dispositivo funciona.
 ---
 
 # Robótica e programação — Lab Cam
@@ -38,7 +38,7 @@ tela TFT não tem acento: texto desenhado na tela vai sem acento; o que vai para
 - `struct`s usadas como parâmetro ficam **no topo**, antes das funções (o pré-processador da Arduino
   IDE gera protótipos e não compila se o tipo vier depois).
 - Nada de `delay()` longo no `loop()`: use `millis()` com intervalos `unsigned long` (`2UL * 60UL * 1000UL`).
-  A tela, o touch e o sensor de porta precisam continuar respondendo.
+  A tela e o touch precisam continuar respondendo.
 - Tempos e limites como constantes nomeadas (`TEMPO_LED_MS`, `TOUCH_LIMIAR`, `INTERVALO_COMANDO_MS`).
 - Dados persistentes (calibração do touch) em `Preferences`.
 - JSON com `ArduinoJson`; HTTP com `HTTPClient`. Sempre `http.end()` e conferir o código de status.
@@ -60,7 +60,6 @@ tela TFT não tem acento: texto desenhado na tela vai sem acento; o que vai para
 |---|---|---|
 | ESP32 principal | `GET /api/alimentos` | lista com `dias_restantes` e `data_validade` |
 | ESP32 principal | `POST /api/alimentos` | `{nome, quantidade, validade_dias, origem:"touch"}` |
-| ESP32 principal | `POST /api/comando` | `{acao:"foto"}` quando a porta abre |
 | ESP32-CAM | `GET /api/comando` (a cada 3 s) | `{foto:true/false, video:true/false}` |
 | ESP32-CAM | `POST /api/fotos` | JPEG puro, `Content-Type: image/jpeg` (até 3 MB) |
 | ESP32-CAM | `POST /api/video/quadro` (vídeo ao vivo) | JPEG puro → `{continuar, foto}`; site lê em `GET /api/video/quadro?depois=<id>` |
@@ -78,8 +77,7 @@ Prefira mudanças compatíveis (campo novo opcional) — placas já gravadas nã
 | MOSI + T_DIN / SCK + T_CLK | 23 / 18 |
 | T_DO / T_CS | 19 / 21 |
 | **SDO (MISO) da tela** | **não ligar** — atrapalha o touch no GPIO19 |
-| Relé da fita de LED (IN) | 26 (a maioria dos módulos aciona em LOW) |
-| Reed switch da porta | 32 com `INPUT_PULLUP`, outro fio no GND |
+| Relé da fita de LED | **mudou para a ESP32-CAM (GPIO13)**; aqui `USAR_RELE false` (era o 26) |
 
 Alimentação: fonte chaveada 5 V comum, **todos os GND juntos**.
 
@@ -91,7 +89,8 @@ Alimentação: fonte chaveada 5 V comum, **todos os GND juntos**.
 - Motor, solenoide, fita de LED: nunca direto no GPIO — use relé/transistor/MOSFET com diodo de roda livre em carga indutiva.
 
 ### ESP32-CAM (AI Thinker)
-- Quase todos os pinos já são da câmera e do cartão SD; o GPIO4 é o flash. Sobra pouco — por isso o relé fica na placa principal.
+- Quase todos os pinos já são da câmera e do cartão SD; o GPIO4 é o flash. Sem cartão SD sobram 12, 13, 14 e 15.
+- **Relé da fita de LED: GPIO13** (`PINO_RELE`, aciona em LOW por padrão). Liga só com o vídeo ao vivo aberto no site (`transmitirVideo()` liga; o `loop` desliga quando o `GET /api/comando` volta `"video":false` ou o Wi-Fi cai). Fotos não acendem a fita.
 - Gravar: GPIO0 no GND → RESET → Carregar → tirar o fio do GPIO0 → RESET.
 - Precisa de 5 V com corrente boa; queda de tensão causa "Brownout detector was triggered".
 

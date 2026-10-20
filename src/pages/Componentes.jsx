@@ -37,14 +37,14 @@ const parts = [
   {
     name: 'Fita de LED',
     price: 'R$49,44',
-    text: 'Ilumina o interior da geladeira quando a porta abre, para a ESP32-CAM tirar fotos nítidas dos alimentos.',
+    text: 'Ilumina o interior da geladeira enquanto alguém assiste a câmera ao vivo no site, para a imagem ficar nítida.',
     image: img.fitaLed,
     alt: 'Rolo de fita de LED RGB com controle remoto',
   },
   {
     name: 'Módulo Relé 5V',
     price: 'R$6,40',
-    text: 'Funciona como um interruptor controlado pelo ESP32: liga e desliga a fita de LED quando a porta abre.',
+    text: 'Funciona como um interruptor controlado pela ESP32-CAM: liga a fita de LED quando alguém abre a câmera no site.',
     image: img.rele,
     alt: 'Módulo relé de 1 canal 5 V',
   },

@@ -6,7 +6,7 @@ dos alimentos e reduzir o desperdício. **Um servidor só** atende todo mundo:
 | Quem | Como se identifica | O que usa |
 | ---- | ------------------ | --------- |
 | **Site** | token JWT (login) | usuários, alimentos, câmera, Wi-Fi das placas |
-| **ESP32 principal** (tela touch, relé, sensor de porta) | `x-device-key` | `GET/POST /api/alimentos`, `POST /api/comando`, `GET /api/redes/placa` |
+| **ESP32 principal** (tela touch) | `x-device-key` | `GET/POST /api/alimentos`, `GET /api/redes/placa` |
 | **ESP32-CAM** | `x-device-key` | `GET /api/comando`, `POST /api/fotos`, `GET /api/redes/placa` |
 | **AI Voice (Xiaozhi)** | conexão MCP aberta pelo servidor | `src/voz.js` |
 
@@ -53,8 +53,8 @@ back/
       deviceAuth.js        chave x-device-key das placas
   sql/schema.sql           tabelas usuarios, alimentos e fotos (roda sozinho ao ligar)
   esp32/                   códigos da equipe de robótica (Arduino IDE)
-    1_esp32_principal/     tela touch 2,4", relé da fita de LED e sensor de porta
-    2_esp32_cam/           câmera: fotos por pedido ou a cada 10 min
+    1_esp32_principal/     tela touch 2,4"
+    2_esp32_cam/           câmera: fotos, vídeo ao vivo e o relé da fita de LED (GPIO13)
     3_ai_voice_xiaozhi/    como configurar o módulo de voz
   .env.example             modelo das configurações
 ```
@@ -124,7 +124,7 @@ Dicas:
 
 ### O que acontece quando...
 - **Toca num alimento na tela:** ele é cadastrado e aparece no site e na voz.
-- **A porta abre** (com o sensor): a fita de LED acende e a ESP32-CAM tira uma foto, que aparece no site.
+- **Alguém abre o vídeo ao vivo** no site (Relatório): a fita de LED acende (relé no GPIO13 da ESP32-CAM) e apaga uns segundos depois que a pessoa sai da página.
 - **Alguém toca em "Ver câmera"** no site: a câmera tira a foto em até 3 s.
 - **Fala "adiciona leite":** cadastra; aparece no site na hora e na tela em até 2 min.
 
@@ -241,7 +241,7 @@ amanhã! Que tal...?") aparece quando a 1ª receita usa algo que vence em até 3
 | ------ | ---- | ---- | -------- |
 | POST | `/api/fotos` | ESP32-CAM | envia a foto: corpo = JPEG puro, `Content-Type: image/jpeg` |
 | GET | `/api/comando` | ESP32-CAM | pergunta o que fazer: `{ "foto": true/false, "video": true/false }` |
-| POST | `/api/comando` | ESP32 principal | porta abriu, pede foto: `{ "acao": "foto" }` |
+| POST | `/api/comando` | placa (chave) | pede uma foto: `{ "acao": "foto" }` (era usada pelo sensor de porta, que saiu do projeto) |
 | POST | `/api/comando/foto` | site | botão "Ver câmera" |
 | GET | `/api/camera/ultima` | site | a foto mais recente (JPEG; hora no cabeçalho `X-Foto-Data`) |
 | GET | `/api/camera/fotos` | site | lista das fotos guardadas (as últimas 30) |

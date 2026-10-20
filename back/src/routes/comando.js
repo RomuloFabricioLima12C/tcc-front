@@ -3,7 +3,7 @@
 //
 //   POST /api/fotos          ESP32-CAM manda a foto (corpo = JPEG puro)
 //   GET  /api/comando        ESP32-CAM pergunta a cada 3 s: tem pedido de foto?
-//   POST /api/comando        ESP32 principal pede foto quando a porta abre: { "acao": "foto" }
+//   POST /api/comando        placa pede uma foto: { "acao": "foto" } (era o sensor de porta, que saiu)
 //   POST /api/comando/foto   site pede foto (botão "Ver câmera")
 //
 // Este arquivo é montado em "/api", por isso os caminhos começam com /fotos e /comando.

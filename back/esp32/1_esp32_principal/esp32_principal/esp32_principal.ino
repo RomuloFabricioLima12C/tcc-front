@@ -7,10 +7,8 @@
       (cores, cards com sombra e as frutinhas do site)
     - Cadastro de alimentos pela tela  -> POST /api/alimentos
     - Lista de validades               -> GET  /api/alimentos
-    - Porta abriu: pede uma foto à ESP32-CAM -> POST /api/comando
-    - Relé da fita de LED (liga quando a porta abre ou quando
-      uma foto é pedida, e desliga sozinho depois)
-    - Sensor de porta (reed switch), opcional
+    - Sem sensor de porta e sem relé: a fita de LED (relé) fica na
+      ESP32-CAM (GPIO13) e acende só com o vídeo ao vivo aberto no site.
     - Wi-Fi trocado pelo site (página "Wi-Fi das placas"): a placa
       baixa a lista de redes e guarda na memória. Ao ligar, conecta
       na rede salva que estiver ao alcance. A rede escrita aqui no
@@ -68,17 +66,6 @@ const char* WIFI_PASSWORD = "SENHA_DO_WIFI";
 const char* SERVIDOR     = "https://labcam-api.onrender.com";
 const char* DEVICE_KEY   = "labcam-2e6cfb01cf53";  // igual ao DEVICE_KEY do .env do backend
 const int   USUARIO_ID   = 1;
-
-// Relé da fita de LED
-#define USAR_RELE          true
-#define PINO_RELE          26
-#define RELE_ATIVO_EM_LOW  true    // a maioria dos módulos 02166 liga com LOW
-const unsigned long TEMPO_LED_MS = 15000;          // LED fica aceso 15 s
-
-// Sensor de porta (reed switch entre GPIO32 e GND). Sem sensor ligado,
-// o pino fica em HIGH ("fechado") e nada acontece.
-#define USAR_SENSOR_PORTA  true
-#define PINO_SENSOR_PORTA  32
 
 const unsigned long INTERVALO_VERIFICACAO = 2UL * 60UL * 1000UL;  // atualiza a lista a cada 2 min
                                                                   // (pega o que foi cadastrado pela voz ou pelo site)
@@ -161,9 +148,6 @@ bool listaCarregada = false;
 bool erroLista = false;      // a última busca falhou (servidor fora do ar, chave errada...)
 
 unsigned long ultimaVerificacao = 0;
-bool ledLigado = false;
-unsigned long ledDesligarEm = 0;
-bool portaAbertaAntes = false;
 
 // ============================================================
 //  Imagens (frutinhas do site)
@@ -386,30 +370,6 @@ void telaValidades() {
 }
 
 // ============================================================
-//  Relé da fita de LED e sensor de porta
-// ============================================================
-void rele(bool ligar) {
-#if USAR_RELE
-  digitalWrite(PINO_RELE, (ligar == RELE_ATIVO_EM_LOW) ? LOW : HIGH);
-#endif
-  ledLigado = ligar;
-}
-
-void acenderLedPorUmTempo() {
-  rele(true);
-  ledDesligarEm = millis() + TEMPO_LED_MS;
-}
-
-void cuidarDoLed() {
-  if (ledLigado && (long)(millis() - ledDesligarEm) >= 0) {
-#if USAR_SENSOR_PORTA
-    if (digitalRead(PINO_SENSOR_PORTA) == LOW) return;   // porta ainda aberta
-#endif
-    rele(false);
-  }
-}
-
-// ============================================================
 //  Data (para calcular validade) - pega a hora da internet
 // ============================================================
 bool temHora = false;
@@ -504,18 +464,6 @@ bool enviarAlimento(const Alimento& a) {
   int code = http.POST(corpo);
   Serial.printf("[POST] /api/alimentos -> %d\n", code);
   if (code == 401) Serial.println("HTTP 401: a DEVICE_KEY daqui está diferente da do backend");
-  http.end();
-  return code == 200 || code == 201;
-}
-
-bool pedirFoto() {
-  if (WiFi.status() != WL_CONNECTED) return false;
-  HTTPClient http;
-  abrir(http, urlBase() + "/api/comando");
-  http.addHeader("Content-Type", "application/json");
-  cabecalhos(http);
-  int code = http.POST("{\"acao\":\"foto\"}");
-  Serial.printf("[POST] /api/comando -> %d\n", code);
   http.end();
   return code == 200 || code == 201;
 }
@@ -769,14 +717,6 @@ void conectarWiFi() {
 void setup() {
   Serial.begin(115200);
 
-#if USAR_RELE
-  pinMode(PINO_RELE, OUTPUT);
-#endif
-  rele(false);
-#if USAR_SENSOR_PORTA
-  pinMode(PINO_SENSOR_PORTA, INPUT_PULLUP);   // LOW = porta aberta
-#endif
-
   tft.init();
   tft.setRotation(1);   // deitada: 320 x 240
   carregarCores();
@@ -796,18 +736,6 @@ void setup() {
 
 void loop() {
   tratarToque();
-  cuidarDoLed();
-
-  // Porta abriu: acende a fita e pede uma foto
-#if USAR_SENSOR_PORTA
-  bool portaAberta = (digitalRead(PINO_SENSOR_PORTA) == LOW);
-  if (portaAberta && !portaAbertaAntes) {
-    Serial.println("[PORTA] aberta");
-    acenderLedPorUmTempo();
-    pedirFoto();
-  }
-  portaAbertaAntes = portaAberta;
-#endif
 
   // "c" no Monitor Serial = calibrar o toque de novo
   if (Serial.available() && Serial.read() == 'c') {
