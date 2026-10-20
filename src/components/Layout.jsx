@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import Header from './Header.jsx'
 import Footer from './Footer.jsx'
 import { MobileTabBar, MobileTitleBar, MobileTop } from './MobileChrome.jsx'
+import AlertaReceita from './AlertaReceita.jsx'
 
 // Ao trocar de página, volta ao topo. Com #âncora no endereço (ex.: /quem-somos#redes),
 // rola até a parte certa da página.
@@ -37,6 +38,8 @@ export function SiteLayout({ children, title }) {
       <div className="mobile-only">
         <MobileTabBar />
       </div>
+      {/* "Seu leite vence amanhã! Que tal..." -> leva para as receitas no Relatório */}
+      <AlertaReceita />
     </div>
   )
 }

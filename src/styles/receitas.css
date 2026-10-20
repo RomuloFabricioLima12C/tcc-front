@@ -1,0 +1,249 @@
+/* ============ Alerta de receita (flutuante, em todas as páginas) ============ */
+.alerta-receita {
+  position: fixed;
+  z-index: 25; /* acima da barra de baixo do celular (20) */
+  right: 24px;
+  bottom: 24px;
+  width: min(380px, calc(100vw - 32px));
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 44px 16px 16px;
+  border: 1px solid var(--ink);
+  border-radius: 22px;
+  background: var(--card-plain);
+  color: #000;
+  box-shadow: var(--shadow-hard);
+  animation: alerta-entra 0.35s ease-out;
+}
+
+@keyframes alerta-entra {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alerta-receita {
+    animation: none;
+  }
+}
+
+.alerta-icone {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.alerta-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.alerta-texto strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 17px;
+}
+
+.alerta-ver {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--teal);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 14px;
+}
+
+.alerta-ver:hover {
+  filter: brightness(1.1);
+}
+
+.alerta-fechar {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 1;
+  color: #000;
+}
+
+.alerta-fechar:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* No celular: centralizado, logo acima da barra de baixo e do "calombo" do Perfil */
+@media (max-width: 767px) {
+  .alerta-receita {
+    left: 16px;
+    right: 16px;
+    bottom: 128px;
+    width: auto;
+  }
+}
+
+/* ============ Seção "Receitas sugeridas" (Relatório) ============ */
+.receitas-section {
+  padding-top: 40px;
+  scroll-margin-top: 16px;
+}
+
+.receitas-intro {
+  margin-top: 18px;
+  font-size: clamp(16px, 1.4vw, 20px);
+  color: var(--text);
+}
+
+.receitas-grid {
+  list-style: none;
+  padding: 0;
+  margin: 32px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  align-items: start;
+}
+
+.receita-card {
+  position: relative;
+  padding: 28px 28px 24px;
+  border: 1px solid var(--ink);
+  border-radius: 32px;
+  background: var(--card-plain);
+  color: #000;
+  box-shadow: var(--shadow-hard);
+}
+
+.receita-card.is-destaque {
+  border: 3px solid var(--green);
+}
+
+.receita-selo {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 13px;
+}
+
+.receita-card h3 {
+  font-size: clamp(22px, 1.8vw, 26px);
+  line-height: 1.15;
+  padding-right: 36px;
+}
+
+.receita-card .sparkle {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  --cw: 34px;
+}
+
+.receita-info {
+  margin-top: 6px;
+  font-size: 15px;
+  opacity: 0.75;
+}
+
+.receita-aproveita {
+  margin-top: 14px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(0, 191, 99, 0.16);
+  font-size: 15px;
+}
+
+.receita-aproveita.is-vazio {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.receita-card h4 {
+  margin-top: 16px;
+  font-size: 17px;
+}
+
+.receita-ingredientes {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: grid;
+  gap: 4px;
+  font-size: 15px;
+}
+
+.receita-ingredientes li {
+  display: flex;
+  gap: 8px;
+}
+
+.receita-marca {
+  width: 1.1em;
+  flex-shrink: 0;
+  font-weight: 700;
+  text-align: center;
+}
+
+.receita-ingredientes .is-tem .receita-marca {
+  color: #00863f;
+}
+
+.receita-ingredientes .is-falta {
+  opacity: 0.6;
+}
+
+.receita-ingredientes .is-basico {
+  opacity: 0.8;
+}
+
+.receita-falta {
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.receita-preparo {
+  margin-top: 16px;
+  font-size: 15px;
+}
+
+.receita-preparo summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 16px;
+}
+
+.receita-preparo ol {
+  margin: 8px 0 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 6px;
+}
+
+@media (max-width: 767px) {
+  .receitas-section {
+    padding-top: 24px;
+  }
+
+  .receitas-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .receita-card {
+    padding: 20px 18px 18px;
+    border-radius: 24px;
+  }
+}

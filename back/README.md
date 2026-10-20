@@ -222,6 +222,19 @@ antes (o máximo que a tela mostra). O site continua recebendo a lista completa.
 Validade: `data_validade` > `validade_dias` > validade média do alimento. `dias_restantes` é calculado
 pelo banco (negativo = já venceu). `origem`: `site`, `touch`, `voz` ou `camera`.
 
+### Receitas sugeridas — site (token)
+
+| Método | Rota | Para quê |
+| ------ | ---- | -------- |
+| GET | `/api/receitas/sugestoes` | receitas na ordem do que vence primeiro na geladeira |
+
+As receitas ficam na tabela `receitas` (as 3 da apresentação são criadas pelo `schema.sql`). Cada
+ingrediente tem `chaves` (palavras que ligam ele a um alimento: "Peito de frango" combina com `frango`).
+Alimento vencido não entra. Cada receita volta com `ingredientes` (com `tem` e o alimento achado),
+`passos`, `usa`, `destaque` (o que vence primeiro) e `faltam`. No site, um alerta ("Banana vence
+amanhã! Que tal...?") aparece quando a 1ª receita usa algo que vence em até 3 dias e leva para
+`/relatorio#receitas`.
+
 ### Câmera
 
 | Método | Rota | Quem | Para quê |

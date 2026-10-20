@@ -109,6 +109,9 @@ export const listarVencendo = (dias = 3) => api(`/api/alimentos/vencendo?dias=${
 export const criarAlimento = (alimento) => api('/api/alimentos', { metodo: 'POST', corpo: alimento })
 export const apagarAlimento = (id) => api(`/api/alimentos/${id}`, { metodo: 'DELETE' })
 
+// Receitas na ordem do que vence primeiro na geladeira (veja back/src/servicos/receitas.js)
+export const sugestoesReceitas = () => api('/api/receitas/sugestoes')
+
 // ---- Wi-Fi das placas (as ESP32 baixam esta lista e guardam na memória) ----
 export const listarRedes = () => api('/api/redes')
 export const criarRede = (rede) => api('/api/redes', { metodo: 'POST', corpo: rede })

@@ -3,6 +3,7 @@ import { SiteLayout } from '../components/Layout.jsx'
 import { SectionTitle, Sparkle, Stripes } from '../components/Bits.jsx'
 import CameraVideo from '../components/CameraVideo.jsx'
 import GraficoValidade from '../components/GraficoValidade.jsx'
+import ReceitasSugeridas from '../components/ReceitasSugeridas.jsx'
 import { green, white } from './Jogo.jsx'
 import { svg } from '../assets.js'
 import { lerSessao, listarAlimentos } from '../api.js'
@@ -200,6 +201,9 @@ export default function Relatorio() {
           </table>
         </div>
       </section>
+
+      {/* O alerta de receita do site leva para cá (/relatorio#receitas) */}
+      <ReceitasSugeridas />
 
       <section className="container cam-video-section" aria-labelledby="camera-title">
         <SectionTitle id="camera-title">CÂMERA AO VIVO</SectionTitle>
