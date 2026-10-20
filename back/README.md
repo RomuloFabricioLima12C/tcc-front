@@ -124,7 +124,8 @@ Dicas:
 
 ### O que acontece quando...
 - **Toca num alimento na tela:** ele é cadastrado e aparece no site e na voz.
-- **A câmera tira uma foto** (botão do site, automática a cada 10 min ou ao ligar): a fita de LED acende só na hora da foto (relé no GPIO13 da ESP32-CAM) e apaga logo depois. O vídeo ao vivo não acende a fita.
+- **Alguém abre a câmera no site** (Relatório): o relé (GPIO13 da ESP32-CAM) liga a fita de LED, a câmera tira uma foto e mais uma a cada 10 s; ao sair da página, o relé desliga.
+- **Foto avulsa** (botão do site, automática a cada 10 min ou ao ligar): liga o relé, espera a luz, tira a foto e desliga.
 - **Alguém toca em "Ver câmera"** no site: a câmera tira a foto em até 3 s.
 - **Fala "adiciona leite":** cadastra; aparece no site na hora e na tela em até 2 min.
 
@@ -240,9 +241,10 @@ amanhã! Que tal...?") aparece quando a 1ª receita usa algo que vence em até 3
 | Método | Rota | Quem | Para quê |
 | ------ | ---- | ---- | -------- |
 | POST | `/api/fotos` | ESP32-CAM | envia a foto: corpo = JPEG puro, `Content-Type: image/jpeg` |
-| GET | `/api/comando` | ESP32-CAM | pergunta o que fazer: `{ "foto": true/false, "video": true/false }` |
+| GET | `/api/comando` | ESP32-CAM | pergunta o que fazer: `{ "foto": true/false, "fotos": true/false }` |
 | POST | `/api/comando` | placa (chave) | pede uma foto: `{ "acao": "foto" }` (era usada pelo sensor de porta, que saiu do projeto) |
 | POST | `/api/comando/foto` | site | botão "Ver câmera" |
+| GET | `/api/camera/ao-vivo` | site | "estou olhando a câmera" (a cada 3 s) → `{ "foto": { id, tamanho, criado_em } | null }` |
 | GET | `/api/camera/ultima` | site | a foto mais recente (JPEG; hora no cabeçalho `X-Foto-Data`) |
 | GET | `/api/camera/fotos` | site | lista das fotos guardadas (as últimas 30) |
 | GET | `/api/camera/fotos/:id` | site | uma foto específica (JPEG) |
@@ -252,17 +254,13 @@ amanhã! Que tal...?") aparece quando a 1ª receita usa algo que vence em até 3
 { "ok": true, "id": 12, "tamanho": 45210, "criado_em": "2026-10-04T13:47:44.044Z" }
 ```
 
-### Vídeo ao vivo (página Relatório)
+### Câmera aberta no site (página Relatório): fotos a cada 10 s, sem vídeo
 
-| Método | Rota | Quem | Para quê |
-| ------ | ---- | ---- | -------- |
-| GET | `/api/video/quadro?depois=<id>` | site | próximo quadro JPEG (id em `X-Quadro-Id`); espera até 5 s, senão `204` |
-| POST | `/api/video/quadro` | ESP32-CAM | manda um quadro (JPEG puro) → `{ "continuar": true/false, "foto": true/false }` |
-
-Enquanto o site pede quadros, o `GET /api/comando` responde `"video": true` e a ESP32-CAM manda
-quadros seguidos. Uns 8 s depois que ninguém mais assiste (saiu da página, pausou ou trocou de aba), a
-resposta vira `"continuar": false` e a câmera volta a só tirar fotos. Os quadros ficam só na memória
-(não vão para o banco), e qualquer conta com login vê o vídeo.
+Enquanto a seção CÂMERA do Relatório está aberta, o site chama `GET /api/camera/ao-vivo` a cada 3 s e
+o `GET /api/comando` responde `"fotos": true`. A ESP32-CAM então **liga o relé** (fita de LED), espera
+`TEMPO_LUZ_MS` (2 s), tira uma foto e tira **mais uma a cada 10 s**. Uns 8 s depois que ninguém mais
+olha (saiu da página ou trocou de aba), a resposta volta `"fotos": false` e o relé desliga. As fotos vão
+para o banco (as últimas 30) e o site mostra a mais nova.
 
 ### Wi-Fi das placas (página `/wifi` do site)
 

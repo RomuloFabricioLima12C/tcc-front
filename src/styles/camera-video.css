@@ -1,4 +1,4 @@
-/* ============ Vídeo ao vivo da ESP32-CAM (página Relatório) ============ */
+/* ============ Câmera da ESP32-CAM: fotos a cada 10 s (página Relatório) ============ */
 .cam-video-section {
   padding-top: 40px;
 }
@@ -89,20 +89,20 @@
   }
 }
 
-.cam-video-botao {
-  display: block;
-  margin: 16px auto 0;
-  padding: 10px 22px;
-  border-radius: 12px;
-  background: var(--btn);
-  color: #fff;
-  font-family: var(--font-display);
-  font-size: clamp(16px, 1.4vw, 20px);
-  transition: filter 0.15s ease;
+/* Foto que já existia antes de abrir a página (a nova ainda está sendo tirada) */
+.cam-video-selo.is-antiga {
+  background: #6b6b6b;
 }
 
-.cam-video-botao:hover {
-  filter: brightness(1.1);
+.cam-video-selo.is-antiga .cam-video-ponto {
+  animation: none;
+}
+
+.cam-video-situacao {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 0.85em;
+  opacity: 0.8;
 }
 
 @media (max-width: 767px) {

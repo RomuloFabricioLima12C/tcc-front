@@ -90,7 +90,6 @@ async function main() {
   app.use('/api/alimentos', require('./routes/alimentos'))
   app.use('/api/dispositivo', require('./routes/dispositivo'))
   app.use('/api/camera', require('./routes/camera'))
-  app.use('/api/video', require('./routes/video'))
   app.use('/api/redes', require('./routes/redes'))
   app.use('/api/receitas', require('./routes/receitas'))
   app.use('/api', require('./routes/comando')) // /api/fotos e /api/comando (robótica)

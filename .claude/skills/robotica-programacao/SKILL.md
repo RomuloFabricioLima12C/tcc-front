@@ -60,9 +60,8 @@ tela TFT não tem acento: texto desenhado na tela vai sem acento; o que vai para
 |---|---|---|
 | ESP32 principal | `GET /api/alimentos` | lista com `dias_restantes` e `data_validade` |
 | ESP32 principal | `POST /api/alimentos` | `{nome, quantidade, validade_dias, origem:"touch"}` |
-| ESP32-CAM | `GET /api/comando` (a cada 3 s) | `{foto:true/false, video:true/false}` |
+| ESP32-CAM | `GET /api/comando` (a cada 3 s) | `{foto:true/false, fotos:true/false}` (`fotos` = câmera aberta no site) |
 | ESP32-CAM | `POST /api/fotos` | JPEG puro, `Content-Type: image/jpeg` (até 3 MB) |
-| ESP32-CAM | `POST /api/video/quadro` (vídeo ao vivo) | JPEG puro → `{continuar, foto}`; site lê em `GET /api/video/quadro?depois=<id>` |
 | Placas com pouca RAM | `/api/dispositivo/*` | respostas enxutas (`id, nome, data_validade, dias_restantes`) |
 | Voz | ferramentas MCP em `src/voz.js` | `alimentos_vencendo`, `listar_alimentos`, `cadastrar_alimento`, `marcar_consumido` (a voz não pede foto) |
 
@@ -90,7 +89,7 @@ Alimentação: fonte chaveada 5 V comum, **todos os GND juntos**.
 
 ### ESP32-CAM (AI Thinker)
 - Quase todos os pinos já são da câmera e do cartão SD; o GPIO4 é o flash. Sem cartão SD sobram 12, 13, 14 e 15.
-- **Relé da fita de LED: GPIO13** (`PINO_RELE`, aciona em LOW por padrão). Liga só na hora da foto: `tirarEEnviarFoto()` liga, espera `TEMPO_LUZ_MS` (600 ms), descarta 2 quadros antigos, captura e desliga antes de enviar. O vídeo ao vivo não acende a fita.
+- **Relé da fita de LED: GPIO13** (`PINO_RELE`, aciona em LOW por padrão). Não tem mais vídeo. Câmera aberta no site (`"fotos":true`): liga o relé, espera `TEMPO_LUZ_MS` (2 s) e tira uma foto a cada `INTERVALO_SESSAO_MS` (10 s); `"fotos":false` desliga. Fotos avulsas (`fotoComLuz()`): liga, espera, foto, desliga.
 - Gravar: GPIO0 no GND → RESET → Carregar → tirar o fio do GPIO0 → RESET.
 - Precisa de 5 V com corrente boa; queda de tensão causa "Brownout detector was triggered".
 

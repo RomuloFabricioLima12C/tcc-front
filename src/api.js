@@ -121,33 +121,29 @@ export const criarRede = (rede) => api('/api/redes', { metodo: 'POST', corpo: re
 export const editarRede = (id, dados) => api(`/api/redes/${id}`, { metodo: 'PUT', corpo: dados })
 export const apagarRede = (id) => api(`/api/redes/${id}`, { metodo: 'DELETE' })
 
-// ---- Vídeo ao vivo ----
-// Espera o próximo quadro da câmera mais novo que "depois" (o servidor segura o
-// pedido até 5 s). Devolve { id, data, url } ou null se nenhum quadro chegou.
-// Enquanto o site pede quadros, a ESP32-CAM continua mandando.
-export async function buscarQuadro(depois, sinal) {
+// ---- Câmera (fotos a cada 10 s enquanto ela está aberta no site) ----
+// Avisa o servidor que alguém está olhando a câmera (a ESP32-CAM acende a fita de LED
+// e tira uma foto a cada 10 s) e devolve os dados da última foto: { id, tamanho, criado_em } ou null.
+export const olharCamera = () => api('/api/camera/ao-vivo').then((r) => r.foto)
+
+// Baixa uma foto (JPEG) e devolve um endereço para usar no <img> (libere com URL.revokeObjectURL)
+export async function baixarFoto(id, sinal) {
   const sessao = lerSessao()
   let resposta
   try {
-    resposta = await fetch(`${API_URL}/api/video/quadro?depois=${depois}`, {
+    resposta = await fetch(`${API_URL}/api/camera/fotos/${id}`, {
       headers: sessao?.token ? { Authorization: `Bearer ${sessao.token}` } : {},
-      cache: 'no-store',
       signal: sinal,
     })
   } catch (falha) {
     if (falha.name === 'AbortError') throw falha
     throw new ErroApi('Não foi possível falar com o servidor. Ele está ligado?', 0)
   }
-  if (resposta.status === 204) return null
   if (!resposta.ok) {
     const dados = await resposta.json().catch(() => ({}))
-    throw new ErroApi(dados.erro || 'Não foi possível carregar o vídeo.', resposta.status)
+    throw new ErroApi(dados.erro || 'Não foi possível carregar a foto.', resposta.status)
   }
-  return {
-    id: Number(resposta.headers.get('X-Quadro-Id')),
-    data: resposta.headers.get('X-Quadro-Data'),
-    url: URL.createObjectURL(await resposta.blob()),
-  }
+  return URL.createObjectURL(await resposta.blob())
 }
 
 // O servidor grátis (Render) "dorme" depois de um tempo sem uso e leva alguns

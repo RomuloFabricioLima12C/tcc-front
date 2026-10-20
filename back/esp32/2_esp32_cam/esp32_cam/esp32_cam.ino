@@ -3,21 +3,21 @@
   Lab Cam - ESP32-CAM (AI Thinker)
   ============================================================
   - Conecta no Wi-Fi.
-  - A cada 3 s pergunta ao backend se alguém pediu foto
-    (GET /api/comando). Quem pede: o botão "Ver câmera" do site.
-  - Tira uma foto automática a cada 10 min.
+  - A cada 3 s pergunta ao backend o que fazer (GET /api/comando).
+  - Câmera aberta no site (página Relatório): a resposta traz "fotos":true.
+    Então, nesta ordem:
+      1) liga o relé (GPIO13) e a fita de LED acende;
+      2) espera TEMPO_LUZ_MS para a luz estabilizar;
+      3) tira uma foto e envia (POST /api/fotos). Ela aparece no site;
+      4) tira mais uma foto a cada 10 s enquanto a pessoa estiver na página.
+    Quando a pessoa sai da página (ou troca de aba), a resposta volta
+    "fotos":false e o relé desliga. Não tem vídeo: só fotos.
+  - Botão "Ver câmera" do site ("foto":true): uma foto, com a fita acesa.
+  - Foto automática a cada 10 min (também com a fita acesa na hora).
   - Wi-Fi trocado pelo site (página "Wi-Fi das placas"): a cada 1 min
     a placa baixa a lista de redes e guarda na memória. Ao ligar,
     conecta na rede salva que estiver ao alcance. A rede escrita aqui
     no código (WIFI_SSID) continua valendo como reserva.
-  - Envia a foto para o backend (POST /api/fotos). Ela aparece no site.
-  - Vídeo ao vivo: quando alguém abre a página Relatório do site, a
-    resposta do GET /api/comando traz "video":true e a câmera manda
-    quadros seguidos (POST /api/video/quadro) até ninguém mais assistir.
-    O flash não acende no vídeo (esquentaria a placa).
-  - Fita de LED (módulo relé no GPIO13): acende SÓ na hora de tirar cada
-    foto (botão do site, automática, de teste ao ligar) e apaga logo depois
-    da captura. O vídeo ao vivo não acende a fita.
 
   Arduino IDE:
     Placa: "AI Thinker ESP32-CAM"
@@ -47,18 +47,18 @@ const char* WIFI_PASSWORD = "SENHA_DO_WIFI";
 const char* SERVIDOR   = "https://labcam-api.onrender.com";
 const char* DEVICE_KEY = "labcam-2e6cfb01cf53";                    // igual ao DEVICE_KEY do .env
 
+const unsigned long INTERVALO_COMANDO_MS = 3000;                 // pergunta ao backend (3 s)
+const unsigned long INTERVALO_SESSAO_MS  = 10000;                // câmera aberta no site: uma foto a cada 10 s
 const unsigned long INTERVALO_FOTO_MS    = 10UL * 60UL * 1000UL; // foto automática (10 min)
-const unsigned long INTERVALO_COMANDO_MS = 3000;                 // pergunta por pedido (3 s)
-const unsigned long INTERVALO_QUADRO_MS  = 100;                  // vídeo: no máximo 10 quadros/s
 const unsigned long INTERVALO_REDES_MS   = 60000;                // pergunta a lista de redes (1 min)
 
-#define USAR_FLASH true   // false = não acende o LED da placa na foto
+#define USAR_FLASH true   // false = não acende o LED pequeno da placa (GPIO4) na hora da foto
 
-// Relé da fita de LED (fio IN do módulo no GPIO13). Liga só na hora de tirar a foto.
+// Relé da fita de LED (fio IN do módulo no GPIO13). Liga ANTES da foto.
 #define USAR_RELE          true
 #define PINO_RELE          13
 #define RELE_ATIVO_EM_LOW  true    // a maioria dos módulos liga com LOW; se a fita acender ao contrário, troque para false
-const unsigned long TEMPO_LUZ_MS = 600;   // espera a fita acender e a câmera ajustar a luz antes da foto
+const unsigned long TEMPO_LUZ_MS = 2000;  // depois de ligar o relé, espera a fita acender e a câmera ajustar a luz
 // ==================================================
 
 // Pinos da câmera na placa AI Thinker (já ligados de fábrica, não mexer)
@@ -83,6 +83,8 @@ const unsigned long TEMPO_LUZ_MS = 600;   // espera a fita acender e a câmera a
 unsigned long ultimaFoto = 0;
 unsigned long ultimoComando = 0;
 unsigned long ultimasRedes = 0;
+unsigned long ultimaFotoSessao = 0;
+bool sessao = false;   // alguém está com a câmera aberta no site
 
 bool iniciarCamera() {
   camera_config_t config = {};
@@ -169,24 +171,19 @@ void carregarRedes() {
 // ============================================================
 // setInsecure(): a conexão é criptografada, mas a placa não confere o certificado do
 // servidor (não precisa atualizar o firmware quando o certificado do Render é renovado).
-// O vídeo usa uma conexão própria, para uma foto no meio do vídeo não derrubar a dele.
-WiFiClientSecure clienteSeguro, clienteVideoSeguro;
-WiFiClient clienteSimples, clienteVideoSimples;
+WiFiClientSecure clienteSeguro;
+WiFiClient clienteSimples;
 
-void abrirCom(HTTPClient& http, const String& url, WiFiClientSecure& seguro, WiFiClient& simples) {
+void abrir(HTTPClient& http, const String& url) {
   if (url.startsWith("https://")) {
-    seguro.setInsecure();
-    http.begin(seguro, url);
+    clienteSeguro.setInsecure();
+    http.begin(clienteSeguro, url);
   } else {
-    http.begin(simples, url);
+    http.begin(clienteSimples, url);
   }
   // O servidor grátis "dorme" sem uso e leva alguns segundos para acordar
   http.setConnectTimeout(15000);
   http.setTimeout(20000);
-}
-
-void abrir(HTTPClient& http, const String& url) {
-  abrirCom(http, url, clienteSeguro, clienteSimples);
 }
 
 // Pergunta a lista ao backend. Só grava na memória se ela mudou.
@@ -241,35 +238,33 @@ void conectarWiFi() {
   else Serial.println("Nenhuma rede salva respondeu (tento de novo depois)");
 }
 
-// Liga/desliga a fita de LED pelo relé
+// ============================================================
+//  Relé da fita de LED e fotos
+// ============================================================
 bool releLigado = false;
 void rele(bool ligar) {
 #if USAR_RELE
   if (ligar == releLigado) return;
   digitalWrite(PINO_RELE, (ligar == RELE_ATIVO_EM_LOW) ? LOW : HIGH);
   releLigado = ligar;
-  Serial.println(ligar ? "Fita de LED: ligada" : "Fita de LED: desligada");
+  Serial.println(ligar ? "Rele: LIGADO (fita de LED acesa)" : "Rele: desligado (fita apagada)");
 #endif
 }
 
+// Tira a foto e envia. Quem chama já deixou a fita de LED acesa.
 void tirarEEnviarFoto() {
   if (WiFi.status() != WL_CONNECTED) return;
 
-  // Acende a fita (relé) e o flash e espera a luz e a câmera se ajustarem
-  rele(true);
-  if (USAR_FLASH) digitalWrite(FLASH_LED_PIN, HIGH);
-  delay(TEMPO_LUZ_MS);
+  if (USAR_FLASH) { digitalWrite(FLASH_LED_PIN, HIGH); delay(150); }
 
-  // Descarta os quadros guardados de antes da luz acender, para a foto ser "de agora"
+  // Descarta os quadros guardados de antes, para a foto ser "de agora"
   for (int i = 0; i < 2; i++) {
     camera_fb_t* velho = esp_camera_fb_get();
     if (velho) esp_camera_fb_return(velho);
   }
   camera_fb_t* fb = esp_camera_fb_get();
 
-  // Foto capturada: apaga a luz já, antes de enviar (o envio pode demorar)
   if (USAR_FLASH) digitalWrite(FLASH_LED_PIN, LOW);
-  rele(false);
 
   if (!fb) {
     Serial.println("Falha ao capturar a foto");
@@ -289,12 +284,25 @@ void tirarEEnviarFoto() {
   esp_camera_fb_return(fb);
 }
 
-// Pergunta ao backend o que fazer. Resposta: {"foto":true/false,"video":true/false}
-//   foto  = alguém pediu uma foto
-//   video = alguém está vendo o vídeo ao vivo no site
-void perguntarComando(bool& foto, bool& video) {
+// Foto avulsa (botão do site, automática): 1) liga o relé, 2) espera a luz,
+// 3) tira a foto, 4) apaga. Se a fita já está acesa (câmera aberta no site), só tira.
+void fotoComLuz() {
+  if (releLigado) {
+    tirarEEnviarFoto();
+    return;
+  }
+  rele(true);
+  delay(TEMPO_LUZ_MS);
+  tirarEEnviarFoto();
+  rele(false);
+}
+
+// Pergunta ao backend o que fazer. Resposta: {"foto":true/false,"fotos":true/false}
+//   foto  = pediram UMA foto (botão "Ver câmera")
+//   fotos = alguém está com a câmera aberta no site (fotos a cada 10 s)
+void perguntarComando(bool& foto, bool& olhando) {
   foto = false;
-  video = false;
+  olhando = false;
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
   abrir(http, String(SERVIDOR) + "/api/comando");
@@ -302,59 +310,12 @@ void perguntarComando(bool& foto, bool& video) {
   int status = http.GET();
   if (status == 200) {
     String corpo = http.getString();
-    foto  = corpo.indexOf("\"foto\":true") >= 0;
-    video = corpo.indexOf("\"video\":true") >= 0;
+    foto    = corpo.indexOf("\"foto\":true") >= 0;
+    olhando = corpo.indexOf("\"fotos\":true") >= 0;
   } else if (status == 401) {
     Serial.println("HTTP 401: a DEVICE_KEY daqui está diferente da do backend");
   }
   http.end();
-}
-
-// Vídeo ao vivo: manda quadros seguidos para o backend enquanto alguém assiste.
-// Cada resposta diz se é para continuar e se pediram uma foto no meio do vídeo.
-void transmitirVideo() {
-  Serial.println("Vídeo ao vivo: começou");
-  HTTPClient http;
-  http.setReuse(true);   // usa a mesma conexão para todos os quadros (mais rápido)
-  int quadros = 0;
-  unsigned long inicio = millis();
-
-  while (WiFi.status() == WL_CONNECTED) {
-    unsigned long antes = millis();
-    camera_fb_t* fb = esp_camera_fb_get();
-    if (!fb) {
-      Serial.println("Falha ao capturar o quadro");
-      break;
-    }
-
-    abrirCom(http, String(SERVIDOR) + "/api/video/quadro", clienteVideoSeguro, clienteVideoSimples);
-    http.addHeader("Content-Type", "image/jpeg");
-    http.addHeader("X-Device-Key", DEVICE_KEY);
-    http.setTimeout(8000);   // servidor já acordado durante o vídeo
-    int status = http.POST(fb->buf, fb->len);
-    esp_camera_fb_return(fb);
-    String corpo = (status == 200) ? http.getString() : "";
-    http.end();
-
-    if (status != 200) {
-      Serial.printf("Vídeo: HTTP %d, parando\n", status);
-      break;
-    }
-    quadros++;
-    if (corpo.indexOf("\"foto\":true") >= 0) {   // pediram foto durante o vídeo
-      tirarEEnviarFoto();
-      ultimaFoto = millis();
-    }
-    if (corpo.indexOf("\"continuar\":true") < 0) break;   // ninguém mais assistindo
-
-    // Respeita o limite de quadros por segundo
-    unsigned long gasto = millis() - antes;
-    if (gasto < INTERVALO_QUADRO_MS) delay(INTERVALO_QUADRO_MS - gasto);
-  }
-
-  float segundos = (millis() - inicio) / 1000.0;
-  Serial.printf("Vídeo ao vivo: parou (%d quadros em %.0f s, %.1f por segundo)\n",
-                quadros, segundos, segundos > 0 ? quadros / segundos : 0);
 }
 
 void setup() {
@@ -381,31 +342,55 @@ void setup() {
   sincronizarRedes();
   ultimasRedes = millis();
 
-  tirarEEnviarFoto();          // foto inicial, para testar
+  fotoComLuz();          // foto inicial, para testar (liga o relé, foto, apaga)
   ultimaFoto = millis();
 }
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
+    sessao = false;
+    rele(false);   // sem Wi-Fi ninguém consegue ver as fotos: apaga a fita
     conectarWiFi();
     delay(2000);
     return;
   }
 
+  // A cada 3 s: tem pedido de foto? alguém está com a câmera aberta no site?
   if (millis() - ultimoComando >= INTERVALO_COMANDO_MS) {
-    bool foto, video;
-    perguntarComando(foto, video);
-    if (foto) {
+    bool foto, olhando;
+    perguntarComando(foto, olhando);
+    ultimoComando = millis();
+
+    if (olhando && !sessao) {
+      // Abriram a câmera no site: 1º o relé (fita de LED), espera a luz, depois as fotos
+      Serial.println("Camera aberta no site: ligando o rele");
+      sessao = true;
+      rele(true);
+      delay(TEMPO_LUZ_MS);
+      ultimaFotoSessao = millis() - INTERVALO_SESSAO_MS;   // a primeira foto sai já
+    } else if (!olhando && sessao) {
+      Serial.println("Ninguem mais na pagina da camera: desligando o rele");
+      sessao = false;
+      rele(false);
+    }
+
+    if (foto && !sessao) {
       Serial.println("Pedido de foto recebido");
-      tirarEEnviarFoto();
+      fotoComLuz();
       ultimaFoto = millis();
     }
-    if (video) transmitirVideo();
-    ultimoComando = millis();
   }
 
-  if (millis() - ultimaFoto >= INTERVALO_FOTO_MS) {
+  // Câmera aberta no site: uma foto a cada 10 s (a fita já está acesa)
+  if (sessao && millis() - ultimaFotoSessao >= INTERVALO_SESSAO_MS) {
+    ultimaFotoSessao = millis();
     tirarEEnviarFoto();
+    ultimaFoto = millis();
+  }
+
+  // Foto automática a cada 10 min (quando ninguém está olhando)
+  if (!sessao && millis() - ultimaFoto >= INTERVALO_FOTO_MS) {
+    fotoComLuz();
     ultimaFoto = millis();
   }
 

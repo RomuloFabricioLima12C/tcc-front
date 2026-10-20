@@ -5,10 +5,26 @@
 // ou outra placa (POST /api/comando).
 // Quem ATENDE: a ESP32-CAM, que pergunta a cada 3 s em GET /api/comando.
 // (baseado no backend da equipe de robótica; aqui a foto fica no banco)
+//
+// "Alguém olhando a câmera": enquanto a seção da câmera do site está aberta,
+// ele avisa a cada 3 s (GET /api/camera/ao-vivo). A ESP32-CAM recebe
+// "fotos": true no GET /api/comando, liga o relé da fita de LED e tira uma
+// foto a cada 10 s. Sem aviso por OLHANDO_MS, ela para e desliga o relé.
 // =====================================================================
 const { query } = require('../db')
 
 const FOTOS_GUARDADAS = Number(process.env.FOTOS_GUARDADAS) || 30
+const OLHANDO_MS = 8000 // sem aviso do site por esse tempo = ninguém olhando a câmera
+
+let olhandoAte = 0
+
+function marcarOlhando() {
+  olhandoAte = Date.now() + OLHANDO_MS
+}
+
+function alguemOlhando() {
+  return Date.now() < olhandoAte
+}
 
 // O pedido fica na memória: é só um "lembrete" para a próxima pergunta da câmera
 let pedidoFoto = false
@@ -52,15 +68,12 @@ async function ultimaFotoInfo(usuarioId) {
   return rows[0] || null
 }
 
-// Espera chegar uma foto mais nova que "depoisDe" (usado pela voz)
-async function esperarFotoNova(usuarioId, depoisDe, segundos = 15) {
-  const limite = Date.now() + segundos * 1000
-  while (Date.now() < limite) {
-    const foto = await ultimaFotoInfo(usuarioId)
-    if (foto && new Date(foto.criado_em) > depoisDe) return foto
-    await new Promise((r) => setTimeout(r, 1000))
-  }
-  return null
+module.exports = {
+  pedirFoto,
+  pegarPedido,
+  ehJpeg,
+  salvarFoto,
+  ultimaFotoInfo,
+  marcarOlhando,
+  alguemOlhando,
 }
-
-module.exports = { pedirFoto, pegarPedido, ehJpeg, salvarFoto, ultimaFotoInfo, esperarFotoNova }

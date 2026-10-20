@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SiteLayout } from '../components/Layout.jsx'
 import { SectionTitle, Sparkle, Stripes } from '../components/Bits.jsx'
-import CameraVideo from '../components/CameraVideo.jsx'
+import CameraFotos from '../components/CameraFotos.jsx'
 import GraficoValidade from '../components/GraficoValidade.jsx'
 import ReceitasSugeridas from '../components/ReceitasSugeridas.jsx'
 import { green, white } from './Jogo.jsx'
@@ -298,8 +298,8 @@ export default function Relatorio() {
       <ReceitasSugeridas versao={versao} />
 
       <section className="container cam-video-section" aria-labelledby="camera-title">
-        <SectionTitle id="camera-title">CÂMERA AO VIVO</SectionTitle>
-        <CameraVideo />
+        <SectionTitle id="camera-title">CÂMERA</SectionTitle>
+        <CameraFotos />
 
         <div className="report-monitor">
           <article className="card card-soft feature-card is-short">

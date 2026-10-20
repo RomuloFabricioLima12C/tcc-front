@@ -5,6 +5,7 @@
 const express = require('express')
 const { query } = require('../db')
 const auth = require('../middleware/auth')
+const camera = require('../servicos/camera')
 
 const router = express.Router()
 router.use(auth)
@@ -20,6 +21,20 @@ function enviarFoto(res, foto) {
   })
   res.send(foto.imagem)
 }
+
+// ---------------------------------------------------------------------
+// GET /api/camera/ao-vivo  -> { "foto": { id, tamanho, criado_em } | null }
+// O site chama a cada 3 s enquanto a câmera está aberta: isso avisa a ESP32-CAM
+// para acender a fita de LED e tirar uma foto a cada 10 s (veja servicos/camera.js).
+// ---------------------------------------------------------------------
+router.get('/ao-vivo', async (req, res, next) => {
+  try {
+    camera.marcarOlhando()
+    return res.json({ foto: await camera.ultimaFotoInfo(req.usuario.id) })
+  } catch (erro) {
+    return next(erro)
+  }
+})
 
 // ---------------------------------------------------------------------
 // GET /api/camera/ultima  -> a foto mais recente (imagem JPEG)

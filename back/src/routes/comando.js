@@ -2,7 +2,7 @@
 // Rotas usadas pela robótica para a câmera:
 //
 //   POST /api/fotos          ESP32-CAM manda a foto (corpo = JPEG puro)
-//   GET  /api/comando        ESP32-CAM pergunta a cada 3 s: tem pedido de foto?
+//   GET  /api/comando        ESP32-CAM pergunta a cada 3 s: tem pedido de foto? alguém olhando a câmera?
 //   POST /api/comando        placa pede uma foto: { "acao": "foto" } (era o sensor de porta, que saiu)
 //   POST /api/comando/foto   site pede foto (botão "Ver câmera")
 //
@@ -12,7 +12,6 @@ const express = require('express')
 const deviceAuth = require('../middleware/deviceAuth')
 const { siteOuDispositivo } = require('../middleware/auth')
 const camera = require('../servicos/camera')
-const video = require('../servicos/video')
 
 const router = express.Router()
 
@@ -42,11 +41,12 @@ router.post(
 )
 
 // ---------------------------------------------------------------------
-// GET /api/comando  (ESP32-CAM)  -> { "foto": true/false, "video": true/false }
-//   video = alguém está vendo o vídeo ao vivo no site (veja routes/video.js)
+// GET /api/comando  (ESP32-CAM)  -> { "foto": true/false, "fotos": true/false }
+//   foto  = pediram UMA foto (botão "Ver câmera")
+//   fotos = alguém está com a câmera aberta no site: relé ligado e uma foto a cada 10 s
 // ---------------------------------------------------------------------
 router.get('/comando', deviceAuth, (req, res) => {
-  res.json({ foto: camera.pegarPedido(), video: video.alguemAssistindo() })
+  res.json({ foto: camera.pegarPedido(), fotos: camera.alguemOlhando() })
 })
 
 // ---------------------------------------------------------------------
