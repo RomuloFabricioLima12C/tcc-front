@@ -8,7 +8,7 @@
     - Cadastro de alimentos pela tela  -> POST /api/alimentos
     - Lista de validades               -> GET  /api/alimentos
     - Sem sensor de porta e sem relé: a fita de LED (relé) fica na
-      ESP32-CAM (GPIO13) e acende só com o vídeo ao vivo aberto no site.
+      ESP32-CAM (GPIO13) e acende só na hora de tirar cada foto.
     - Wi-Fi trocado pelo site (página "Wi-Fi das placas"): a placa
       baixa a lista de redes e guarda na memória. Ao ligar, conecta
       na rede salva que estiver ao alcance. A rede escrita aqui no

@@ -15,10 +15,9 @@
     resposta do GET /api/comando traz "video":true e a câmera manda
     quadros seguidos (POST /api/video/quadro) até ninguém mais assistir.
     O flash não acende no vídeo (esquentaria a placa).
-  - Fita de LED (módulo relé no GPIO13): acende SÓ enquanto alguém
-    assiste o vídeo da câmera no site e apaga uns segundos depois que
-    a pessoa sai da página. Fotos (botão do site, automática) não acendem
-    a fita; nelas só o flash pequeno da placa (GPIO4), que pode ser desligado.
+  - Fita de LED (módulo relé no GPIO13): acende SÓ na hora de tirar cada
+    foto (botão do site, automática, de teste ao ligar) e apaga logo depois
+    da captura. O vídeo ao vivo não acende a fita.
 
   Arduino IDE:
     Placa: "AI Thinker ESP32-CAM"
@@ -55,10 +54,11 @@ const unsigned long INTERVALO_REDES_MS   = 60000;                // pergunta a l
 
 #define USAR_FLASH true   // false = não acende o LED da placa na foto
 
-// Relé da fita de LED (fio IN do módulo no GPIO13). Liga só com o vídeo ao vivo aberto no site.
+// Relé da fita de LED (fio IN do módulo no GPIO13). Liga só na hora de tirar a foto.
 #define USAR_RELE          true
 #define PINO_RELE          13
 #define RELE_ATIVO_EM_LOW  true    // a maioria dos módulos liga com LOW; se a fita acender ao contrário, troque para false
+const unsigned long TEMPO_LUZ_MS = 600;   // espera a fita acender e a câmera ajustar a luz antes da foto
 // ==================================================
 
 // Pinos da câmera na placa AI Thinker (já ligados de fábrica, não mexer)
@@ -241,17 +241,35 @@ void conectarWiFi() {
   else Serial.println("Nenhuma rede salva respondeu (tento de novo depois)");
 }
 
+// Liga/desliga a fita de LED pelo relé
+bool releLigado = false;
+void rele(bool ligar) {
+#if USAR_RELE
+  if (ligar == releLigado) return;
+  digitalWrite(PINO_RELE, (ligar == RELE_ATIVO_EM_LOW) ? LOW : HIGH);
+  releLigado = ligar;
+  Serial.println(ligar ? "Fita de LED: ligada" : "Fita de LED: desligada");
+#endif
+}
+
 void tirarEEnviarFoto() {
   if (WiFi.status() != WL_CONNECTED) return;
 
-  if (USAR_FLASH) { digitalWrite(FLASH_LED_PIN, HIGH); delay(150); }
+  // Acende a fita (relé) e o flash e espera a luz e a câmera se ajustarem
+  rele(true);
+  if (USAR_FLASH) digitalWrite(FLASH_LED_PIN, HIGH);
+  delay(TEMPO_LUZ_MS);
 
-  // Descarta um quadro antigo para a foto ser "de agora"
+  // Descarta os quadros guardados de antes da luz acender, para a foto ser "de agora"
+  for (int i = 0; i < 2; i++) {
+    camera_fb_t* velho = esp_camera_fb_get();
+    if (velho) esp_camera_fb_return(velho);
+  }
   camera_fb_t* fb = esp_camera_fb_get();
-  if (fb) esp_camera_fb_return(fb);
-  fb = esp_camera_fb_get();
 
+  // Foto capturada: apaga a luz já, antes de enviar (o envio pode demorar)
   if (USAR_FLASH) digitalWrite(FLASH_LED_PIN, LOW);
+  rele(false);
 
   if (!fb) {
     Serial.println("Falha ao capturar a foto");
@@ -292,22 +310,10 @@ void perguntarComando(bool& foto, bool& video) {
   http.end();
 }
 
-// Liga/desliga a fita de LED pelo relé
-bool releLigado = false;
-void rele(bool ligar) {
-#if USAR_RELE
-  if (ligar == releLigado) return;
-  digitalWrite(PINO_RELE, (ligar == RELE_ATIVO_EM_LOW) ? LOW : HIGH);
-  releLigado = ligar;
-  Serial.println(ligar ? "Fita de LED: ligada" : "Fita de LED: desligada");
-#endif
-}
-
 // Vídeo ao vivo: manda quadros seguidos para o backend enquanto alguém assiste.
 // Cada resposta diz se é para continuar e se pediram uma foto no meio do vídeo.
 void transmitirVideo() {
   Serial.println("Vídeo ao vivo: começou");
-  rele(true);   // fita acesa enquanto alguém assiste (apaga no loop, quando ninguém mais assiste)
   HTTPClient http;
   http.setReuse(true);   // usa a mesma conexão para todos os quadros (mais rápido)
   int quadros = 0;
@@ -381,7 +387,6 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) {
-    rele(false);   // sem Wi-Fi ninguém consegue assistir: apaga a fita
     conectarWiFi();
     delay(2000);
     return;
@@ -396,7 +401,6 @@ void loop() {
       ultimaFoto = millis();
     }
     if (video) transmitirVideo();
-    else rele(false);   // ninguém assistindo o vídeo: apaga a fita
     ultimoComando = millis();
   }
 

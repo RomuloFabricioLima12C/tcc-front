@@ -90,7 +90,7 @@ Alimentação: fonte chaveada 5 V comum, **todos os GND juntos**.
 
 ### ESP32-CAM (AI Thinker)
 - Quase todos os pinos já são da câmera e do cartão SD; o GPIO4 é o flash. Sem cartão SD sobram 12, 13, 14 e 15.
-- **Relé da fita de LED: GPIO13** (`PINO_RELE`, aciona em LOW por padrão). Liga só com o vídeo ao vivo aberto no site (`transmitirVideo()` liga; o `loop` desliga quando o `GET /api/comando` volta `"video":false` ou o Wi-Fi cai). Fotos não acendem a fita.
+- **Relé da fita de LED: GPIO13** (`PINO_RELE`, aciona em LOW por padrão). Liga só na hora da foto: `tirarEEnviarFoto()` liga, espera `TEMPO_LUZ_MS` (600 ms), descarta 2 quadros antigos, captura e desliga antes de enviar. O vídeo ao vivo não acende a fita.
 - Gravar: GPIO0 no GND → RESET → Carregar → tirar o fio do GPIO0 → RESET.
 - Precisa de 5 V com corrente boa; queda de tensão causa "Brownout detector was triggered".
 

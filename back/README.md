@@ -124,7 +124,7 @@ Dicas:
 
 ### O que acontece quando...
 - **Toca num alimento na tela:** ele é cadastrado e aparece no site e na voz.
-- **Alguém abre o vídeo ao vivo** no site (Relatório): a fita de LED acende (relé no GPIO13 da ESP32-CAM) e apaga uns segundos depois que a pessoa sai da página.
+- **A câmera tira uma foto** (botão do site, automática a cada 10 min ou ao ligar): a fita de LED acende só na hora da foto (relé no GPIO13 da ESP32-CAM) e apaga logo depois. O vídeo ao vivo não acende a fita.
 - **Alguém toca em "Ver câmera"** no site: a câmera tira a foto em até 3 s.
 - **Fala "adiciona leite":** cadastra; aparece no site na hora e na tela em até 2 min.
 
