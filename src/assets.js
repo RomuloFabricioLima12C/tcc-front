@@ -151,7 +151,6 @@ export const svg = {
   chevronRight: f('596ba.svg'),
   cartWheel: f('5dd1b.svg'),
   cartBody: f('974a0.svg'),
-  dash: f('5ffb0.svg'),
   book: f('1d5eb.svg'),
 }
 

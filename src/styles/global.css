@@ -547,7 +547,8 @@ img {
   z-index: 0;
   left: -0.25em;
   top: 0.667em;
-  width: 9.92em;
+  /* tamanho de sempre; título comprido: passa 1,8em do fim do texto (100% = largura do título) */
+  width: max(9.92em, calc(100% + 2.05em));
   max-width: none;
 }
 
@@ -579,7 +580,7 @@ img {
 :root[data-theme='dark'] .section-title .st-underline {
   left: -0.528em;
   top: -0.04em;
-  width: 10.31em;
+  width: max(10.31em, calc(100% + 2.33em));
 }
 
 :root[data-theme='dark'] .st-lg .st-underline {
@@ -913,7 +914,7 @@ img {
   .section-title .st-underline,
   .st-lg .st-underline,
   .st-sm .st-underline {
-    width: 10.4em;
+    width: max(10.4em, calc(100% + 2.11em));
     top: 0.69em;
     left: -0.31em;
   }
@@ -921,7 +922,7 @@ img {
   :root[data-theme='dark'] .section-title .st-underline,
   :root[data-theme='dark'] .st-lg .st-underline,
   :root[data-theme='dark'] .st-sm .st-underline {
-    width: 10.81em;
+    width: max(10.81em, calc(100% + 2.4em));
     top: -0.051em;
     left: -0.601em;
   }

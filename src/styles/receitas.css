@@ -98,7 +98,7 @@
 }
 
 .receitas-intro {
-  margin-top: 18px;
+  margin-top: 40px; /* espaço para a estrela do título, que passa do texto */
   font-size: clamp(16px, 1.4vw, 20px);
   color: var(--text);
 }

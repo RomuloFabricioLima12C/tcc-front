@@ -59,15 +59,6 @@ function WifiIcon() {
 
 const menu = [
   { to: '/relatorio', label: 'Minhas compras', icon: <CartIcon /> },
-  {
-    to: '/',
-    label: 'Inicio',
-    icon: (
-      <span className="pf-icon">
-        <img src={svg.dash} alt="" className="pf-dash" />
-      </span>
-    ),
-  },
   // Suporte: abre o formulário FAQ (o mesmo do rodapé), sem página própria
   {
     href: links.faq,
