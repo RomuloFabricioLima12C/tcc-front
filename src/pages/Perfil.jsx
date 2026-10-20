@@ -240,7 +240,8 @@ export default function Perfil() {
           </button>
         )}
 
-        <ThemeCrop light={img.logo} dark={img.logoDark} className="pf-logo" />
+        {/* Só no celular: no computador o logo já está no cabeçalho */}
+        <ThemeCrop light={img.logo} dark={img.logoDark} className="pf-logo mobile-only" />
       </section>
     </AccountLayout>
   )
