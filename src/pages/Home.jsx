@@ -36,7 +36,7 @@ function Hero() {
   return (
     <section className="hero container">
       <div className="hero-text">
-        <p className="hero-kicker">A LabCam é</p>
+        <p className="hero-kicker">A LabCam é um</p>
         <h1 className="hero-title">
           Controle inteligente{' '}
           <br />
