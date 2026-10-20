@@ -18,6 +18,35 @@ const VALIDADE_MEDIA = {
 const VALIDADE_PADRAO = 7
 const ORIGENS = ['site', 'touch', 'voz', 'camera']
 
+// Tipo do alimento quando ninguém escolhe (voz, tela touch ou o campo vazio no site).
+// Mesmos nomes da lista de categorias do site (src/pages/Alimentos.jsx). Fácil de editar.
+const CATEGORIAS = {
+  'Laticínio': 'leite iogurte queijo requeijao manteiga nata coalhada mucarela mussarela ricota parmesao cottage',
+  Embutido: 'presunto salame mortadela salsicha linguica peru bacon apresuntado calabresa',
+  Carne: 'frango carne peixe bife file costela picanha patinho alcatra coxa sobrecoxa tilapia salmao sardinha camarao porco lombo hamburguer atum',
+  Fruta: 'banana maca laranja morango uva abacaxi mamao manga melancia melao pera limao kiwi abacate goiaba maracuja tangerina mexerica ameixa pessego amora mirtilo framboesa coco caqui',
+  Verdura: 'alface couve rucula espinafre agriao repolho acelga cheiro salsinha cebolinha coentro brocolis',
+  Legume: 'tomate cenoura batata cebola alho abobrinha abobora berinjela pepino pimentao beterraba chuchu mandioca aipim inhame milho vagem quiabo ervilha',
+  'Grão': 'arroz feijao lentilha grao aveia soja quinoa',
+  Padaria: 'pao bolo torrada biscoito bolacha rosca croissant sonho',
+  Bebida: 'suco refrigerante refri agua cha cafe cerveja vinho energetico achocolatado',
+}
+const CATEGORIA_DA_PALAVRA = {}
+for (const [categoria, palavras] of Object.entries(CATEGORIAS)) {
+  for (const p of palavras.split(' ')) CATEGORIA_DA_PALAVRA[p] = categoria
+}
+
+// "Leite integral" -> Laticínio, "Suco de laranja" -> Bebida (vale a 1ª palavra conhecida),
+// "Ovos" -> null (sem tipo: o site mostra "Outro")
+function categoriaPorNome(nome) {
+  const palavras = normalizar(nome).split(/[^a-z0-9]+/).filter(Boolean)
+  for (const p of palavras) {
+    const achou = CATEGORIA_DA_PALAVRA[p] || CATEGORIA_DA_PALAVRA[p.replace(/s$/, '')]
+    if (achou) return achou
+  }
+  return null
+}
+
 // "Pão Francês" -> "pao frances" (para comparar nomes)
 function normalizar(texto) {
   return String(texto || '')
@@ -97,7 +126,8 @@ async function cadastrar(usuarioId, dados, { origemPadrao = 'site' } = {}) {
 
   const quantidade = dados.quantidade == null || dados.quantidade === '' ? 1 : lerQuantidade(dados.quantidade)
 
-  const categoria = dados.categoria ? String(dados.categoria).trim().slice(0, 50) : null
+  // Sem tipo escolhido (voz, tela touch, campo vazio): descobre pelo nome
+  const categoria = dados.categoria ? String(dados.categoria).trim().slice(0, 50) : categoriaPorNome(nome)
   const origem = ORIGENS.includes(dados.origem) ? dados.origem : origemPadrao
 
   let dataSql
@@ -182,4 +212,29 @@ async function consumirPorNome(usuarioId, nome) {
   return atualizar(usuarioId, achado.id, { status: 'consumido' })
 }
 
-module.exports = { listar, vencendo, cadastrar, atualizar, remover, consumirPorNome, validadeMedia, normalizar }
+// Alimentos que já estão no banco sem tipo (cadastrados antes por voz ou pela tela):
+// preenche pelo nome. Roda quando a API liga. Devolve quantos foram arrumados.
+async function preencherCategorias() {
+  const { rows } = await query('SELECT id, nome FROM alimentos WHERE categoria IS NULL')
+  let arrumados = 0
+  for (const a of rows) {
+    const categoria = categoriaPorNome(a.nome)
+    if (!categoria) continue
+    await query('UPDATE alimentos SET categoria = $1 WHERE id = $2 AND categoria IS NULL', [categoria, a.id])
+    arrumados++
+  }
+  return arrumados
+}
+
+module.exports = {
+  listar,
+  vencendo,
+  cadastrar,
+  atualizar,
+  remover,
+  consumirPorNome,
+  validadeMedia,
+  normalizar,
+  categoriaPorNome,
+  preencherCategorias,
+}

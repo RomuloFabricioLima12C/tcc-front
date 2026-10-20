@@ -40,6 +40,10 @@ async function main() {
   const schema = fs.readFileSync(path.join(__dirname, '..', 'sql', 'schema.sql'), 'utf8')
   await pool.query(schema)
 
+  // Alimentos antigos sem tipo (vindos da voz ou da tela touch): preenche pelo nome
+  const arrumados = await require('./servicos/alimentos').preencherCategorias()
+  if (arrumados) console.log(`Tipo preenchido em ${arrumados} alimento(s) que estavam sem tipo.`)
+
   // 3) Conta da casa (opcional): se o banco não tem nenhum usuário e o .env tem
   //    CONTA_EMAIL e CONTA_SENHA, cria essa conta. Sem isso, a primeira conta
   //    criada no site guarda os dados da geladeira (toda conta vê e mexe neles).
