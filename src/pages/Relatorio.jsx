@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SiteLayout } from '../components/Layout.jsx'
 import { SectionTitle, Sparkle, Stripes } from '../components/Bits.jsx'
 import CameraVideo from '../components/CameraVideo.jsx'
@@ -6,7 +6,8 @@ import GraficoValidade from '../components/GraficoValidade.jsx'
 import ReceitasSugeridas from '../components/ReceitasSugeridas.jsx'
 import { green, white } from './Jogo.jsx'
 import { svg } from '../assets.js'
-import { lerSessao, listarAlimentos } from '../api.js'
+import { lerSessao, listarAlimentos, marcarConsumido, voltarParaGeladeira } from '../api.js'
+import { esquecerSugestoes } from '../receitas.js'
 import '../styles/jogo.css'
 import '../styles/relatorio.css'
 
@@ -80,35 +81,87 @@ function doBanco(a) {
 const ATUALIZAR_MS = 30000
 
 // Busca os alimentos no banco. Sem login ou sem servidor, fica com os exemplos.
+// `recarregar` busca de novo na hora (ex.: depois de retirar um alimento).
 function useAlimentos() {
   const [estado, setEstado] = useState(() => ({ itens: exemplos(), exemplo: true }))
+  const ativo = useRef(true)
 
-  useEffect(() => {
-    if (!lerSessao()) return undefined
-    let ativo = true
-    const carregar = () =>
+  const recarregar = useCallback(
+    () =>
       listarAlimentos()
-        .then((lista) => ativo && setEstado({ itens: lista.map(doBanco), exemplo: false }))
+        .then((lista) => ativo.current && setEstado({ itens: lista.map(doBanco), exemplo: false }))
         .catch(() => {
           // servidor desligado ou login expirado: mantém o que já está na tela
-        })
-    carregar()
-    const timer = setInterval(carregar, ATUALIZAR_MS)
+        }),
+    [],
+  )
+
+  useEffect(() => {
+    ativo.current = true
+    if (!lerSessao()) return undefined
+    recarregar()
+    const timer = setInterval(recarregar, ATUALIZAR_MS)
     return () => {
-      ativo = false
+      ativo.current = false
       clearInterval(timer)
     }
-  }, [])
+  }, [recarregar])
 
-  return estado
+  return { ...estado, recarregar }
 }
 
 export default function Relatorio() {
-  const { itens, exemplo } = useAlimentos()
+  const { itens, exemplo, recarregar } = useAlimentos()
   const [showFilters, setShowFilters] = useState(false)
   const [draft, setDraft] = useState({ tipo: 'Todos', ordem: 'padrao' })
   const [applied, setApplied] = useState(draft)
   const [selecionado, setSelecionado] = useState(null)
+  const [retirando, setRetirando] = useState(null) // id do alimento sendo retirado
+  const [retirado, setRetirado] = useState(null) // último retirado: { id, nome } (para "Desfazer")
+  const [erroRetirar, setErroRetirar] = useState('')
+  const [versao, setVersao] = useState(0) // muda quando a geladeira muda: as receitas atualizam
+
+  // Depois de mudar a geladeira: busca a tabela de novo e atualiza as receitas
+  const geladeiraMudou = async () => {
+    esquecerSugestoes()
+    await recarregar()
+    setVersao((v) => v + 1)
+  }
+
+  // "Retirar": marca como consumido (sai da geladeira, mas não é apagado)
+  const retirar = async (r) => {
+    setErroRetirar('')
+    setRetirando(r.id)
+    try {
+      await marcarConsumido(r.id)
+      setRetirado({ id: r.id, nome: r.nome })
+      if (selecionado === r.id) setSelecionado(null)
+      await geladeiraMudou()
+    } catch (falha) {
+      setErroRetirar(falha.message)
+    } finally {
+      setRetirando(null)
+    }
+  }
+
+  const desfazer = async () => {
+    if (!retirado) return
+    setErroRetirar('')
+    try {
+      await voltarParaGeladeira(retirado.id)
+      setRetirado(null)
+      await geladeiraMudou()
+    } catch (falha) {
+      setErroRetirar(falha.message)
+    }
+  }
+
+  // O aviso de "retirado" some sozinho depois de 8 s
+  useEffect(() => {
+    if (!retirado) return undefined
+    const timer = setTimeout(() => setRetirado(null), 8000)
+    return () => clearTimeout(timer)
+  }, [retirado])
 
   const tipos = useMemo(() => ['Todos', ...new Set(itens.map((i) => i.tipo))], [itens])
 
@@ -166,14 +219,36 @@ export default function Relatorio() {
           <p className="report-aviso">Dados de exemplo — entre na sua conta para ver os alimentos do banco.</p>
         )}
 
+        {retirado && (
+          <p className="report-retirado" role="status">
+            <span>
+              <strong>{retirado.nome}</strong> saiu da geladeira (marcado como consumido).
+            </span>
+            <button type="button" className="report-desfazer" onClick={desfazer}>
+              Desfazer
+            </button>
+          </p>
+        )}
+        {erroRetirar && (
+          <p className="report-erro" role="alert">
+            {erroRetirar}
+          </p>
+        )}
+
         <div className="report-table-wrap">
-          <table className="report-table">
+          <table className={`report-table${exemplo ? '' : ' com-retirar'}`}>
             <thead>
               <tr>
                 <th scope="col">Validade</th>
                 <th scope="col">Tempo restante</th>
                 <th scope="col">Tipo</th>
                 <th scope="col">Nome</th>
+                {/* Só com os alimentos do banco (com login): os exemplos não são de verdade */}
+                {!exemplo && (
+                  <th scope="col" className="report-col-retirar">
+                    Retirar
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -188,11 +263,28 @@ export default function Relatorio() {
                   <td data-label="Tempo restante">{r.restante}</td>
                   <td data-label="Tipo">{r.tipo}</td>
                   <td data-label="Nome">{r.nome}</td>
+                  {!exemplo && (
+                    <td className="report-col-retirar">
+                      <button
+                        type="button"
+                        className="report-retirar"
+                        disabled={retirando === r.id}
+                        // não seleciona a linha no gráfico ao clicar no botão
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          retirar(r)
+                        }}
+                        aria-label={`Retirar ${r.nome} da geladeira (consumido)`}
+                      >
+                        {retirando === r.id ? '...' : '✓ Consumido'}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="report-vazio">
+                  <td colSpan={exemplo ? 4 : 5} className="report-vazio">
                     Nenhum alimento com esse filtro.
                   </td>
                 </tr>
@@ -203,7 +295,7 @@ export default function Relatorio() {
       </section>
 
       {/* O alerta de receita do site leva para cá (/relatorio#receitas) */}
-      <ReceitasSugeridas />
+      <ReceitasSugeridas versao={versao} />
 
       <section className="container cam-video-section" aria-labelledby="camera-title">
         <SectionTitle id="camera-title">CÂMERA AO VIVO</SectionTitle>

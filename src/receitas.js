@@ -11,6 +11,11 @@ export function buscarSugestoes() {
   return cache.promessa
 }
 
+// A geladeira mudou (ex.: retirou um alimento): a próxima busca pega as receitas de novo
+export function esquecerSugestoes() {
+  cache = null
+}
+
 // "vence hoje" / "vence amanhã" / "vence em 3 dias"
 export function quandoVence(dias) {
   if (dias === 0) return 'vence hoje'

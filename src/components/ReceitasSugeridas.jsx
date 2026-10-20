@@ -7,7 +7,8 @@ import '../styles/receitas.css'
 
 // Seção "Receitas sugeridas" do Relatório (o alerta do site leva para cá: /relatorio#receitas).
 // A primeira receita é a que aproveita o alimento que vence antes.
-export default function ReceitasSugeridas() {
+// `versao` muda quando a geladeira muda (ex.: um alimento foi retirado no Relatório).
+export default function ReceitasSugeridas({ versao = 0 }) {
   const [lista, setLista] = useState(null)
   const logado = Boolean(lerSessao())
 
@@ -17,7 +18,7 @@ export default function ReceitasSugeridas() {
     return () => {
       ativo = false
     }
-  }, [])
+  }, [versao])
 
   // Veio pelo alerta (/relatorio#receitas): nos primeiros segundos a tabela de cima troca os
   // exemplos pelos alimentos do banco e muda de altura; a seção acompanha para não sair da tela.
