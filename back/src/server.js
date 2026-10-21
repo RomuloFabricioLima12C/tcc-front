@@ -44,6 +44,10 @@ async function main() {
   const arrumados = await require('./servicos/alimentos').preencherCategorias()
   if (arrumados) console.log(`Tipo preenchido em ${arrumados} alimento(s) que estavam sem tipo.`)
 
+  // Receitas que já vêm no Lab Cam (servicos/receitasPadrao.js): grava as que faltam
+  const receitasNovas = await require('./servicos/receitas').cadastrarPadrao()
+  if (receitasNovas) console.log(`${receitasNovas} receita(s) nova(s) cadastrada(s).`)
+
   // 3) Conta da casa (opcional): se o banco não tem nenhum usuário e o .env tem
   //    CONTA_EMAIL e CONTA_SENHA, cria essa conta. Sem isso, a primeira conta
   //    criada no site guarda os dados da geladeira (toda conta vê e mexe neles).

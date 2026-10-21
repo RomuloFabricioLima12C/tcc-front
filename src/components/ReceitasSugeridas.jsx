@@ -8,8 +8,12 @@ import '../styles/receitas.css'
 // Seção "Receitas sugeridas" do Relatório (o alerta do site leva para cá: /relatorio#receitas).
 // A primeira receita é a que aproveita o alimento que vence antes.
 // `versao` muda quando a geladeira muda (ex.: um alimento foi retirado no Relatório).
+// Mostra primeiro só as SUGESTOES que usam algo da geladeira; o resto aparece em "Ver todas".
+const SUGESTOES = 6
+
 export default function ReceitasSugeridas({ versao = 0 }) {
   const [lista, setLista] = useState(null)
+  const [verTodas, setVerTodas] = useState(false)
   const logado = Boolean(lerSessao())
 
   useEffect(() => {
@@ -56,9 +60,16 @@ export default function ReceitasSugeridas({ versao = 0 }) {
       )}
       {logado && lista === null && <p className="receitas-intro">Carregando receitas...</p>}
 
+      {lista && lista.length > 0 && !lista.some((r) => r.destaque) && !verTodas && (
+        <p className="receitas-intro">
+          Nenhuma receita usa os alimentos que estão na geladeira agora. Veja todas as receitas abaixo.
+        </p>
+      )}
+
       {lista && lista.length > 0 && (
         <ul className="receitas-grid">
-          {lista.map((r, i) => (
+          {/* a API já manda em ordem: primeiro as que aproveitam o que vence antes */}
+          {(verTodas ? lista : lista.filter((r) => r.destaque).slice(0, SUGESTOES)).map((r, i) => (
             <li key={r.id} className={`receita-card${i === 0 && r.destaque ? ' is-destaque' : ''}`}>
               {i === 0 && r.destaque && <span className="receita-selo">Sugestão do dia</span>}
               <h3>{r.nome}</h3>
@@ -67,7 +78,7 @@ export default function ReceitasSugeridas({ versao = 0 }) {
               </p>
               {r.destaque ? (
                 <p className="receita-aproveita">
-                  Aproveite: <strong>{r.destaque.nome}</strong> ({quandoVence(r.destaque.dias_restantes)})
+                  Aproveite: <strong>{r.destaque.nome}</strong> ({quandoVence(r.destaque.dias_restantes, r.destaque.nome)})
                 </p>
               ) : (
                 <p className="receita-aproveita is-vazio">Nenhum ingrediente desta receita está na geladeira.</p>
@@ -106,6 +117,12 @@ export default function ReceitasSugeridas({ versao = 0 }) {
             </li>
           ))}
         </ul>
+      )}
+
+      {lista && lista.length > 0 && (
+        <button type="button" className="receitas-todas" onClick={() => setVerTodas((v) => !v)} aria-expanded={verTodas}>
+          {verTodas ? 'Mostrar só as sugestões' : `Ver todas as receitas (${lista.length})`}
+        </button>
       )}
     </section>
   )

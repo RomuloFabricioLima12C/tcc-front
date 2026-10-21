@@ -54,7 +54,7 @@ export default function AlertaReceita() {
       </span>
       <div className="alerta-texto">
         <strong>
-          {receita.destaque.nome} {quandoVence(receita.destaque.dias_restantes)}!
+          {receita.destaque.nome} {quandoVence(receita.destaque.dias_restantes, receita.destaque.nome)}!
         </strong>
         <span>Que tal fazer {receita.nome.toLowerCase()}?</span>
         <Link to="/relatorio#receitas" className="alerta-ver" onClick={fechar}>

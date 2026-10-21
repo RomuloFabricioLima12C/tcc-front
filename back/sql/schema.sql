@@ -78,49 +78,8 @@ CREATE TABLE IF NOT EXISTS receitas (
   criado_em      TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
--- Receitas da apresentação (só entram se ainda não existirem)
-INSERT INTO receitas (nome, tempo_minutos, porcoes, ingredientes, passos) VALUES
-(
-  'Omelete de queijo e tomate', 10, '1 porção',
-  '[{"nome":"Ovo","quantidade":"3 ovos","chaves":["ovo","ovos"]},
-    {"nome":"Queijo","quantidade":"2 fatias de queijo","chaves":["queijo","mucarela","mussarela"]},
-    {"nome":"Tomate","quantidade":"1 tomate picado","chaves":["tomate","tomates"]},
-    {"nome":"Cebola","quantidade":"1/2 cebola picada","chaves":["cebola","cebolas"]},
-    {"nome":"Sal e azeite","quantidade":"a gosto","basico":true}]',
-  ARRAY[
-    'Bata os ovos com uma pitada de sal.',
-    'Refogue a cebola e o tomate numa frigideira com um fio de azeite.',
-    'Despeje os ovos, espalhe o queijo por cima e tampe a frigideira.',
-    'Cozinhe em fogo baixo por 4 a 5 minutos, dobre ao meio e sirva.'
-  ]
-),
-(
-  'Vitamina de banana com morango', 5, '2 copos',
-  '[{"nome":"Leite","quantidade":"400 ml de leite","chaves":["leite"]},
-    {"nome":"Banana","quantidade":"2 bananas maduras","chaves":["banana","bananas"]},
-    {"nome":"Morango","quantidade":"6 morangos","chaves":["morango","morangos"]},
-    {"nome":"Açúcar ou mel","quantidade":"a gosto","basico":true}]',
-  ARRAY[
-    'Lave os morangos e tire as folhinhas.',
-    'Bata no liquidificador o leite, as bananas e os morangos.',
-    'Adoce a gosto e sirva gelado.'
-  ]
-),
-(
-  'Frango com batata e cenoura', 40, '3 porções',
-  '[{"nome":"Frango","quantidade":"500 g de frango em cubos","chaves":["frango"]},
-    {"nome":"Batata","quantidade":"3 batatas em cubos","chaves":["batata","batatas"]},
-    {"nome":"Cenoura","quantidade":"2 cenouras em rodelas","chaves":["cenoura","cenouras"]},
-    {"nome":"Cebola","quantidade":"1 cebola picada","chaves":["cebola","cebolas"]},
-    {"nome":"Alho, sal e azeite","quantidade":"a gosto","basico":true}]',
-  ARRAY[
-    'Tempere o frango com alho e sal.',
-    'Doure o frango numa panela com azeite e junte a cebola.',
-    'Acrescente a batata, a cenoura e 1 xícara de água.',
-    'Tampe e cozinhe por 20 a 25 minutos, até os legumes ficarem macios.'
-  ]
-)
-ON CONFLICT (nome) DO NOTHING;
+-- As receitas que já vêm no Lab Cam ficam em src/servicos/receitasPadrao.js e são gravadas
+-- quando a API liga (só as que ainda não existem).
 
 -- Códigos de "Esqueceu a senha?": um por usuário (pedir de novo troca o anterior).
 -- Só o hash do código é guardado, igual à senha. Vale 15 minutos e aceita 5 tentativas.

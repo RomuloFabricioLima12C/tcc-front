@@ -6,10 +6,27 @@
 const { query } = require('../db')
 const alimentos = require('./alimentos')
 
-// "Peito de frango" combina com a chave "frango" (palavra inteira, sem acento)
+// "Peito de frango" combina com a chave "frango" (palavra inteira, sem acento).
+// O plural também vale: "Ovos" combina com "ovo", "Maçãs" com "maca".
 function combina(nomeAlimento, chaves) {
-  const palavras = ` ${alimentos.normalizar(nomeAlimento).replace(/[^a-z0-9]+/g, ' ')} `
-  return chaves.some((c) => palavras.includes(` ${alimentos.normalizar(c)} `))
+  const palavras = alimentos.normalizar(nomeAlimento).split(/[^a-z0-9]+/).filter(Boolean)
+  const procuradas = new Set(chaves.map((c) => alimentos.normalizar(c)))
+  return palavras.some((p) => procuradas.has(p) || procuradas.has(p.replace(/s$/, '')))
+}
+
+// Grava no banco as receitas de receitasPadrao.js que ainda não existem (pelo nome).
+// Roda quando a API liga. Devolve quantas foram cadastradas agora.
+async function cadastrarPadrao() {
+  let novas = 0
+  for (const r of require('./receitasPadrao')) {
+    const { rowCount } = await query(
+      `INSERT INTO receitas (nome, tempo_minutos, porcoes, ingredientes, passos)
+       VALUES ($1, $2, $3, $4, $5) ON CONFLICT (nome) DO NOTHING`,
+      [r.nome, r.tempo_minutos, r.porcoes, JSON.stringify(r.ingredientes), r.passos],
+    )
+    novas += rowCount
+  }
+  return novas
 }
 
 async function sugestoes(usuarioId) {
@@ -51,15 +68,15 @@ async function sugestoes(usuarioId) {
   })
 
   // Primeiro as que usam algo da geladeira; entre elas, a que aproveita o que vence antes;
-  // empate: a que usa mais ingredientes que já tem
+  // empate: a que dá para fazer agora (falta menos) e, depois, a que usa mais coisas da geladeira
   lista.sort((a, b) => {
     if (!a.destaque !== !b.destaque) return a.destaque ? -1 : 1
     if (a.destaque && b.destaque && a.destaque.dias_restantes !== b.destaque.dias_restantes) {
       return a.destaque.dias_restantes - b.destaque.dias_restantes
     }
-    return b.usa.length - a.usa.length || a.faltam - b.faltam
+    return a.faltam - b.faltam || b.usa.length - a.usa.length
   })
   return lista
 }
 
-module.exports = { sugestoes, combina }
+module.exports = { sugestoes, combina, cadastrarPadrao }

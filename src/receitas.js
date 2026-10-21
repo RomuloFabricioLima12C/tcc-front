@@ -16,11 +16,12 @@ export function esquecerSugestoes() {
   cache = null
 }
 
-// "vence hoje" / "vence amanhã" / "vence em 3 dias"
-export function quandoVence(dias) {
-  if (dias === 0) return 'vence hoje'
-  if (dias === 1) return 'vence amanhã'
-  return `vence em ${dias} dias`
+// "vence hoje" / "vence amanhã" / "vence em 3 dias"; com o nome no plural ("Ovos"), "vencem"
+export function quandoVence(dias, nome = '') {
+  const verbo = /s$/i.test(nome.trim()) ? 'vencem' : 'vence'
+  if (dias === 0) return `${verbo} hoje`
+  if (dias === 1) return `${verbo} amanhã`
+  return `${verbo} em ${dias} dias`
 }
 
 // O alerta aparece quando a receita da vez usa algo que vence em até 3 dias

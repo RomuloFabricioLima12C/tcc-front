@@ -229,7 +229,7 @@ pelo banco (negativo = já venceu). `origem`: `site`, `touch`, `voz` ou `camera`
 | ------ | ---- | -------- |
 | GET | `/api/receitas/sugestoes` | receitas na ordem do que vence primeiro na geladeira |
 
-As receitas ficam na tabela `receitas` (as 3 da apresentação são criadas pelo `schema.sql`). Cada
+As receitas ficam na tabela `receitas`. As 32 que já vêm no projeto estão em `src/servicos/receitasPadrao.js` (fácil de editar) e são gravadas quando a API liga (só as que faltam). O Relatório mostra as 6 melhores sugestões e um botão "Ver todas as receitas". Cada
 ingrediente tem `chaves` (palavras que ligam ele a um alimento: "Peito de frango" combina com `frango`).
 Alimento vencido não entra. Cada receita volta com `ingredientes` (com `tem` e o alimento achado),
 `passos`, `usa`, `destaque` (o que vence primeiro) e `faltam`. No site, um alerta ("Banana vence

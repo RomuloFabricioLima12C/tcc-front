@@ -247,3 +247,31 @@
     border-radius: 24px;
   }
 }
+
+/* "Ver todas as receitas" / "Mostrar só as sugestões" */
+.receitas-todas {
+  display: block;
+  margin: 28px auto 0;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 2px solid var(--teal);
+  color: var(--deep);
+  font-family: var(--font-display);
+  font-size: 16px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.receitas-todas:hover {
+  background: var(--teal);
+  color: #fff;
+}
+
+:root[data-theme='dark'] .receitas-todas {
+  border-color: var(--green);
+  color: var(--lime);
+}
+
+:root[data-theme='dark'] .receitas-todas:hover {
+  background: var(--green);
+  color: #000;
+}
