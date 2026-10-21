@@ -234,10 +234,10 @@ img {
 
 .main-nav {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
-  gap: 6px clamp(10px, 2vw, 44px);
+  gap: clamp(10px, 1.2vw, 32px);
   min-width: 0;
   min-height: var(--hdr-row-h);
   margin-top: var(--hdr-row);
@@ -260,11 +260,27 @@ img {
   .search button {
     margin-right: 8px;
   }
+
+  /* Tablet: o menu desce para uma linha própria, de ponta a ponta, embaixo do logo */
+  .main-nav {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    margin-top: 16px;
+  }
+
+  .main-nav a {
+    font-size: clamp(13px, 1.9vw, 18px);
+  }
+
+  .header-tools {
+    justify-self: end;
+  }
 }
 
 .main-nav a {
   font-family: var(--font-display);
-  font-size: clamp(13px, 1.4vw, 22px);
+  /* cresce com a tela, mas sempre cabem os 5 links numa linha só */
+  font-size: clamp(12px, calc(1.6vw - 5px), 22px);
   color: var(--nav);
   white-space: nowrap;
   position: relative;
@@ -282,7 +298,8 @@ img {
   transition: transform 0.2s ease;
 }
 
-.main-nav a:hover::after {
+.main-nav a:hover::after,
+.main-nav a.active::after {
   transform: scaleX(1);
 }
 

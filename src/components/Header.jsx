@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import Crop from './Crop.jsx'
 import ThemeCrop from './ThemeImage.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
@@ -56,10 +56,9 @@ function ChartIcon() {
 
 // Cabeçalho desktop/tablet (no celular a navegação fica em MobileChrome).
 export default function Header() {
-  const { pathname } = useLocation()
-  // Como no Figma: 5 links, sem o da página atual (nas páginas fora do menu, sai o último).
+    // Sempre os mesmos 5 links, na mesma ordem e numa linha só (a página atual fica sublinhada).
   // O jogo não entra no menu: ele tem o ícone de controle ao lado do tema, sempre visível.
-  const items = mainNav.filter((item) => item.to !== pathname && item.to !== '/jogo').slice(0, 5)
+  const items = mainNav.filter((item) => item.to !== '/jogo')
   const sessao = lerSessao()
   const nome = sessao?.usuario?.nome || sessao?.usuario?.email || 'você'
 
@@ -70,7 +69,7 @@ export default function Header() {
       </Link>
       <nav className="main-nav" aria-label="Principal">
         {items.map((item) => (
-          <NavLink key={item.to} to={item.to}>
+          <NavLink key={item.to} to={item.to} end>
             {item.label}
           </NavLink>
         ))}
