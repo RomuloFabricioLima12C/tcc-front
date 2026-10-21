@@ -77,6 +77,14 @@ export default function Jogo() {
         </div>
       </section>
 
+      {/* Trailer: preload="metadata" baixa só o começo; o vídeo inteiro (7,9 MB) carrega ao dar play */}
+      <section className="container trailer-section" aria-labelledby="trailer-title">
+        <SectionTitle id="trailer-title">TRAILER</SectionTitle>
+        <video className="trailer-video" src={links.trailer} controls playsInline preload="metadata">
+          Seu navegador não consegue mostrar o vídeo. <a href={links.trailer}>Baixe o trailer</a>.
+        </video>
+      </section>
+
       <section className="container game-section">
         <div className="game-card-wrap">
           <article className="card card-soft feature-card">
