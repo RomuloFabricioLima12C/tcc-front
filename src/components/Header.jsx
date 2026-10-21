@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import Crop from './Crop.jsx'
 import ThemeCrop from './ThemeImage.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
 import { img, svg } from '../assets.js'
@@ -57,7 +58,8 @@ function ChartIcon() {
 export default function Header() {
   const { pathname } = useLocation()
   // Como no Figma: 5 links, sem o da página atual (nas páginas fora do menu, sai o último).
-  const items = mainNav.filter((item) => item.to !== pathname).slice(0, 5)
+  // O jogo não entra no menu: ele tem o ícone de controle ao lado do tema, sempre visível.
+  const items = mainNav.filter((item) => item.to !== pathname && item.to !== '/jogo').slice(0, 5)
   const sessao = lerSessao()
   const nome = sessao?.usuario?.nome || sessao?.usuario?.email || 'você'
 
@@ -76,7 +78,7 @@ export default function Header() {
       <div className="header-tools">
         <SearchBar />
       </div>
-      {/* Lado direito: atalho do Relatório + conta (ou Entrar, sem login) e, abaixo, o tema */}
+      {/* Lado direito: atalho do Relatório + conta (ou Entrar, sem login) e, abaixo, o tema e o jogo */}
       <div className="header-side">
         <nav className="header-conta" aria-label="Conta">
           {sessao ? (
@@ -104,7 +106,12 @@ export default function Header() {
             </>
           )}
         </nav>
-        <ThemeToggle />
+        <div className="header-atalhos">
+          <ThemeToggle />
+          <NavLink to="/jogo" className="header-game" aria-label="Nosso game" title="Nosso game">
+            <Crop s={img.iconGame} />
+          </NavLink>
+        </div>
       </div>
     </header>
   )

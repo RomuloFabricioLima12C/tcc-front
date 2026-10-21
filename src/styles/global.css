@@ -373,6 +373,28 @@ img {
   gap: 12px;
 }
 
+/* Tema + controle do jogo (o jogo saiu do menu e fica sempre aqui) */
+.header-atalhos {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-game {
+  display: block;
+  border-radius: 8px;
+  transition: transform 0.15s ease;
+}
+
+.header-game .crop {
+  --cw: 40px;
+}
+
+.header-game:hover,
+.header-game.active {
+  transform: scale(1.12);
+}
+
 .header-conta {
   height: var(--hdr-row-h);
   display: flex;
@@ -990,6 +1012,7 @@ img {
 
 /* Celular no tema escuro: controle de videogame e o "PERFIL" (desenhos pretos) ficam brancos */
 :root[data-theme='dark'] .m-game img,
+:root[data-theme='dark'] .header-game img,
 :root[data-theme='dark'] .m-perfil-label img {
   filter: invert(1);
 }
