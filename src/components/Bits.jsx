@@ -51,8 +51,16 @@ export function Sparkle({ className = '' }) {
   return <ThemeCrop light={img.sparkle} dark={img.sparkleDark} className={`sparkle ${className}`} />
 }
 
-// Área de vídeo do design (ainda sem vídeo definido): card cinza com o botão de play.
-export function VideoCard({ title }) {
+// Área de vídeo do design. Com `src`, mostra o vídeo de verdade (sem som);
+// sem `src`, o card cinza com o botão de play ("em breve").
+export function VideoCard({ title, src }) {
+  if (src) {
+    return (
+      <video className="video-card video-card-player" src={src} title={title} controls muted playsInline preload="metadata">
+        Seu navegador não consegue mostrar o vídeo. <a href={src}>Baixe o vídeo</a>.
+      </video>
+    )
+  }
   return (
     <div className="video-card" role="img" aria-label={`Vídeo: ${title} (em breve)`}>
       <Crop s={img.play} className="video-play" />

@@ -18,7 +18,10 @@
       // ?theme=dark ou ?theme=light na URL força um tema (útil para apresentar/testar).
       try {
         var t = new URLSearchParams(location.search).get('theme') || localStorage.getItem('lightlab-theme');
-        if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t;
+        // Sem tema escolhido: segue o aparelho. Com o celular no modo escuro, o site já abre no tema escuro
+        // dele (senão o navegador escurecia a página sozinho e os ícones e o PERFIL ficavam pretos).
+        if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
       } catch (e) {}
     </script>
   </head>

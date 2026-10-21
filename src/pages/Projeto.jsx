@@ -2,7 +2,7 @@ import { SiteLayout } from '../components/Layout.jsx'
 import Crop from '../components/Crop.jsx'
 import { ThemeSvg } from '../components/ThemeImage.jsx'
 import { SectionTitle, VideoCard } from '../components/Bits.jsx'
-import { img, svg } from '../assets.js'
+import { img, links, svg } from '../assets.js'
 import '../styles/projeto.css'
 
 const steps = [
@@ -44,7 +44,8 @@ export default function Projeto() {
         </SectionTitle>
         <div className="video-wrap">
           <VideoDecor />
-          <VideoCard title="apresentação do projeto" />
+          {/* vídeo sem som (848x478, 47 s); só o começo carrega até apertar play */}
+          <VideoCard title="Apresentação do projeto" src={links.apresentacao} />
         </div>
       </section>
 

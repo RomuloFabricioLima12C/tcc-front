@@ -160,6 +160,7 @@ export const links = {
   faq: 'https://docs.google.com/forms/d/e/1FAIpQLSfwXNpS_fgRojmjS0fnF0WOaI9_c9e_ejyEnvuW59xaopeNsQ/viewform?usp=publish-editor',
   jogo: '/jogos/frutas-podres.html', // o jogo fica em public/jogos
   trailer: '/jogos/trailer-frutas-podres.mp4', // trailer do jogo (368x448, 56 s)
+  apresentacao: '/projeto/apresentacao.mp4', // vídeo da página Projeto (848x478, 47 s, sem som)
   instagram: {
     laura: 'https://www.instagram.com/laurarodrigues_araujo/',
     victor: 'https://www.instagram.com/oli.fustte/',

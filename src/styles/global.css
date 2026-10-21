@@ -715,6 +715,14 @@ img {
   place-items: center;
 }
 
+/* Vídeo de verdade no lugar do card "em breve": mantém a proporção do vídeo */
+.video-card-player {
+  display: block;
+  aspect-ratio: 848 / 478;
+  background: #000;
+  object-fit: contain;
+}
+
 .video-play {
   --cw: clamp(82px, 16.7vw, 240px);
 }
@@ -996,6 +1004,11 @@ img {
   .video-card {
     aspect-ratio: 346 / 260;
     border-radius: 45px;
+  }
+
+  .video-card-player {
+    aspect-ratio: 848 / 478;
+    border-radius: 24px;
   }
 }
 
